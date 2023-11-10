@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"context"
 	"errors"
 	"math/big"
 	"net/http"
@@ -211,12 +212,16 @@ func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 		}
 	}()
 
-	proxyInstance.closableComponents.Add(proxyInstance.httpServer)
-
 	return proxyInstance, nil
 }
 
 // Close will close the proxy
 func (p *proxy) Close() {
 	p.closableComponents.Close()
+
+	shutdownContext, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	_ = p.httpServer.Shutdown(shutdownContext)
+	_ = p.httpServer.Close()
 }
