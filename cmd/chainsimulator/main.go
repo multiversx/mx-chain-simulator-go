@@ -14,6 +14,7 @@ import (
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
 	"github.com/multiversx/mx-chain-simulator-go/config"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy"
 	"github.com/urfave/cli"
 )
@@ -115,20 +116,23 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	time.Sleep(time.Second)
 
+	simulatorFacade, err := facade.NewSimulatorFacade(simulator)
+	if err != nil {
+		return err
+	}
+
 	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	proxyInstance, err := proxy.CreateProxy(proxy.ArgsProxy{
-		Config:       outputProxyConfigs.Config,
-		NodeHandler:  metaNode,
-		PathToConfig: outputProxyConfigs.PathToTempConfig,
+		Config:          outputProxyConfigs.Config,
+		NodeHandler:     metaNode,
+		PathToConfig:    outputProxyConfigs.PathToTempConfig,
+		SimulatorFacade: simulatorFacade,
 	})
 	if err != nil {
 		return err
 	}
 
-	err = simulator.GenerateBlocks(85)
-	if err != nil {
-		return err
-	}
+	proxyInstance.Start()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)

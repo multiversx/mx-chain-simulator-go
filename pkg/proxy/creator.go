@@ -7,11 +7,14 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/process"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-proxy-go/api"
+	"github.com/multiversx/mx-chain-proxy-go/api/shared"
 	"github.com/multiversx/mx-chain-proxy-go/common"
 	"github.com/multiversx/mx-chain-proxy-go/config"
 	"github.com/multiversx/mx-chain-proxy-go/data"
@@ -28,20 +31,23 @@ var log = logger.GetOrCreate("proxy")
 
 // ArgsProxy holds the arguments needed to create a new instance of proxy
 type ArgsProxy struct {
-	Config       *config.Config
-	NodeHandler  process.NodeHandler
-	PathToConfig string
+	Config          *config.Config
+	NodeHandler     process.NodeHandler
+	PathToConfig    string
+	SimulatorFacade SimulatorFacade
 }
 
 type proxy struct {
 	closableComponents *data.ClosableComponentsHandler
 	httpServer         *http.Server
+	simulatorFacade    SimulatorFacade
 }
 
 // CreateProxy will create a new instance of proxy
 func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 	proxyInstance := &proxy{
 		closableComponents: data.NewClosableComponentsHandler(),
+		simulatorFacade:    args.SimulatorFacade,
 	}
 
 	statusMetricsProvider := metrics.NewStatusMetrics()
@@ -204,15 +210,45 @@ func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 		false,
 	)
 
+	proxyInstance.addExtraEndpoints()
+
+	return proxyInstance, nil
+}
+
+func (p *proxy) Start() {
 	go func() {
-		err = proxyInstance.httpServer.ListenAndServe()
+		err := p.httpServer.ListenAndServe()
 		if err != nil {
 			log.Error("cannot ListenAndServe()", "err", err)
 			os.Exit(1)
 		}
 	}()
+}
 
-	return proxyInstance, nil
+func (p *proxy) addExtraEndpoints() {
+	ws := p.httpServer.Handler.(*gin.Engine)
+
+	ws.GET("/simulator/generate-blocks/:num", func(c *gin.Context) {
+		numStr := c.Param("num")
+		if numStr == "" {
+			shared.RespondWithBadRequest(c, "err invalid number of blocks")
+			return
+		}
+
+		num, err := strconv.Atoi(numStr)
+		if err != nil {
+			shared.RespondWithBadRequest(c, "cannot convert string to number")
+			return
+		}
+
+		err = p.simulatorFacade.GenerateBlocks(num)
+		if err != nil {
+			shared.RespondWithInternalError(c, errors.New("cannot generate blocks"), err)
+			return
+		}
+
+		shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+	})
 }
 
 // Close will close the proxy
