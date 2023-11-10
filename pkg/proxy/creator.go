@@ -228,6 +228,7 @@ func (p *proxy) Start() {
 	}()
 }
 
+// TODO move this in a new component
 func (p *proxy) addExtraEndpoints() {
 	ws := p.httpServer.Handler.(*gin.Engine)
 
