@@ -9,6 +9,7 @@ import (
 	"github.com/multiversx/mx-chain-proxy-go/data"
 )
 
+// ArgsProxyConfigs holds the arguments needed to create the proxy configs
 type ArgsProxyConfigs struct {
 	TemDir            string
 	PathToProxyConfig string
@@ -16,11 +17,13 @@ type ArgsProxyConfigs struct {
 	RestApiInterfaces map[uint32]string
 }
 
+// ArgsOutputConfig holds the output arguments for proxy configs
 type ArgsOutputConfig struct {
 	Config           *config.Config
 	PathToTempConfig string
 }
 
+// CreateProxyConfigs will create the proxy configs
 func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 	newConfigsPath := path.Join(args.TemDir, "proxyConfig")
 

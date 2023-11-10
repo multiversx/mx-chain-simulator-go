@@ -25,6 +25,7 @@ import (
 
 var log = logger.GetOrCreate("proxy")
 
+// ArgsProxy holds the arguments needed to create a new instance of proxy
 type ArgsProxy struct {
 	Config       *config.Config
 	NodeHandler  process.NodeHandler
@@ -36,6 +37,7 @@ type proxy struct {
 	httpServer         *http.Server
 }
 
+// CreateProxy will create a new instance of proxy
 func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 	proxyInstance := &proxy{
 		closableComponents: data.NewClosableComponentsHandler(),
@@ -214,6 +216,7 @@ func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 	return proxyInstance, nil
 }
 
+// Close will close the proxy
 func (p *proxy) Close() {
 	p.closableComponents.Close()
 }
