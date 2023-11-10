@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/multiversx/mx-chain-core-go/core"
@@ -129,9 +130,9 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt, os.Kill)
-	<-quit
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
+	<-interrupt
 
 	log.Info("close")
 	err = simulator.Close()
