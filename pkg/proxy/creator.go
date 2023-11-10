@@ -209,6 +209,9 @@ func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 		false,
 		false,
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	proxyInstance.addExtraEndpoints()
 
