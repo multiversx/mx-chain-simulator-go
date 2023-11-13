@@ -218,6 +218,7 @@ func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 	return proxyInstance, nil
 }
 
+// Start will start the proxy
 func (p *proxy) Start() {
 	go func() {
 		err := p.httpServer.ListenAndServe()
