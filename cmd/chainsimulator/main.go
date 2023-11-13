@@ -11,6 +11,7 @@ import (
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/core/closing"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator"
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
 	"github.com/multiversx/mx-chain-simulator-go/config"
@@ -98,7 +99,8 @@ func startChainSimulator(ctx *cli.Context) error {
 		Value:    20,
 	}
 
-	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), 3, pathToNodeConfig, startTime, roundDurationInMillis, roundsPerEpoch, true)
+	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
+	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), 3, pathToNodeConfig, startTime, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
 	if err != nil {
 		return err
 	}

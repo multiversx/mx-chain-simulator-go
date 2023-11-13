@@ -3,8 +3,9 @@ module github.com/multiversx/mx-chain-simulator-go
 go 1.20
 
 require (
+	github.com/gin-gonic/gin v1.9.1
 	github.com/multiversx/mx-chain-core-go v1.2.16
-	github.com/multiversx/mx-chain-go v1.6.2-0.20231109192427-1882d25c9c83
+	github.com/multiversx/mx-chain-go v1.6.2-0.20231113080605-ce9718a5188e
 	github.com/multiversx/mx-chain-logger-go v1.0.13
 	github.com/multiversx/mx-chain-proxy-go v1.1.41
 	github.com/urfave/cli v1.22.10
@@ -37,7 +38,6 @@ require (
 	github.com/gin-contrib/pprof v1.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-contrib/static v0.0.1 // indirect
-	github.com/gin-gonic/gin v1.9.1 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
