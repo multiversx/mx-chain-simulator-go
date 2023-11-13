@@ -107,12 +107,21 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	log.Info("simulators were initialized")
+
+	err = simulator.GenerateBlocks(1)
+	if err != nil {
+		return err
+	}
+
+	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            os.TempDir(),
 		PathToProxyConfig: pathToProxyConfig,
 		ServerPort:        cfg.Config.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
+		AddressConverter:  metaNode.GetCoreComponents().AddressPubKeyConverter(),
 	})
 	if err != nil {
 		return err
@@ -120,11 +129,11 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	time.Sleep(time.Second)
 
-	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	proxyInstance, err := creator.CreateProxy(creator.ArgsProxy{
-		Config:       outputProxyConfigs.Config,
-		NodeHandler:  metaNode,
-		PathToConfig: outputProxyConfigs.PathToTempConfig,
+		Config:        outputProxyConfigs.Config,
+		NodeHandler:   metaNode,
+		PathToConfig:  outputProxyConfigs.PathToTempConfig,
+		PathToPemFile: outputProxyConfigs.PathToPemFile,
 	})
 	if err != nil {
 		return err
