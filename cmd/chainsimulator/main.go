@@ -16,7 +16,9 @@ import (
 	"github.com/multiversx/mx-chain-logger-go/file"
 	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
-	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy"
+	endpoints "github.com/multiversx/mx-chain-simulator-go/pkg/proxy/api"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/creator"
 	"github.com/urfave/cli"
 )
 
@@ -106,7 +108,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
-	outputProxyConfigs, err := proxy.CreateProxyConfigs(proxy.ArgsProxyConfigs{
+	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            os.TempDir(),
 		PathToProxyConfig: pathToProxyConfig,
 		ServerPort:        cfg.Config.ServerPort,
@@ -118,18 +120,27 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	time.Sleep(time.Second)
 
+	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
+	proxyInstance, err := creator.CreateProxy(creator.ArgsProxy{
+		Config:       outputProxyConfigs.Config,
+		NodeHandler:  metaNode,
+		PathToConfig: outputProxyConfigs.PathToTempConfig,
+	})
+	if err != nil {
+		return err
+	}
+
 	simulatorFacade, err := facade.NewSimulatorFacade(simulator)
 	if err != nil {
 		return err
 	}
 
-	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
-	proxyInstance, err := proxy.CreateProxy(proxy.ArgsProxy{
-		Config:          outputProxyConfigs.Config,
-		NodeHandler:     metaNode,
-		PathToConfig:    outputProxyConfigs.PathToTempConfig,
-		SimulatorFacade: simulatorFacade,
-	})
+	endpointsProc, err := endpoints.NewEndpointsProcessor(simulatorFacade)
+	if err != nil {
+		return err
+	}
+
+	err = endpointsProc.ExtendProxyServer(proxyInstance.GetHttpServer())
 	if err != nil {
 		return err
 	}

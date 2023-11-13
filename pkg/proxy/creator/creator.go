@@ -1,4 +1,4 @@
-package proxy
+package creator
 
 import (
 	"context"
@@ -7,14 +7,11 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/process"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-proxy-go/api"
-	"github.com/multiversx/mx-chain-proxy-go/api/shared"
 	"github.com/multiversx/mx-chain-proxy-go/common"
 	"github.com/multiversx/mx-chain-proxy-go/config"
 	"github.com/multiversx/mx-chain-proxy-go/data"
@@ -25,29 +22,27 @@ import (
 	"github.com/multiversx/mx-chain-proxy-go/process/database"
 	processFactory "github.com/multiversx/mx-chain-proxy-go/process/factory"
 	versionsFactory "github.com/multiversx/mx-chain-proxy-go/versions/factory"
+	proxy2 "github.com/multiversx/mx-chain-simulator-go/pkg/proxy"
 )
 
 var log = logger.GetOrCreate("proxy")
 
 // ArgsProxy holds the arguments needed to create a new instance of proxy
 type ArgsProxy struct {
-	Config          *config.Config
-	NodeHandler     process.NodeHandler
-	PathToConfig    string
-	SimulatorFacade SimulatorFacade
+	PathToConfig string
+	Config       *config.Config
+	NodeHandler  process.NodeHandler
 }
 
 type proxy struct {
 	closableComponents *data.ClosableComponentsHandler
 	httpServer         *http.Server
-	simulatorFacade    SimulatorFacade
 }
 
 // CreateProxy will create a new instance of proxy
-func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
+func CreateProxy(args ArgsProxy) (proxy2.ProxyHandler, error) {
 	proxyInstance := &proxy{
 		closableComponents: data.NewClosableComponentsHandler(),
-		simulatorFacade:    args.SimulatorFacade,
 	}
 
 	statusMetricsProvider := metrics.NewStatusMetrics()
@@ -213,8 +208,6 @@ func CreateProxy(args ArgsProxy) (ProxyHandler, error) {
 		return nil, err
 	}
 
-	proxyInstance.addExtraEndpoints()
-
 	return proxyInstance, nil
 }
 
@@ -229,31 +222,8 @@ func (p *proxy) Start() {
 	}()
 }
 
-// TODO move this in a new component
-func (p *proxy) addExtraEndpoints() {
-	ws := p.httpServer.Handler.(*gin.Engine)
-
-	ws.GET("/simulator/generate-blocks/:num", func(c *gin.Context) {
-		numStr := c.Param("num")
-		if numStr == "" {
-			shared.RespondWithBadRequest(c, "err invalid number of blocks")
-			return
-		}
-
-		num, err := strconv.Atoi(numStr)
-		if err != nil {
-			shared.RespondWithBadRequest(c, "cannot convert string to number")
-			return
-		}
-
-		err = p.simulatorFacade.GenerateBlocks(num)
-		if err != nil {
-			shared.RespondWithInternalError(c, errors.New("cannot generate blocks"), err)
-			return
-		}
-
-		shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
-	})
+func (p *proxy) GetHttpServer() *http.Server {
+	return p.httpServer
 }
 
 // Close will close the proxy

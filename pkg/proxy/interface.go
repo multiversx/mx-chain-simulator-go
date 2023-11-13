@@ -1,13 +1,10 @@
 package proxy
 
+import "net/http"
+
 // ProxyHandler defines what a proxy handler should be able to do
 type ProxyHandler interface {
 	Start()
+	GetHttpServer() *http.Server
 	Close()
-}
-
-// SimulatorFacade defines what a simulator facade should be able to do
-type SimulatorFacade interface {
-	GenerateBlocks(numOfBlocks int) error
-	IsInterfaceNil() bool
 }

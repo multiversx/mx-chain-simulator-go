@@ -1,4 +1,4 @@
-package proxy
+package configs
 
 import (
 	"os/exec"
