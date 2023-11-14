@@ -10,7 +10,7 @@ curl --request POST \
 	"receiver":"'${MY_ADDR}'"
 }'
 
-sleep 0.1
+sleep 0.2
 
 # Generate 1 block
 curl --request GET \

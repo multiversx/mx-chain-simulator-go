@@ -10,6 +10,11 @@ docker-build:
 
 
 
+IMAGE_NAME=simulator_image
 run-faucet-test:
 	$(MAKE) docker-build
-	docker run -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
+	docker rm ${IMAGE_NAME} 2> /dev/null
+	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
+	sleep 2s
+	cd examples/faucet && /bin/bash faucet.sh
+	docker stop "${IMAGE_NAME}"
