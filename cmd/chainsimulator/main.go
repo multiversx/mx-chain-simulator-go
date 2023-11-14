@@ -88,7 +88,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while initializing the logger", err)
 	}
 
-	configsFetcher, err := configs.NewConfigsFetcher()
+	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo)
 	if err != nil {
 		return err
 	}
@@ -106,14 +106,14 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	startTime := time.Now().Unix()
-	roundDurationInMillis := uint64(6000)
+	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
 	roundsPerEpoch := core.OptionalUint64{
 		HasValue: true,
-		Value:    20,
+		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
 	}
 
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
-	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), 3, nodeConfigs, startTime, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
+	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), uint32(cfg.Config.Simulator.NumOfShards), nodeConfigs, startTime, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            os.TempDir(),
 		PathToProxyConfig: proxyConfigs,
-		ServerPort:        cfg.Config.ServerPort,
+		ServerPort:        cfg.Config.Simulator.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
 		AddressConverter:  metaNode.GetCoreComponents().AddressPubKeyConverter(),
 	})

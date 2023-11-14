@@ -16,18 +16,20 @@ import (
 var log = logger.GetOrCreate("configs")
 
 const (
-	mxNodeRepo  = "https://github.com/multiversx/mx-chain-go"
-	mxProxyRepo = "https://github.com/multiversx/mx-chain-proxy-go"
-
 	appNode  = "node"
 	appProxy = "proxy"
 )
 
 type fetcher struct {
+	mxChainNodeRepo string
+	mxChainProxy    string
 }
 
-func NewConfigsFetcher() (*fetcher, error) {
-	return &fetcher{}, nil
+func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string) (*fetcher, error) {
+	return &fetcher{
+		mxChainNodeRepo: mxChainNodeRepo,
+		mxChainProxy:    mxChainProxy,
+	}, nil
 }
 
 // FetchProxyConfigs will try to fetch the proxy configs
@@ -40,10 +42,10 @@ func (f *fetcher) FetchProxyConfigs(info *debug.BuildInfo, pathWhereToPutConfigs
 		return nil
 	}
 
-	mxProxyTag := extractTag(info, mxProxyRepo)
-	log.Info("fetching proxy configs...", "repo", mxProxyRepo, "version", mxProxyTag)
+	mxProxyTag := extractTag(info, f.mxChainProxy)
+	log.Info("fetching proxy configs...", "repo", f.mxChainProxy, "version", mxProxyTag)
 
-	return f.fetchConfigFolder(mxProxyRepo, mxProxyTag, pathWhereToPutConfigs, appProxy)
+	return f.fetchConfigFolder(f.mxChainProxy, mxProxyTag, pathWhereToPutConfigs, appProxy)
 }
 
 // FetchNodeConfigs will try to fetch the node configs
@@ -56,10 +58,10 @@ func (f *fetcher) FetchNodeConfigs(info *debug.BuildInfo, pathWhereToPutConfigs 
 		return nil
 	}
 
-	mxNodeTag := extractTag(info, mxNodeRepo)
-	log.Info("fetching node configs...", "repo", mxNodeRepo, "version", mxNodeTag)
+	mxNodeTag := extractTag(info, f.mxChainNodeRepo)
+	log.Info("fetching node configs...", "repo", f.mxChainNodeRepo, "version", mxNodeTag)
 
-	return f.fetchConfigFolder(mxNodeRepo, mxNodeTag, pathWhereToPutConfigs, appNode)
+	return f.fetchConfigFolder(f.mxChainNodeRepo, mxNodeTag, pathWhereToPutConfigs, appNode)
 }
 
 func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSaveConfig string, app string) error {

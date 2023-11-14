@@ -8,8 +8,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	mxNodeRepo  = "https://github.com/multiversx/mx-chain-go"
+	mxProxyRepo = "https://github.com/multiversx/mx-chain-proxy-go"
+)
+
 func TestConfigsFetcher(t *testing.T) {
-	cf, _ := NewConfigsFetcher()
+	cf, _ := NewConfigsFetcher(mxNodeRepo, mxProxyRepo)
 	debug.ReadBuildInfo()
 
 	defer func() {
