@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 	"time"
 
@@ -51,6 +53,8 @@ func main() {
 		logLevel,
 		logSaveFile,
 		disableAnsiColor,
+		pathToNodeConfigs,
+		pathToProxyConfigs,
 	}
 
 	app.Authors = []cli.Author{
@@ -69,21 +73,11 @@ func main() {
 	}
 }
 
-// TODO implement a mechanism that will fetch the config base on the go.mod --> for node and proxy
-const (
-	pathToNodeConfig  = "../../../mx-chain-go/cmd/node/config"
-	pathToProxyConfig = "../../../mx-chain-proxy-go/cmd/proxy/config"
-)
-
 func startChainSimulator(ctx *cli.Context) error {
-	//buildInfo, ok := debug.ReadBuildInfo()
-	//if !ok {
-	//	panic("Can't read BuildInfo")
-	//}
-	//fmt.Println("Dependencies:")
-	//for _, dep := range buildInfo.Deps {
-	//	fmt.Printf("  %s %s\n", dep.Path, dep.Version)
-	//}
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		return errors.New("cannot read build info")
+	}
 
 	cfg, err := loadMainConfig(ctx.GlobalString(configurationFile.Name))
 	if err != nil {
@@ -94,6 +88,23 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while initializing the logger", err)
 	}
 
+	configsFetcher, err := configs.NewConfigsFetcher()
+	if err != nil {
+		return err
+	}
+
+	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
+	err = configsFetcher.FetchNodeConfigs(buildInfo, nodeConfigs)
+	if err != nil {
+		return err
+	}
+
+	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
+	err = configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
+	if err != nil {
+		return err
+	}
+
 	startTime := time.Now().Unix()
 	roundDurationInMillis := uint64(6000)
 	roundsPerEpoch := core.OptionalUint64{
@@ -102,7 +113,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
-	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), 3, pathToNodeConfig, startTime, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
+	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), 3, nodeConfigs, startTime, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
 	if err != nil {
 		return err
 	}
@@ -118,7 +129,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            os.TempDir(),
-		PathToProxyConfig: pathToProxyConfig,
+		PathToProxyConfig: proxyConfigs,
 		ServerPort:        cfg.Config.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
 		AddressConverter:  metaNode.GetCoreComponents().AddressPubKeyConverter(),

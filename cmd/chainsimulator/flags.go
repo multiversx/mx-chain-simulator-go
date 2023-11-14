@@ -28,4 +28,15 @@ var (
 		Name:  "disable-ansi-color",
 		Usage: "Boolean option for disabling ANSI colors in the logging system.",
 	}
+
+	pathToNodeConfigs = cli.StringFlag{
+		Name:  "node-configs",
+		Usage: "The path to node configs",
+		Value: "./config/node/config",
+	}
+	pathToProxyConfigs = cli.StringFlag{
+		Name:  "proxy-configs",
+		Usage: "The path to proxy configs",
+		Value: "./config/proxy/config",
+	}
 )
