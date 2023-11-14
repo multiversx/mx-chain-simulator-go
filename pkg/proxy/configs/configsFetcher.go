@@ -40,9 +40,8 @@ func (f *fetcher) FetchProxyConfigs(info *debug.BuildInfo, pathWhereToPutConfigs
 		return nil
 	}
 
-	log.Info("fetching proxy configs...")
-
 	mxProxyTag := extractTag(info, mxProxyRepo)
+	log.Info("fetching proxy configs...", "repo", mxProxyRepo, "version", mxProxyTag)
 
 	return f.fetchConfigFolder(mxProxyRepo, mxProxyTag, pathWhereToPutConfigs, appProxy)
 }
@@ -57,9 +56,8 @@ func (f *fetcher) FetchNodeConfigs(info *debug.BuildInfo, pathWhereToPutConfigs 
 		return nil
 	}
 
-	log.Info("fetching node configs...")
-
 	mxNodeTag := extractTag(info, mxNodeRepo)
+	log.Info("fetching node configs...", "repo", mxNodeRepo, "version", mxNodeTag)
 
 	return f.fetchConfigFolder(mxNodeRepo, mxNodeTag, pathWhereToPutConfigs, appNode)
 }
