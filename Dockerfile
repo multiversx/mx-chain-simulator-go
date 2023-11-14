@@ -16,6 +16,10 @@ RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chai
 
 FROM ubuntu:22.04
 
+RUN apt-get update \
+    && apt-get -y install git \
+    && apt-get clean
+
 COPY --from=builder /multiversx/cmd/chainsimulator /multiversx
 
 EXPOSE 8085
