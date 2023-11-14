@@ -25,7 +25,7 @@ func NewEndpointsProcessor(facade SimulatorFacade) (*endpointsProcessor, error) 
 	}, nil
 }
 
-// ExtendProxyServer will extend the proxy server with extra endponts
+// ExtendProxyServer will extend the proxy server with extra endpoints
 func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws, ok := httpServer.Handler.(*gin.Engine)
 	if !ok {

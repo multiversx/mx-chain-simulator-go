@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	log          = logger.GetOrCreate("indexer")
+	log          = logger.GetOrCreate("chainsimulator")
 	helpTemplate = `NAME:
    {{.Name}} - {{.Usage}}
 USAGE:
@@ -76,15 +76,6 @@ const (
 )
 
 func startChainSimulator(ctx *cli.Context) error {
-	//buildInfo, ok := debug.ReadBuildInfo()
-	//if !ok {
-	//	panic("Can't read BuildInfo")
-	//}
-	//fmt.Println("Dependencies:")
-	//for _, dep := range buildInfo.Deps {
-	//	fmt.Printf("  %s %s\n", dep.Path, dep.Version)
-	//}
-
 	cfg, err := loadMainConfig(ctx.GlobalString(configurationFile.Name))
 	if err != nil {
 		return fmt.Errorf("%w while loading the config file", err)

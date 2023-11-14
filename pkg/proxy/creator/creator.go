@@ -5,7 +5,6 @@ import (
 	"errors"
 	"math/big"
 	"net/http"
-	"os"
 	"path"
 	"time"
 
@@ -130,7 +129,6 @@ func CreateProxy(args ArgsProxy) (proxy2.ProxyHandler, error) {
 
 	proxyInstance.closableComponents.Add(nodeGroupProc, valStatsProc, nodeStatusProc, bp)
 
-	//nodeGroupProc.StartCacheUpdate()
 	valStatsProc.StartCacheUpdate()
 	nodeStatusProc.StartCacheUpdate()
 
@@ -216,12 +214,12 @@ func (p *proxy) Start() {
 	go func() {
 		err := p.httpServer.ListenAndServe()
 		if err != nil {
-			log.Error("cannot ListenAndServe()", "err", err)
-			os.Exit(1)
+			log.Debug("cannot ListenAndServe()", "err", err)
 		}
 	}()
 }
 
+// GetHttpServer will return the http server
 func (p *proxy) GetHttpServer() *http.Server {
 	return p.httpServer
 }
