@@ -82,7 +82,7 @@ func CreateProxy(args ArgsProxy) (proxy2.ProxyHandler, error) {
 		return nil, err
 	}
 
-	faucetValue, _ := big.NewInt(0).SetString("1000000000000000000", 10)
+	faucetValue, _ := big.NewInt(0).SetString("10000000000000000000", 10)
 	faucetProc, err := processFactory.CreateFaucetProcessor(bp, shardCoord, faucetValue, pubKeyConverter, args.PathToPemFile)
 	if err != nil {
 		return nil, err
