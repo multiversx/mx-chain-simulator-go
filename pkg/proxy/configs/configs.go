@@ -14,6 +14,7 @@ import (
 
 const (
 	httpPrefix = "http://"
+	walletPem  = "walletKey.pem"
 )
 
 // ArgsProxyConfigs holds the arguments needed to create the proxy configs
@@ -59,7 +60,7 @@ func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 		})
 	}
 
-	pemFile := path.Join(newConfigsPath, "walletKey.pem")
+	pemFile := path.Join(newConfigsPath, walletPem)
 	err = generatePemFromInitialAddress(pemFile, args.InitialWallets)
 	if err != nil {
 		return nil, err

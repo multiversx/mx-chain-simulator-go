@@ -22,6 +22,7 @@ type fetcher struct {
 	mxChainProxy    string
 }
 
+// NewConfigsFetcher will create a new instance of fetcher
 func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler) (*fetcher, error) {
 	return &fetcher{
 		mxChainNodeRepo: mxChainNodeRepo,
