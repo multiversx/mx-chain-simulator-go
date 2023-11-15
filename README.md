@@ -27,3 +27,4 @@ Blocks are promptly generated through a dedicated endpoint whenever users initia
 Additionally, the simulator offers custom endpoints:
 
 - `simulator/generate-blocks/:num`: This endpoint initiates the generation of a specified number of blocks for each shard.
+- `simulator/initial-wallets`: This endpoint will return the initial wallets (address and private key hex encoded)
