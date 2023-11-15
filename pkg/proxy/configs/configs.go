@@ -1,7 +1,6 @@
 package configs
 
 import (
-	"encoding/hex"
 	"encoding/pem"
 	"os"
 	"os/exec"
@@ -24,7 +23,6 @@ type ArgsProxyConfigs struct {
 	ServerPort        int
 	RestApiInterfaces map[uint32]string
 	InitialWallets    map[uint32]*dtos.WalletKey
-	AddressConverter  core.PubkeyConverter
 }
 
 // ArgsOutputConfig holds the output arguments for proxy configs
@@ -62,7 +60,7 @@ func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 	}
 
 	pemFile := path.Join(newConfigsPath, "walletKey.pem")
-	err = generatePemFromInitialAddress(pemFile, args.InitialWallets, args.AddressConverter)
+	err = generatePemFromInitialAddress(pemFile, args.InitialWallets)
 	if err != nil {
 		return nil, err
 	}
@@ -74,22 +72,16 @@ func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 	}, nil
 }
 
-func generatePemFromInitialAddress(fileName string, initialAddresses map[uint32]*dtos.WalletKey, addressConverter core.PubkeyConverter) error {
-	file, errO := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, core.FileModeReadWrite)
-	if errO != nil {
-		return errO
+func generatePemFromInitialAddress(fileName string, initialAddresses map[uint32]*dtos.WalletKey) error {
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, core.FileModeReadWrite)
+	if err != nil {
+		return err
 	}
 
 	for _, wallet := range initialAddresses {
-		addressBytes, err := addressConverter.Decode(wallet.Address)
-		if err != nil {
-			return err
-		}
-
-		skBytes := append([]byte(wallet.PrivateKeyHex), []byte(hex.EncodeToString(addressBytes))...)
 		blk := pem.Block{
 			Type:  "PRIVATE KEY for " + wallet.Address,
-			Bytes: skBytes,
+			Bytes: []byte(wallet.PrivateKeyHex),
 		}
 
 		err = pem.Encode(file, &blk)

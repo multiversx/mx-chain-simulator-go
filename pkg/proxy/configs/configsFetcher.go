@@ -1,12 +1,8 @@
 package configs
 
 import (
-	"fmt"
-	"io"
 	"os"
-	"os/exec"
 	"path"
-	"path/filepath"
 	"runtime/debug"
 	"strings"
 
@@ -21,14 +17,16 @@ const (
 )
 
 type fetcher struct {
+	gitFetcher      GitHandler
 	mxChainNodeRepo string
 	mxChainProxy    string
 }
 
-func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string) (*fetcher, error) {
+func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler) (*fetcher, error) {
 	return &fetcher{
 		mxChainNodeRepo: mxChainNodeRepo,
 		mxChainProxy:    mxChainProxy,
+		gitFetcher:      git,
 	}, nil
 }
 
@@ -66,12 +64,12 @@ func (f *fetcher) FetchNodeConfigs(info *debug.BuildInfo, pathWhereToPutConfigs 
 
 func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSaveConfig string, app string) error {
 	pathToRepo := path.Join(os.TempDir(), "repo")
-	err := cloneRepository(repo, pathToRepo)
+	err := f.gitFetcher.Clone(repo, pathToRepo)
 	if err != nil {
 		return err
 	}
 
-	err = checkoutCommit(pathToRepo, version)
+	err = f.gitFetcher.Checkout(pathToRepo, version)
 	if err != nil {
 		return err
 	}
@@ -103,69 +101,10 @@ func extractVersionOrCommit(versionStr string) string {
 	return versionStr
 }
 
-func cloneRepository(repoURL, destDir string) error {
-	cmd := exec.Command("git", "clone", repoURL, destDir)
-	res, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%s-%s", string(res), err.Error())
-	}
-
-	return nil
-}
-
-func checkoutCommit(repoDir, commitHash string) error {
-	cmd := exec.Command("git", "checkout", commitHash)
-	cmd.Dir = repoDir
-
-	res, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%s-%s", string(res), err.Error())
-	}
-
-	return nil
-}
-
-func copyFolderWithAllFiles(src, dst string) error {
-	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		relPath, err := filepath.Rel(src, path)
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return os.MkdirAll(filepath.Join(dst, relPath), info.Mode())
-		}
-
-		in, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer in.Close()
-
-		out, err := os.Create(filepath.Join(dst, relPath))
-		if err != nil {
-			return err
-		}
-		defer out.Close()
-
-		_, err = io.Copy(out, in)
-		if err != nil {
-			return err
-		}
-
-		return out.Close()
-	})
-}
-
 func folderExists(folderPath string) (bool, error) {
 	_, err := os.Stat(folderPath)
 	if os.IsNotExist(err) {
 		return false, nil
-	} else if err != nil {
-		return false, err
 	}
 
 	return true, nil

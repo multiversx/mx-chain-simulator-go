@@ -1,10 +1,10 @@
 package configs
 
 import (
-	"os"
 	"runtime/debug"
 	"testing"
 
+	"github.com/multiversx/mx-chain-simulator-go/testscommon"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,12 +14,12 @@ const (
 )
 
 func TestConfigsFetcher(t *testing.T) {
-	cf, _ := NewConfigsFetcher(mxNodeRepo, mxProxyRepo)
-	debug.ReadBuildInfo()
-
-	defer func() {
-		_ = os.RemoveAll("./test")
-	}()
+	dir := t.TempDir()
+	cf, _ := NewConfigsFetcher(mxNodeRepo, mxProxyRepo, &testscommon.GitFetcherStub{
+		CloneCalled: func(r, d string) error {
+			return nil
+		},
+	})
 
 	err := cf.FetchProxyConfigs(&debug.BuildInfo{
 		Deps: []*debug.Module{
@@ -32,7 +32,7 @@ func TestConfigsFetcher(t *testing.T) {
 				Version: "v1.1.41",
 			},
 		},
-	}, "./test")
+	}, dir)
 	require.Nil(t, err)
 
 }

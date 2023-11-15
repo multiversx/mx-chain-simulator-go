@@ -20,6 +20,7 @@ import (
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
 	endpoints "github.com/multiversx/mx-chain-simulator-go/pkg/proxy/api"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/creator"
 	"github.com/urfave/cli"
 )
@@ -88,7 +89,8 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while initializing the logger", err)
 	}
 
-	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo)
+	gitFetcher := git.NewGitFetcher()
+	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher)
 	if err != nil {
 		return err
 	}
@@ -132,7 +134,6 @@ func startChainSimulator(ctx *cli.Context) error {
 		PathToProxyConfig: proxyConfigs,
 		ServerPort:        cfg.Config.Simulator.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
-		AddressConverter:  metaNode.GetCoreComponents().AddressPubKeyConverter(),
 		InitialWallets:    simulator.GetInitialWalletKeys().ShardWallets,
 	})
 	if err != nil {
