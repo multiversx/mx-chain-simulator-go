@@ -133,6 +133,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		ServerPort:        cfg.Config.Simulator.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
 		AddressConverter:  metaNode.GetCoreComponents().AddressPubKeyConverter(),
+		InitialWallets:    simulator.GetInitialWalletKeys().ShardWallets,
 	})
 	if err != nil {
 		return err
