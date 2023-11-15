@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	log          = logger.GetOrCreate("indexer")
+	log          = logger.GetOrCreate("chainsimulator")
 	helpTemplate = `NAME:
    {{.Name}} - {{.Usage}}
 USAGE:

@@ -13,6 +13,10 @@ import (
 	"github.com/multiversx/mx-chain-proxy-go/data"
 )
 
+const (
+	httpPrefix = "http://"
+)
+
 // ArgsProxyConfigs holds the arguments needed to create the proxy configs
 type ArgsProxyConfigs struct {
 	TemDir            string
@@ -52,7 +56,7 @@ func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 	for shardID, nodeAPIInterface := range args.RestApiInterfaces {
 		cfg.Observers = append(cfg.Observers, &data.NodeData{
 			ShardId:  shardID,
-			Address:  "http://" + nodeAPIInterface,
+			Address:  httpPrefix + nodeAPIInterface,
 			IsSynced: true,
 		})
 	}

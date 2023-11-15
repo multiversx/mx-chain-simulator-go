@@ -26,7 +26,7 @@ func NewEndpointsProcessor(facade SimulatorFacade) (*endpointsProcessor, error) 
 	}, nil
 }
 
-// ExtendProxyServer will extend the proxy server with extra endponts
+// ExtendProxyServer will extend the proxy server with extra endpoints
 func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws, ok := httpServer.Handler.(*gin.Engine)
 	if !ok {
@@ -42,7 +42,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 func (ep *endpointsProcessor) generateBlocks(c *gin.Context) {
 	numStr := c.Param("num")
 	if numStr == "" {
-		shared.RespondWithBadRequest(c, "err invalid number of blocks")
+		shared.RespondWithBadRequest(c, "invalid number of blocks")
 		return
 	}
 
