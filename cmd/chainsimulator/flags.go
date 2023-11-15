@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/urfave/cli"
 )
@@ -38,5 +40,10 @@ var (
 		Name:  "proxy-configs",
 		Usage: "The path to proxy configs",
 		Value: "./config/proxy/config",
+	}
+	startTime = cli.Int64Flag{
+		Name:  "start-time",
+		Usage: "The start time of the chain",
+		Value: time.Now().Unix(),
 	}
 )

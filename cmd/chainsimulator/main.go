@@ -107,15 +107,15 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	startTime := time.Now().Unix()
 	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
 	roundsPerEpoch := core.OptionalUint64{
 		HasValue: true,
 		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
 	}
 
+	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
-	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), uint32(cfg.Config.Simulator.NumOfShards), nodeConfigs, startTime, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
+	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), uint32(cfg.Config.Simulator.NumOfShards), nodeConfigs, startTimeUnix, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
 	if err != nil {
 		return err
 	}
