@@ -20,9 +20,6 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v2
-      - name: Get dependencies
-        run: |
-          make get-dependencies
       - name: Unit tests
         run: |
           go test ./...
