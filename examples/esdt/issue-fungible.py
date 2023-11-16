@@ -57,7 +57,7 @@ def main():
 
     # send transaction
     tx_hash = provider.send_transaction(tx)
-
+    print(f"generated tx hash: {tx_hash}")
     time.sleep(1)
 
     # execute 5 block ( transaction needs to be executed on source, block on source has to be finalized...)
@@ -76,7 +76,7 @@ def main():
     if amount.balance != initial_supply:
         sys.exit(f"amount of token from balance is no equal with the initial supply: actual-{amount.balance}, expected-{initial_supply}")
 
-    print("success")
+    print("transaction was executed and tokens were created")
 
 
 def extract_token_identifier(tx: TransactionOnNetwork) -> str:
