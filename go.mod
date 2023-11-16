@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/multiversx/mx-chain-core-go v1.2.18
-	github.com/multiversx/mx-chain-go v1.6.4-0.20231116132727-06d1f1af8dfc
+	github.com/multiversx/mx-chain-go v1.6.4-0.20231116135219-ace713f34ca6
 	github.com/multiversx/mx-chain-logger-go v1.0.13
 	github.com/multiversx/mx-chain-proxy-go v1.1.41
 	github.com/stretchr/testify v1.8.4
