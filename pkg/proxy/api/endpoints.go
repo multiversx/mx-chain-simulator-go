@@ -33,7 +33,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 		return errors.New("cannot cast httpServer.Handler to gin.Engine")
 	}
 
-	ws.GET(generateBlocksEndpoint, ep.generateBlocks)
+	ws.POST(generateBlocksEndpoint, ep.generateBlocks)
 	ws.GET(initialWalletsEndpoint, ep.initialWallets)
 
 	return nil
