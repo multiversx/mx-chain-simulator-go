@@ -55,7 +55,7 @@ var (
 	numOfShards = cli.IntFlag{
 		Name:  "num-of-shards",
 		Usage: "The number of shards",
-		Value: 20,
+		Value: 3,
 	}
 	serverPort = cli.IntFlag{
 		Name:  "server-port",
