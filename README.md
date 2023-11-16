@@ -82,6 +82,7 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
 
 
 ## Contribution
+
 Contributions to the mx-chain-es-indexer-go module are welcomed. Whether you're interested in improving its features, 
 extending its capabilities, or addressing issues, your contributions can help the 
 community make the module even more robust.
