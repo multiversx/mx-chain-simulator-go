@@ -56,6 +56,7 @@ func main() {
 		disableAnsiColor,
 		pathToNodeConfigs,
 		pathToProxyConfigs,
+		startTime,
 	}
 
 	app.Authors = []cli.Author{
