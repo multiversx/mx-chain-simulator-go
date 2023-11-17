@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/multiversx/mx-chain-core-go/core/check"
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 )
 
 type simulatorFacade struct {
@@ -27,6 +28,11 @@ func (sf *simulatorFacade) GenerateBlocks(numOfBlocks int) error {
 		return errors.New("num of blocks must be greater than zero")
 	}
 	return sf.simulator.GenerateBlocks(numOfBlocks)
+}
+
+// GetInitialWalletKeys will return the initial wallets
+func (sf *simulatorFacade) GetInitialWalletKeys() *dtos.InitialWalletKeys {
+	return sf.simulator.GetInitialWalletKeys()
 }
 
 // IsInterfaceNil returns true if there is no value under the interface

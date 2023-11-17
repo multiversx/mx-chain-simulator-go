@@ -28,9 +28,10 @@ var log = logger.GetOrCreate("proxy")
 
 // ArgsProxy holds the arguments needed to create a new instance of proxy
 type ArgsProxy struct {
-	PathToConfig string
-	Config       *config.Config
-	NodeHandler  process.NodeHandler
+	PathToConfig  string
+	PathToPemFile string
+	Config        *config.Config
+	NodeHandler   process.NodeHandler
 }
 
 type proxy struct {
@@ -81,9 +82,8 @@ func CreateProxy(args ArgsProxy) (proxy2.ProxyHandler, error) {
 		return nil, err
 	}
 
-	// TODO faucet processor is disabled
-	faucetValue := big.NewInt(0)
-	faucetProc, err := processFactory.CreateFaucetProcessor(bp, shardCoord, faucetValue, pubKeyConverter, "")
+	faucetValue, _ := big.NewInt(0).SetString("10000000000000000000", 10)
+	faucetProc, err := processFactory.CreateFaucetProcessor(bp, shardCoord, faucetValue, pubKeyConverter, args.PathToPemFile)
 	if err != nil {
 		return nil, err
 	}

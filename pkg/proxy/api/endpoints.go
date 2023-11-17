@@ -12,6 +12,7 @@ import (
 
 const (
 	generateBlocksEndpoint = "/simulator/generate-blocks/:num"
+	initialWalletsEndpoint = "/simulator/initial-wallets"
 )
 
 type endpointsProcessor struct {
@@ -33,6 +34,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	}
 
 	ws.GET(generateBlocksEndpoint, ep.generateBlocks)
+	ws.GET(initialWalletsEndpoint, ep.initialWallets)
 
 	return nil
 }
@@ -57,4 +59,10 @@ func (ep *endpointsProcessor) generateBlocks(c *gin.Context) {
 	}
 
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) initialWallets(c *gin.Context) {
+	initialWallets := ep.facade.GetInitialWalletKeys()
+
+	shared.RespondWith(c, http.StatusOK, initialWallets, "", data.ReturnCodeSuccess)
 }

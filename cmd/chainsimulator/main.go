@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 	"time"
 
@@ -18,6 +20,7 @@ import (
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
 	endpoints "github.com/multiversx/mx-chain-simulator-go/pkg/proxy/api"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/creator"
 	"github.com/urfave/cli"
 )
@@ -51,6 +54,13 @@ func main() {
 		logLevel,
 		logSaveFile,
 		disableAnsiColor,
+		pathToNodeConfigs,
+		pathToProxyConfigs,
+		startTime,
+		roundsPerEpoch,
+		numOfShards,
+		serverPort,
+		roundDurationInMs,
 	}
 
 	app.Authors = []cli.Author{
@@ -69,41 +79,70 @@ func main() {
 	}
 }
 
-// TODO implement a mechanism that will fetch the config base on the go.mod --> for node and proxy
-const (
-	pathToNodeConfig  = "../../../mx-chain-go/cmd/node/config"
-	pathToProxyConfig = "../../../mx-chain-proxy-go/cmd/proxy/config"
-)
-
 func startChainSimulator(ctx *cli.Context) error {
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		return errors.New("cannot read build info")
+	}
+
 	cfg, err := loadMainConfig(ctx.GlobalString(configurationFile.Name))
 	if err != nil {
 		return fmt.Errorf("%w while loading the config file", err)
 	}
+
+	applyFlags(ctx, &cfg)
+
 	fileLogging, err := initializeLogger(ctx, cfg)
 	if err != nil {
 		return fmt.Errorf("%w while initializing the logger", err)
 	}
 
-	startTime := time.Now().Unix()
-	roundDurationInMillis := uint64(6000)
-	roundsPerEpoch := core.OptionalUint64{
-		HasValue: true,
-		Value:    20,
-	}
-
-	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
-	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), 3, pathToNodeConfig, startTime, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
+	gitFetcher := git.NewGitFetcher()
+	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher)
 	if err != nil {
 		return err
 	}
 
+	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
+	err = configsFetcher.FetchNodeConfigs(buildInfo, nodeConfigs)
+	if err != nil {
+		return err
+	}
+
+	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
+	err = configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
+	if err != nil {
+		return err
+	}
+
+	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
+	roundsPerEpoch := core.OptionalUint64{
+		HasValue: true,
+		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
+	}
+
+	startTimeUnix := ctx.GlobalInt64(startTime.Name)
+	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
+	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), uint32(cfg.Config.Simulator.NumOfShards), nodeConfigs, startTimeUnix, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
+	if err != nil {
+		return err
+	}
+
+	log.Info("simulators were initialized")
+
+	err = simulator.GenerateBlocks(1)
+	if err != nil {
+		return err
+	}
+
+	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            os.TempDir(),
-		PathToProxyConfig: pathToProxyConfig,
-		ServerPort:        cfg.Config.ServerPort,
+		PathToProxyConfig: proxyConfigs,
+		ServerPort:        cfg.Config.Simulator.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
+		InitialWallets:    simulator.GetInitialWalletKeys().ShardWallets,
 	})
 	if err != nil {
 		return err
@@ -111,11 +150,11 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	time.Sleep(time.Second)
 
-	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	proxyInstance, err := creator.CreateProxy(creator.ArgsProxy{
-		Config:       outputProxyConfigs.Config,
-		NodeHandler:  metaNode,
-		PathToConfig: outputProxyConfigs.PathToTempConfig,
+		Config:        outputProxyConfigs.Config,
+		NodeHandler:   metaNode,
+		PathToConfig:  outputProxyConfigs.PathToTempConfig,
+		PathToPemFile: outputProxyConfigs.PathToPemFile,
 	})
 	if err != nil {
 		return err

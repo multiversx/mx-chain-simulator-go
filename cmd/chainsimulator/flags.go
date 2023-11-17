@@ -1,7 +1,10 @@
 package main
 
 import (
+	"time"
+
 	logger "github.com/multiversx/mx-chain-logger-go"
+	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/urfave/cli"
 )
 
@@ -28,4 +31,58 @@ var (
 		Name:  "disable-ansi-color",
 		Usage: "Boolean option for disabling ANSI colors in the logging system.",
 	}
+
+	pathToNodeConfigs = cli.StringFlag{
+		Name:  "node-configs",
+		Usage: "The path to node configs",
+		Value: "./config/node/config",
+	}
+	pathToProxyConfigs = cli.StringFlag{
+		Name:  "proxy-configs",
+		Usage: "The path to proxy configs",
+		Value: "./config/proxy/config",
+	}
+	startTime = cli.Int64Flag{
+		Name:  "start-time",
+		Usage: "The start time of the chain",
+		Value: time.Now().Unix(),
+	}
+	roundsPerEpoch = cli.IntFlag{
+		Name:  "rounds-per-epoch",
+		Usage: "The number of rounds per epoch",
+		Value: 20,
+	}
+	numOfShards = cli.IntFlag{
+		Name:  "num-of-shards",
+		Usage: "The number of shards",
+		Value: 3,
+	}
+	serverPort = cli.IntFlag{
+		Name:  "server-port",
+		Usage: "The port of the http server",
+		Value: 8085,
+	}
+	roundDurationInMs = cli.IntFlag{
+		Name:  "round_duration",
+		Usage: "The round duration in miliseconds",
+		Value: 6000,
+	}
 )
+
+func applyFlags(ctx *cli.Context, cfg *config.Config) {
+	if ctx.IsSet(roundsPerEpoch.Name) {
+		cfg.Config.Simulator.RoundsPerEpoch = ctx.GlobalInt(roundsPerEpoch.Name)
+	}
+
+	if ctx.IsSet(numOfShards.Name) {
+		cfg.Config.Simulator.NumOfShards = ctx.GlobalInt(numOfShards.Name)
+	}
+
+	if ctx.IsSet(serverPort.Name) {
+		cfg.Config.Simulator.ServerPort = ctx.GlobalInt(serverPort.Name)
+	}
+
+	if ctx.IsSet(roundDurationInMs.Name) {
+		cfg.Config.Simulator.RoundDurationInMs = ctx.GlobalInt(roundDurationInMs.Name)
+	}
+}
