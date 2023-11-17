@@ -57,6 +57,10 @@ func main() {
 		pathToNodeConfigs,
 		pathToProxyConfigs,
 		startTime,
+		roundsPerEpoch,
+		numOfShards,
+		serverPort,
+		roundDurationInMs,
 	}
 
 	app.Authors = []cli.Author{
@@ -85,6 +89,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("%w while loading the config file", err)
 	}
+
+	applyFlags(ctx, &cfg)
+
 	fileLogging, err := initializeLogger(ctx, cfg)
 	if err != nil {
 		return fmt.Errorf("%w while initializing the logger", err)
