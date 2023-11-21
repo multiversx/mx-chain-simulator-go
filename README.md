@@ -40,7 +40,15 @@ This endpoint initiates the generation of a specified number of blocks for each 
 - **Status Codes:**
     - `200 OK`: Blocks generated successfully.
     - `400 Bad Request`: Invalid request parameters.
-
+    - 
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
 
 ### `GET /simulator/initial-wallets`
 
@@ -57,17 +65,21 @@ This endpoint returns the initial wallets (address and private key hex encoded).
 #### Response Body (Example)
 ```json
 {
-  "wallets": [
-    {
-      "address": "0x123456789abcdef",
-      "private_key": "0xabcdef123456789"
+  "data": {
+    "initialWalletWithStake": {
+      "address": "erd18e5tqg3x2fvh2f3g2747639erk...",
+      "privateKeyHex": "7ce93f48840c4a67fdcdc97c..."
     },
-    {
-      "address": "0xfedcba9876543210",
-      "private_key": "0x9876543210fedcba"
-    },
-    // ... additional wallet entries
-  ]
+    "shardWallets": {
+      "0": {
+        "address": "erd1844ch276gqfmhjgj8jjca4akpf...",
+        "privateKeyHex": "2024e8a0f202ae3536d336c3..."
+      },
+      // ... additional wallet entries
+    }
+  },
+  "error": "",
+  "code": "successful"
 }
 ```
 
@@ -99,6 +111,16 @@ Example:
 - **Status Codes:**
     - `200 OK`: State set successfully.
     - `404 Bad Request`: Invalid request parameters.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
 
 ---
 
