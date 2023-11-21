@@ -26,7 +26,7 @@ Blocks are promptly generated through a dedicated endpoint whenever users initia
 
 ### Additionally, the simulator offers custom endpoints:
 
-### 1. `POST /simulator/generate-blocks/:num`
+### `POST /simulator/generate-blocks/:num`
 
 This endpoint initiates the generation of a specified number of blocks for each shard.
 
@@ -42,7 +42,7 @@ This endpoint initiates the generation of a specified number of blocks for each 
     - `400 Bad Request`: Invalid request parameters.
 
 
-### 2. `GET /simulator/initial-wallets`
+### `GET /simulator/initial-wallets`
 
 This endpoint returns the initial wallets (address and private key hex encoded).
 
@@ -72,7 +72,7 @@ This endpoint returns the initial wallets (address and private key hex encoded).
 ```
 
 
-### 3. `POST /simulator/:address/set-state`
+### `POST /simulator/:address/set-state`
 
 This endpoint allows you to set the state at a specific address.
 
