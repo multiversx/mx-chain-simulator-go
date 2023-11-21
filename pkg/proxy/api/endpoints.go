@@ -87,6 +87,7 @@ func (ep *endpointsProcessor) setState(c *gin.Context) {
 	err = ep.facade.SetState(address, keyValueMap)
 	if err != nil {
 		shared.RespondWithInternalError(c, errors.New("cannot set state"), err)
+		return
 	}
 
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
