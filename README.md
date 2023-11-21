@@ -19,15 +19,88 @@ Blocks are promptly generated through a dedicated endpoint whenever users initia
 - Simulates the behavior of a local testnet without a consensus group.
 
 
-## Endpoints
+## API Documentation
 
 `mx-chain-simulator-go` includes all the [proxy endpoints](https://github.com/multiversx/mx-chain-proxy-go#rest-api-endpoints)
 
 
-Additionally, the simulator offers custom endpoints:
+### Additionally, the simulator offers custom endpoints:
 
-- `simulator/generate-blocks/:num`: This endpoint initiates the generation of a specified number of blocks for each shard.
-- `simulator/initial-wallets`: This endpoint will return the initial wallets (address and private key hex encoded)
+### 1. `POST /simulator/generate-blocks/:num`
+
+This endpoint initiates the generation of a specified number of blocks for each shard.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/generate-blocks/:num`
+- **Parameters:**
+    - `num` (path parameter): The number of blocks to generate for each shard.
+
+##### Response
+- **Status Codes:**
+    - `200 OK`: Blocks generated successfully.
+    - `400 Bad Request`: Invalid request parameters.
+
+
+### 2. `GET /simulator/initial-wallets`
+
+This endpoint returns the initial wallets (address and private key hex encoded).
+
+##### Request
+- **Method:** GET
+- **Path:** `/simulator/initial-wallets`
+
+##### Response
+- **Status Codes:**
+    - `200 OK`: Initial wallets retrieved successfully.
+
+#### Response Body (Example)
+```json
+{
+  "wallets": [
+    {
+      "address": "0x123456789abcdef",
+      "private_key": "0xabcdef123456789"
+    },
+    {
+      "address": "0xfedcba9876543210",
+      "private_key": "0x9876543210fedcba"
+    },
+    // ... additional wallet entries
+  ]
+}
+```
+
+
+### 3. `POST /simulator/:address/set-state`
+
+This endpoint allows you to set the state at a specific address.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/:address/set-state`
+- **Parameters:**
+    - `address` (path parameter): The address for which the state will be set.
+
+##### Request Body
+The request body should be a JSON object representing a map of hex-encoded key-value pairs.
+
+Example:
+```json
+{
+  "keyHex1": "valueHex1",
+  "keyHex2": "valueHex2",
+  // ... additional hex-encoded key-value pairs
+}
+```
+
+
+##### Response
+- **Status Codes:**
+    - `200 OK`: State set successfully.
+    - `404 Bad Request`: Invalid request parameters.
+
+---
 
 
 ## Prerequisites

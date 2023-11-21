@@ -6,5 +6,6 @@ import "github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 type SimulatorFacade interface {
 	GenerateBlocks(numOfBlocks int) error
 	GetInitialWalletKeys() *dtos.InitialWalletKeys
+	SetState(address string, keyValueMap map[string]string) error
 	IsInterfaceNil() bool
 }
