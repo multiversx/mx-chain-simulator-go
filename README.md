@@ -149,7 +149,7 @@ CLI: run `--help` to get the command line parameters
 ./chainsimulator --help
 ```
 
-Before launching the chainsimulator service, it has to be configured so that it runs with the correct configuration.
+Before launching the `chainsimulator` service, it has to be configured so that it runs with the correct configuration.
 
 The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file: 
 
