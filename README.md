@@ -63,7 +63,7 @@ This endpoint returns the initial wallets (address and private key hex encoded).
     - `200 OK`: Initial wallets retrieved successfully.
 
 #### Response Body (Example)
-```json
+```
 {
   "data": {
     "initialWalletWithStake": {
@@ -98,7 +98,7 @@ This endpoint allows you to set the state at a specific address.
 The request body should be a JSON object representing a map of hex-encoded key-value pairs.
 
 Example:
-```json
+```
 {
   "keyHex1": "valueHex1",
   "keyHex2": "valueHex2",
