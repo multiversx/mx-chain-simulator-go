@@ -90,7 +90,7 @@ This endpoint allows you to set the state at a specific address.
 
 ##### Request
 - **Method:** POST
-- **Path:** `/simulator/:address/set-state`
+- **Path:** `/simulator/address/:address/set-state`
 - **Parameters:**
     - `address` (path parameter): The address for which the state will be set.
 

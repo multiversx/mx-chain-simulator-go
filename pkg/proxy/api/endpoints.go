@@ -14,7 +14,7 @@ import (
 const (
 	generateBlocksEndpoint = "/simulator/generate-blocks/:num"
 	initialWalletsEndpoint = "/simulator/initial-wallets"
-	setKeyValuesEndpoint   = "/simulator/:address/set-state"
+	setKeyValuesEndpoint   = "/simulator/address/:address/set-state"
 )
 
 type endpointsProcessor struct {
