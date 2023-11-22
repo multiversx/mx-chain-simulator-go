@@ -35,7 +35,7 @@ def main():
     deploy_transaction = sc_factory.create_transaction_for_deploy(
         sender=address,
         bytecode=bytecode,
-        arguments=[10],
+        arguments=[0],
         gas_limit=10000000,
         is_upgradeable=True,
         is_readable=True,
@@ -67,7 +67,7 @@ def main():
     if not tx_from_network.status.is_successful():
         sys.exit(f"transaction status is not correct, status received->{tx_from_network.status}")
 
-    value  = 10
+    value = 10
     contract_address = extract_contract_address(tx_from_network)
     call_transaction = sc_factory.create_transaction_for_execute(
         sender=address,
@@ -81,7 +81,7 @@ def main():
     call_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(call_transaction))
 
     # send transaction
-    tx_hash = provider.send_transaction(deploy_transaction)
+    tx_hash = provider.send_transaction(call_transaction)
     print(f"sc call tx hash: {tx_hash}")
 
     time.sleep(0.5)
