@@ -13,7 +13,7 @@ curl --request POST \
 sleep 0.2
 
 # Generate 1 block
-curl --request GET \
+curl --request POST \
   --url ${SIMULATOR_URL}/simulator/generate-blocks/1
 
 api_response=$(curl --request GET --url ${SIMULATOR_URL}/address/${MY_ADDR})
@@ -22,7 +22,7 @@ api_response=$(curl --request GET --url ${SIMULATOR_URL}/address/${MY_ADDR})
 balance=$(echo "$api_response" | jq -r '.data.account.balance')
 
 # Compare the balance with the expected balance
-EXPECTED_BALANCE="1000000000000000000"
+EXPECTED_BALANCE="10000000000000000000"
 if [ "$balance" != "$EXPECTED_BALANCE" ]; then
   echo "Error: Balance $balance does not match expected balance $EXPECTED_BALANCE"
   exit 1

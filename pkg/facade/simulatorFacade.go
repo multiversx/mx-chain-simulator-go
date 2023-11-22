@@ -35,6 +35,11 @@ func (sf *simulatorFacade) GetInitialWalletKeys() *dtos.InitialWalletKeys {
 	return sf.simulator.GetInitialWalletKeys()
 }
 
+// SetState will set the provided state for an address
+func (sf *simulatorFacade) SetState(address string, keyValueMap map[string]string) error {
+	return sf.simulator.SetState(address, keyValueMap)
+}
+
 // IsInterfaceNil returns true if there is no value under the interface
 func (sf *simulatorFacade) IsInterfaceNil() bool {
 	return sf == nil

@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,6 +14,7 @@ import (
 const (
 	generateBlocksEndpoint = "/simulator/generate-blocks/:num"
 	initialWalletsEndpoint = "/simulator/initial-wallets"
+	setKeyValuesEndpoint   = "/simulator/address/:address/set-state"
 )
 
 type endpointsProcessor struct {
@@ -33,8 +35,9 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 		return errors.New("cannot cast httpServer.Handler to gin.Engine")
 	}
 
-	ws.GET(generateBlocksEndpoint, ep.generateBlocks)
+	ws.POST(generateBlocksEndpoint, ep.generateBlocks)
 	ws.GET(initialWalletsEndpoint, ep.initialWallets)
+	ws.POST(setKeyValuesEndpoint, ep.setState)
 
 	return nil
 }
@@ -65,4 +68,27 @@ func (ep *endpointsProcessor) initialWallets(c *gin.Context) {
 	initialWallets := ep.facade.GetInitialWalletKeys()
 
 	shared.RespondWith(c, http.StatusOK, initialWallets, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) setState(c *gin.Context) {
+	address := c.Param("address")
+	if address == "" {
+		shared.RespondWithBadRequest(c, "invalid provided address")
+		return
+	}
+
+	var keyValueMap = map[string]string{}
+	err := c.ShouldBindJSON(&keyValueMap)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid key value map, error: %s", err.Error()))
+		return
+	}
+
+	err = ep.facade.SetState(address, keyValueMap)
+	if err != nil {
+		shared.RespondWithInternalError(c, errors.New("cannot set state"), err)
+		return
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
 }
