@@ -63,9 +63,13 @@ var (
 		Value: 8085,
 	}
 	roundDurationInMs = cli.IntFlag{
-		Name:  "round_duration",
-		Usage: "The round duration in miliseconds",
+		Name:  "round-duration",
+		Usage: "The round duration in milliseconds",
 		Value: 6000,
+	}
+	bypassTransactionsSignature = cli.BoolTFlag{
+		Name:  "bypass-txs-signature",
+		Usage: "This flag is used to bypass the transactions signature verification (by default true)",
 	}
 )
 

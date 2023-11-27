@@ -61,6 +61,7 @@ func main() {
 		numOfShards,
 		serverPort,
 		roundDurationInMs,
+		bypassTransactionsSignature,
 	}
 
 	app.Authors = []cli.Author{
@@ -115,15 +116,27 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
+	log.Warn("signature", "bypass", bypassTxsSignature)
 	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
-	roundsPerEpoch := core.OptionalUint64{
+	rounds := core.OptionalUint64{
 		HasValue: true,
 		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
 	}
 
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
-	simulator, err := chainSimulator.NewChainSimulator(os.TempDir(), uint32(cfg.Config.Simulator.NumOfShards), nodeConfigs, startTimeUnix, roundDurationInMillis, roundsPerEpoch, apiConfigurator)
+	argsChainSimulator := chainSimulator.ArgsChainSimulator{
+		BypassTxSignatureCheck: bypassTxsSignature,
+		TempDir:                os.TempDir(),
+		PathToInitialConfig:    nodeConfigs,
+		NumOfShards:            uint32(cfg.Config.Simulator.NumOfShards),
+		GenesisTimestamp:       startTimeUnix,
+		RoundDurationInMillis:  roundDurationInMillis,
+		RoundsPerEpoch:         rounds,
+		ApiInterface:           apiConfigurator,
+	}
+	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
 		return err
 	}
