@@ -84,7 +84,7 @@ This endpoint returns the initial wallets (address and private key hex encoded).
 ```
 
 
-### `POST /simulator/:address/set-state`
+### `POST /simulator/address/:address/set-state`
 
 This endpoint allows you to set the state at a specific address.
 
@@ -139,6 +139,8 @@ Using the `cmd/chainsimulator` package as root, execute the following commands:
 
 - install go dependencies: `go install`
 - build executable: `go build -o chainsimulator`
+
+Note: go version 1.20.* should be used to build the executable. Using version 1.21.* leads to build failures currently.
 
 
 ## Launching the chainsimulator
