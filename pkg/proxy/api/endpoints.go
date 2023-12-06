@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	"github.com/multiversx/mx-chain-proxy-go/api/shared"
 	"github.com/multiversx/mx-chain-proxy-go/data"
 )
@@ -86,9 +87,9 @@ func (ep *endpointsProcessor) setKeyValue(c *gin.Context) {
 		return
 	}
 
-	err = ep.facade.SetState(address, keyValueMap)
+	err = ep.facade.SetKeyValueForAddress(address, keyValueMap)
 	if err != nil {
-		shared.RespondWithInternalError(c, errors.New("cannot set state"), err)
+		shared.RespondWithInternalError(c, errors.New("cannot set key value pairs"), err)
 		return
 	}
 
@@ -96,10 +97,18 @@ func (ep *endpointsProcessor) setKeyValue(c *gin.Context) {
 }
 
 func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
-	var state = map[string]string{}
-	err := c.ShouldBindJSON(&state)
+	var stateSlice []*dtos.AddressState
+	err := c.ShouldBindJSON(&stateSlice)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid state structure, error: %s", err.Error()))
 		return
 	}
+
+	err = ep.facade.SetStateMultiple(stateSlice)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot set state, error: %s", err.Error()))
+		return
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
 }
