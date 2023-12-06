@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	generateBlocksEndpoint = "/simulator/generate-blocks/:num"
-	initialWalletsEndpoint = "/simulator/initial-wallets"
-	setKeyValuesEndpoint   = "/simulator/address/:address/set-state"
+	generateBlocksEndpoint   = "/simulator/generate-blocks/:num"
+	initialWalletsEndpoint   = "/simulator/initial-wallets"
+	setKeyValuesEndpoint     = "/simulator/address/:address/set-state"
+	setStateMultipleEndpoint = "/simulator/set-state"
 )
 
 type endpointsProcessor struct {
@@ -37,7 +38,8 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 
 	ws.POST(generateBlocksEndpoint, ep.generateBlocks)
 	ws.GET(initialWalletsEndpoint, ep.initialWallets)
-	ws.POST(setKeyValuesEndpoint, ep.setState)
+	ws.POST(setKeyValuesEndpoint, ep.setKeyValue)
+	ws.POST(setStateMultipleEndpoint, ep.setStateMultiple)
 
 	return nil
 }
@@ -70,7 +72,7 @@ func (ep *endpointsProcessor) initialWallets(c *gin.Context) {
 	shared.RespondWith(c, http.StatusOK, initialWallets, "", data.ReturnCodeSuccess)
 }
 
-func (ep *endpointsProcessor) setState(c *gin.Context) {
+func (ep *endpointsProcessor) setKeyValue(c *gin.Context) {
 	address := c.Param("address")
 	if address == "" {
 		shared.RespondWithBadRequest(c, "invalid provided address")
@@ -91,4 +93,13 @@ func (ep *endpointsProcessor) setState(c *gin.Context) {
 	}
 
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
+	var state = map[string]string{}
+	err := c.ShouldBindJSON(&state)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid state structure, error: %s", err.Error()))
+		return
+	}
 }
