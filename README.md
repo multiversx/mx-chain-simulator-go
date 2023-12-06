@@ -154,7 +154,7 @@ Example:
 		"address": "erd1ss6u80ruas2phpmr82r42xnkd6rxy40g9jl69frppl4qez9w2jpsqj8x97",
 		"balance": "431271308732096033771131"
 	}
-	//...additionalstateforanotheraddress
+	// ...additional state for another address
 ]
 ```
 
