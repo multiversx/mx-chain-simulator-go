@@ -145,8 +145,8 @@ Example:
 		"rootHash": "76cr5Jhn6HmBcDUMIzikEpqFgZxIrOzgNkTHNatXzC4=",
 		"codeMetadata": "BQY=",
 		"codeHash": "n9EviPlHS6EV+3Xp0YqP28T0IUfeAFRFBIRC1Jw6pyU=",
-		"developerRewards": "5401004999998",
-		"owner": "erd1ss6u80ruas2phpmr82r42xnkd6rxy40g9jl69frppl4qez9w2jpsqj8x97",
+		"developerReward": "5401004999998",
+		"ownerAddress": "erd1ss6u80ruas2phpmr82r42xnkd6rxy40g9jl69frppl4qez9w2jpsqj8x97",
 		"keys": {
 			"73756d": "0a"
 		}
