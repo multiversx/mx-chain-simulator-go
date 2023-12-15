@@ -40,6 +40,7 @@ func (sf *simulatorFacade) SetKeyValueForAddress(address string, keyValueMap map
 	return sf.simulator.SetKeyValueForAddress(address, keyValueMap)
 }
 
+// SetStateMultiple will set the entire state for the provided addresses
 func (sf *simulatorFacade) SetStateMultiple(stateSlice []*dtos.AddressState) error {
 	return sf.simulator.SetStateMultiple(stateSlice)
 }
