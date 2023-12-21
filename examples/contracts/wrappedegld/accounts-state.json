@@ -22,21 +22,5 @@
     "keys": {
       "454c524f4e44657364745745474c442d626434643739": "0000"
     }
-  },
-  {
-    "address": "erd1lllllllllllllllllllllllllllllllllllllllllllllllllllsckry7t",
-    "shardID": 1,
-    "balance": "0",
-    "keys": {
-      "454c524f4e44657364745745474c442d626434643739": "0000"
-    }
-  },
-  {
-    "address": "erd1lllllllllllllllllllllllllllllllllllllllllllllllllllsckry7t",
-    "shardID": 2,
-    "balance": "0",
-    "keys": {
-      "454c524f4e44657364745745474c442d626434643739": "0000"
-    }
   }
 ]
