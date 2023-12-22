@@ -71,6 +71,16 @@ var (
 		Name:  "bypass-txs-signature",
 		Usage: "This flag is used to bypass the transactions signature verification (by default true)",
 	}
+	numValidatorsPerShard = cli.IntFlag{
+		Name:  "num-validators-per-shard",
+		Usage: "This flag is used to specify the number of validators per shard",
+		Value: 1,
+	}
+	numValidatorsMeta = cli.IntFlag{
+		Name:  "num-validators-meta",
+		Usage: "This flag is used to specify the number of validators on metachain",
+		Value: 1,
+	}
 )
 
 func applyFlags(ctx *cli.Context, cfg *config.Config) {
