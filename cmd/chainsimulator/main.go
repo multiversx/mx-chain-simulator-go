@@ -62,6 +62,8 @@ func main() {
 		serverPort,
 		roundDurationInMs,
 		bypassTransactionsSignature,
+		numValidatorsPerShard,
+		numValidatorsMeta,
 	}
 
 	app.Authors = []cli.Author{
