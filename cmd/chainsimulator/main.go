@@ -62,6 +62,8 @@ func main() {
 		serverPort,
 		roundDurationInMs,
 		bypassTransactionsSignature,
+		numValidatorsPerShard,
+		numValidatorsMeta,
 	}
 
 	app.Authors = []cli.Author{
@@ -124,6 +126,15 @@ func startChainSimulator(ctx *cli.Context) error {
 		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
 	}
 
+	numValidatorsShard := ctx.GlobalInt(numValidatorsPerShard.Name)
+	if numValidatorsShard < 1 {
+		return errors.New("invalid value for the number of validators per shard")
+	}
+	numValidatorsMetaShard := ctx.GlobalInt(numValidatorsMeta.Name)
+	if numValidatorsMetaShard < 1 {
+		return errors.New("invalid value for the number of validators for metachain")
+	}
+
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
@@ -135,6 +146,8 @@ func startChainSimulator(ctx *cli.Context) error {
 		RoundDurationInMillis:  roundDurationInMillis,
 		RoundsPerEpoch:         rounds,
 		ApiInterface:           apiConfigurator,
+		MinNodesPerShard:       uint32(numValidatorsShard),
+		MetaChainMinNodes:      uint32(numValidatorsMetaShard),
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
