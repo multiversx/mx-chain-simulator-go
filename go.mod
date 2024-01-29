@@ -114,15 +114,15 @@ require (
 	github.com/multiformats/go-multistream v0.4.1 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
-	github.com/multiversx/mx-chain-communication-go v1.0.8 // indirect
+	github.com/multiversx/mx-chain-communication-go v1.0.12 // indirect
 	github.com/multiversx/mx-chain-crypto-go v1.2.9 // indirect
-	github.com/multiversx/mx-chain-es-indexer-go v1.4.13 // indirect
-	github.com/multiversx/mx-chain-storage-go v1.0.13 // indirect
-	github.com/multiversx/mx-chain-vm-common-go v1.5.7 // indirect
-	github.com/multiversx/mx-chain-vm-go v1.5.19 // indirect
-	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.61 // indirect
-	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.62 // indirect
-	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.90 // indirect
+	github.com/multiversx/mx-chain-es-indexer-go v1.4.17 // indirect
+	github.com/multiversx/mx-chain-storage-go v1.0.14 // indirect
+	github.com/multiversx/mx-chain-vm-common-go v1.5.9 // indirect
+	github.com/multiversx/mx-chain-vm-go v1.5.22 // indirect
+	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.64 // indirect
+	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.65 // indirect
+	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.92 // indirect
 	github.com/multiversx/mx-components-big-int v1.0.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.11.0 // indirect
 	github.com/onsi/gomega v1.27.10 // indirect

@@ -137,9 +137,15 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
+
+	tempDir := os.TempDir()
+	defer func() {
+		_ = os.RemoveAll(tempDir)
+	}()
+
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
 		BypassTxSignatureCheck: bypassTxsSignature,
-		TempDir:                os.TempDir(),
+		TempDir:                tempDir,
 		PathToInitialConfig:    nodeConfigs,
 		NumOfShards:            uint32(cfg.Config.Simulator.NumOfShards),
 		GenesisTimestamp:       startTimeUnix,
