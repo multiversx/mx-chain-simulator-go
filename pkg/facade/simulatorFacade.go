@@ -49,8 +49,8 @@ func (sf *simulatorFacade) SetStateMultiple(stateSlice []*dtos.AddressState) err
 	return sf.simulator.SetStateMultiple(stateSlice)
 }
 
-// AddValidatorsKeys will add the validators key in the multi key handler
-func (sf *simulatorFacade) AddValidatorsKeys(validators *dtoc.ValidatorsKeys) error {
+// AddValidatorKeys will add the validator keys in the multi key handler
+func (sf *simulatorFacade) AddValidatorKeys(validators *dtoc.ValidatorKeys) error {
 	validatorsPrivateKeys := make([][]byte, 0, len(validators.PrivateKeysBase64))
 	for idx, privateKeyBase64 := range validators.PrivateKeysBase64 {
 		privateKeyHexBytes, err := base64.StdEncoding.DecodeString(privateKeyBase64)

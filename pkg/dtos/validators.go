@@ -1,6 +1,6 @@
 package dtos
 
-// ValidatorsKeys is the dto for the validators private key structure
-type ValidatorsKeys struct {
+// ValidatorKeys is the dto for the validators private key structure
+type ValidatorKeys struct {
 	PrivateKeysBase64 []string `json:"privateKeysBase64"`
 }

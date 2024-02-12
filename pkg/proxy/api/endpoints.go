@@ -43,7 +43,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws.GET(initialWalletsEndpoint, ep.initialWallets)
 	ws.POST(setKeyValuesEndpoint, ep.setKeyValue)
 	ws.POST(setStateMultipleEndpoint, ep.setStateMultiple)
-	ws.POST(addValidatorsKeys, ep.addValidatorsKeys)
+	ws.POST(addValidatorsKeys, ep.addValidatorKeys)
 
 	return nil
 }
@@ -116,8 +116,8 @@ func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
 }
 
-func (ep *endpointsProcessor) addValidatorsKeys(c *gin.Context) {
-	validatorsKeys := &dtosc.ValidatorsKeys{}
+func (ep *endpointsProcessor) addValidatorKeys(c *gin.Context) {
+	validatorsKeys := &dtosc.ValidatorKeys{}
 
 	err := c.ShouldBindJSON(&validatorsKeys)
 	if err != nil {
@@ -126,4 +126,10 @@ func (ep *endpointsProcessor) addValidatorsKeys(c *gin.Context) {
 	}
 
 	err = ep.facade.AddValidatorsKeys(validatorsKeys)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot add validator keys, error: %s", err.Error()))
+		return
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
 }
