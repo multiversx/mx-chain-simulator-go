@@ -125,7 +125,7 @@ func (ep *endpointsProcessor) addValidatorKeys(c *gin.Context) {
 		return
 	}
 
-	err = ep.facade.AddValidatorsKeys(validatorsKeys)
+	err = ep.facade.AddValidatorKeys(validatorsKeys)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot add validator keys, error: %s", err.Error()))
 		return

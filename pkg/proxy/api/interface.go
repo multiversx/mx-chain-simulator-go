@@ -11,6 +11,6 @@ type SimulatorFacade interface {
 	GetInitialWalletKeys() *dtos.InitialWalletKeys
 	SetKeyValueForAddress(address string, keyValueMap map[string]string) error
 	SetStateMultiple(stateSlice []*dtos.AddressState) error
-	AddValidatorsKeys(validators *dtosc.ValidatorKeys) error
+	AddValidatorKeys(validators *dtosc.ValidatorKeys) error
 	IsInterfaceNil() bool
 }
