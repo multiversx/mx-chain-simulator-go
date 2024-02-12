@@ -176,7 +176,7 @@ Example:
 
 ### `POST /simulator/add-keys`
 
-This endpoint allows you to add new validators private keys in the multi key handler.
+This endpoint allows you to add new validator private keys in the multi key handler.
 
 ##### Request
 - **Method:** POST
@@ -199,7 +199,7 @@ Example:
 
 ##### Response
 - **Status Codes:**
-  - `200 OK`: Validators keys was added successfully.
+  - `200 OK`: Validator keys was added successfully.
   - `404 Bad Request`: Invalid request parameters.
 
 #### Response Body
