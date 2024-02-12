@@ -174,7 +174,42 @@ Example:
 ```
 
 
----
+### `POST /simulator/add-keys`
+
+This endpoint allows you to add new validators private keys in the multi key handler.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/add-keys`
+
+
+##### Request Body
+The request body should be a JSON object representing an object with the next format.
+
+Example:
+```
+{
+  "privateKeysBase64":[
+    "ZjVkYjgwZDE1NzE5MDJiN2UzMDNlNDIzOTUzZGU2NTQ4NzBiYzM1MDhmMThkNGRhODgzODk1NTI3ZjcyMjYxYw==",
+    "ZTVhYTU0NjI0ZmRjNDZkMDdmNDU5ZGZiZDFmNmUxYWZlMTRmN2YyOTY1ZTJiMGJhZjBmMGE0MGQ3ZjYwNDYxYg==",
+  ]
+}
+```
+
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Validators keys was added successfully.
+  - `404 Bad Request`: Invalid request parameters.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
 
 
 ---
@@ -220,6 +255,8 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         # round-duration-in-milliseconds parameter specifies the duration of a simulated round. The timestamp between two headers will correspond to the round duration but will not reflect real-time
         round-duration-in-milliseconds = 6000
         # rounds-per-epoch specifies the number of rounds per epoch
+        # initial-round when the chain simulator will start
+        initial-round = 1
         rounds-per-epoch = 20
         # mx-chain-go-repo will be used to fetch the node configs folder
         mx-chain-go-repo = "https://github.com/multiversx/mx-chain-go"

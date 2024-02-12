@@ -8,5 +8,6 @@ type SimulatorHandler interface {
 	GenerateBlocks(numOfBlocks int) error
 	SetKeyValueForAddress(address string, keyValueMap map[string]string) error
 	SetStateMultiple(stateSlice []*dtos.AddressState) error
+	AddValidatorKeys(validatorsPrivateKeys [][]byte) error
 	IsInterfaceNil() bool
 }
