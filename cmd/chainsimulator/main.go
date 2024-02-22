@@ -64,6 +64,9 @@ func main() {
 		bypassTransactionsSignature,
 		numValidatorsPerShard,
 		numValidatorsMeta,
+		initialRound,
+		initialNonce,
+		initialEpoch,
 	}
 
 	app.Authors = []cli.Author{
@@ -154,7 +157,9 @@ func startChainSimulator(ctx *cli.Context) error {
 		ApiInterface:           apiConfigurator,
 		MinNodesPerShard:       uint32(numValidatorsShard),
 		MetaChainMinNodes:      uint32(numValidatorsMetaShard),
-		InitialRound:           int64(cfg.Config.Simulator.InitialRound),
+		InitialRound:           cfg.Config.Simulator.InitialRound,
+		InitialNonce:           cfg.Config.Simulator.InitialNonce,
+		InitialEpoch:           cfg.Config.Simulator.InitialEpoch,
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
