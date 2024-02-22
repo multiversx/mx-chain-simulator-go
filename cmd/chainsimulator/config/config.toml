@@ -9,7 +9,7 @@
         # rounds-per-epoch specifies the number of rounds per epoch
         rounds-per-epoch = 20
         # initial-round when the chain simulator will start
-        initial-round = 1
+        initial-round = 0
         # initial-epoch when the chain simulator will start
         initial-epoch = 0
         # initial-nonce when the chain simulator will start

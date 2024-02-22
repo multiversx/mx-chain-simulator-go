@@ -84,7 +84,7 @@ var (
 	initialRound = cli.Uint64Flag{
 		Name:  "initial-round",
 		Usage: "This flag is used to specify the initial round when chain simulator will start",
-		Value: 1,
+		Value: 0,
 	}
 	initialNonce = cli.Uint64Flag{
 		Name:  "initial-nonce",

@@ -257,7 +257,7 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         # rounds-per-epoch specifies the number of rounds per epoch
         rounds-per-epoch = 20
         # initial-round specifies with what round the chain simulator will start
-        initial-round = 1
+        initial-round = 0
         # initial-nonce specifies with what nonce the chain simulator will start
         initial-nonce = 0
         # initial-epoch specifies with what epoch the chain simulator will start
