@@ -119,7 +119,7 @@ func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
 func (ep *endpointsProcessor) addValidatorKeys(c *gin.Context) {
 	validatorsKeys := &dtosc.ValidatorKeys{}
 
-	err := c.ShouldBindJSON(&validatorsKeys)
+	err := c.ShouldBindJSON(validatorsKeys)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid validators keys structure, error: %s", err.Error()))
 		return

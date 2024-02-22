@@ -199,7 +199,7 @@ Example:
 
 ##### Response
 - **Status Codes:**
-  - `200 OK`: Validator keys was added successfully.
+  - `200 OK`: Validator keys were added successfully.
   - `404 Bad Request`: Invalid request parameters.
 
 #### Response Body
