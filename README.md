@@ -255,9 +255,13 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         # round-duration-in-milliseconds parameter specifies the duration of a simulated round. The timestamp between two headers will correspond to the round duration but will not reflect real-time
         round-duration-in-milliseconds = 6000
         # rounds-per-epoch specifies the number of rounds per epoch
-        # initial-round when the chain simulator will start
-        initial-round = 1
         rounds-per-epoch = 20
+        # initial-round specifies with what round the chain simulator will start
+        initial-round = 1
+        # initial-nonce specifies with what nonce the chain simulator will start
+        initial-nonce = 0
+        # initial-epoch specifies with what epoch the chain simulator will start
+        initial-epoch = 0
         # mx-chain-go-repo will be used to fetch the node configs folder
         mx-chain-go-repo = "https://github.com/multiversx/mx-chain-go"
         # mx-chain-proxy-go-repo will be used to fetch the proxy configs folder

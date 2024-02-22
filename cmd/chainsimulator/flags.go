@@ -81,6 +81,21 @@ var (
 		Usage: "This flag is used to specify the number of validators on metachain",
 		Value: 1,
 	}
+	initialRound = cli.Uint64Flag{
+		Name:  "initial-round",
+		Usage: "This flag is used to specify the initial round when chain simulator will start",
+		Value: 1,
+	}
+	initialNonce = cli.Uint64Flag{
+		Name:  "initial-nonce",
+		Usage: "This flag is used to specify the initial nonce when chain simulator will start",
+		Value: 0,
+	}
+	initialEpoch = cli.UintFlag{
+		Name:  "initial-epoch",
+		Usage: "This flag is used to specify the initial epoch when chain simulator will start",
+		Value: 0,
+	}
 )
 
 func applyFlags(ctx *cli.Context, cfg *config.Config) {
@@ -98,5 +113,17 @@ func applyFlags(ctx *cli.Context, cfg *config.Config) {
 
 	if ctx.IsSet(roundDurationInMs.Name) {
 		cfg.Config.Simulator.RoundDurationInMs = ctx.GlobalInt(roundDurationInMs.Name)
+	}
+
+	if ctx.IsSet(initialRound.Name) {
+		cfg.Config.Simulator.InitialRound = ctx.GlobalInt64(initialRound.Name)
+	}
+
+	if ctx.IsSet(initialNonce.Name) {
+		cfg.Config.Simulator.InitialNonce = ctx.GlobalUint64(initialNonce.Name)
+	}
+
+	if ctx.IsSet(initialEpoch.Name) {
+		cfg.Config.Simulator.InitialEpoch = uint32(ctx.GlobalUint(initialEpoch.Name))
 	}
 }
