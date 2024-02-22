@@ -8,6 +8,7 @@ type Config struct {
 			NumOfShards       int    `toml:"num-of-shards"`
 			RoundsPerEpoch    int    `toml:"rounds-per-epoch"`
 			RoundDurationInMs int    `toml:"round-duration-in-milliseconds"`
+			InitialRound      int    `toml:"initial-round"`
 			MxChainRepo       string `toml:"mx-chain-go-repo"`
 			MxProxyRepo       string `toml:"mx-chain-proxy-go-repo"`
 		} `toml:"simulator"`

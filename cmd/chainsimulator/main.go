@@ -137,9 +137,15 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
+
+	tempDir, err := os.MkdirTemp(os.TempDir(), "")
+	if err != nil {
+		return err
+	}
+
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
 		BypassTxSignatureCheck: bypassTxsSignature,
-		TempDir:                os.TempDir(),
+		TempDir:                tempDir,
 		PathToInitialConfig:    nodeConfigs,
 		NumOfShards:            uint32(cfg.Config.Simulator.NumOfShards),
 		GenesisTimestamp:       startTimeUnix,
@@ -148,6 +154,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		ApiInterface:           apiConfigurator,
 		MinNodesPerShard:       uint32(numValidatorsShard),
 		MetaChainMinNodes:      uint32(numValidatorsMetaShard),
+		InitialRound:           int64(cfg.Config.Simulator.InitialRound),
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
@@ -164,7 +171,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
-		TemDir:            os.TempDir(),
+		TemDir:            tempDir,
 		PathToProxyConfig: proxyConfigs,
 		ServerPort:        cfg.Config.Simulator.ServerPort,
 		RestApiInterfaces: restApiInterfaces,

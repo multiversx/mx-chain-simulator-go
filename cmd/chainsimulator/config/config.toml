@@ -8,6 +8,8 @@
         round-duration-in-milliseconds = 6000
         # rounds-per-epoch specifies the number of rounds per epoch
         rounds-per-epoch = 20
+        # initial-round when the chain simulator will start
+        initial-round = 1
         # mx-chain-go-repo will be used to fetch the node configs folder
         mx-chain-go-repo = "https://github.com/multiversx/mx-chain-go"
         # mx-chain-proxy-go-repo will be used to fetch the proxy configs folder

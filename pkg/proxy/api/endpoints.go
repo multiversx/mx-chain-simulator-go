@@ -10,6 +10,7 @@ import (
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	"github.com/multiversx/mx-chain-proxy-go/api/shared"
 	"github.com/multiversx/mx-chain-proxy-go/data"
+	dtosc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
 const (
@@ -17,6 +18,7 @@ const (
 	initialWalletsEndpoint   = "/simulator/initial-wallets"
 	setKeyValuesEndpoint     = "/simulator/address/:address/set-state"
 	setStateMultipleEndpoint = "/simulator/set-state"
+	addValidatorsKeys        = "/simulator/add-keys"
 )
 
 type endpointsProcessor struct {
@@ -41,6 +43,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws.GET(initialWalletsEndpoint, ep.initialWallets)
 	ws.POST(setKeyValuesEndpoint, ep.setKeyValue)
 	ws.POST(setStateMultipleEndpoint, ep.setStateMultiple)
+	ws.POST(addValidatorsKeys, ep.addValidatorKeys)
 
 	return nil
 }
@@ -107,6 +110,24 @@ func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
 	err = ep.facade.SetStateMultiple(stateSlice)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot set state, error: %s", err.Error()))
+		return
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) addValidatorKeys(c *gin.Context) {
+	validatorsKeys := &dtosc.ValidatorKeys{}
+
+	err := c.ShouldBindJSON(validatorsKeys)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid validators keys structure, error: %s", err.Error()))
+		return
+	}
+
+	err = ep.facade.AddValidatorKeys(validatorsKeys)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot add validator keys, error: %s", err.Error()))
 		return
 	}
 
