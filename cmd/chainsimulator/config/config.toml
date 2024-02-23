@@ -18,12 +18,13 @@
         mx-chain-go-repo = "https://github.com/multiversx/mx-chain-go"
         # mx-chain-proxy-go-repo will be used to fetch the proxy configs folder
         mx-chain-proxy-go-repo = "https://github.com/multiversx/mx-chain-proxy-go"
-        # auto-generate-blocks specifies if the chain simulator should auto generate blocks
-        auto-generate-blocks = false
-        #  block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
-        block-time-in-milliseconds = 6000
     [config.logs]
         log-file-life-span-in-mb = 1024 # 1GB
         log-file-life-span-in-sec = 432000 # 5 days
         log-file-prefix = "chain-simulator"
         logs-path = "logs"
+    [config.blocks-generator]
+        # auto-generate-blocks specifies if the chain simulator should auto generate blocks
+        auto-generate-blocks = false
+        #  block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
+        block-time-in-milliseconds = 6000

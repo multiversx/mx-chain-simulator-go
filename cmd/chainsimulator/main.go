@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -19,6 +18,7 @@ import (
 	"github.com/multiversx/mx-chain-logger-go/file"
 	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/factory"
 	endpoints "github.com/multiversx/mx-chain-simulator-go/pkg/proxy/api"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
@@ -174,13 +174,9 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	ctxBlocksGeneration, cancelBlockAutoGeneration := context.WithCancel(context.Background())
-	defer cancelBlockAutoGeneration()
-
-	if cfg.Config.Simulator.AutoGenerateBlocks {
-		log.Info("chain simulator is running in auto-generate-blocks mode, starting the go routine...")
-		blockDuration := time.Duration(cfg.Config.Simulator.BlockTimeInMs) * time.Millisecond
-		go generateBlocks(ctxBlocksGeneration, simulator, blockDuration)
+	generator, err := factory.CreateBlocksGenerator(simulator, cfg.Config.BlocksGenerator)
+	if err != nil {
+		return err
 	}
 
 	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
@@ -230,6 +226,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	<-interrupt
 
 	log.Info("close")
+
+	generator.Close()
+
 	err = simulator.Close()
 	if err != nil {
 		log.Warn("cannot close simulator", "error", err)
@@ -242,23 +241,6 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	return nil
-}
-
-func generateBlocks(ctx context.Context, simulator facade.SimulatorHandler, blockTime time.Duration) {
-	timerBlock := time.NewTimer(blockTime)
-	for {
-		timerBlock.Reset(blockTime)
-		select {
-		case <-timerBlock.C:
-			err := simulator.GenerateBlocks(1)
-			if err != nil {
-				log.Error("failed to generate block", "error", err.Error())
-			}
-		case <-ctx.Done():
-			log.Debug("closing the automatic blocks generation goroutine...")
-			return
-		}
-	}
 }
 
 func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, error) {

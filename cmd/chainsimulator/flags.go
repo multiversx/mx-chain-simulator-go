@@ -137,10 +137,10 @@ func applyFlags(ctx *cli.Context, cfg *config.Config) {
 	}
 
 	if ctx.IsSet(autoGenerateBlocks.Name) {
-		cfg.Config.Simulator.AutoGenerateBlocks = ctx.GlobalBool(autoGenerateBlocks.Name)
+		cfg.Config.BlocksGenerator.AutoGenerateBlocks = ctx.GlobalBool(autoGenerateBlocks.Name)
 	}
 
 	if ctx.IsSet(blockTimeInMs.Name) {
-		cfg.Config.Simulator.BlockTimeInMs = ctx.GlobalUint64(blockTimeInMs.Name)
+		cfg.Config.BlocksGenerator.BlockTimeInMs = ctx.GlobalUint64(blockTimeInMs.Name)
 	}
 }
