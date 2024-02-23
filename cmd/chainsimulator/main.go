@@ -174,9 +174,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	cancelBlockAutoGeneration := func() {}
-	var ctxBlocksGeneration context.Context
-	ctxBlocksGeneration, cancelBlockAutoGeneration = context.WithCancel(context.Background())
+	ctxBlocksGeneration, cancelBlockAutoGeneration := context.WithCancel(context.Background())
 	defer cancelBlockAutoGeneration()
 
 	if cfg.Config.Simulator.AutoGenerateBlocks {
