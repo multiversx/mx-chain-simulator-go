@@ -96,6 +96,15 @@ var (
 		Usage: "This flag is used to specify the initial epoch when chain simulator will start",
 		Value: 0,
 	}
+	autoGenerateBlocks = cli.BoolFlag{
+		Name:  "auto-generate-blocks",
+		Usage: "Boolean option to specify that blocks should be generated automatically, after a given period of time",
+	}
+	blockTimeInMs = cli.Uint64Flag{
+		Name:  "block-time-in-milliseconds",
+		Usage: "The time between blocks generations, when autoGenerateBlocks flag is true",
+		Value: 6000,
+	}
 )
 
 func applyFlags(ctx *cli.Context, cfg *config.Config) {
@@ -125,5 +134,13 @@ func applyFlags(ctx *cli.Context, cfg *config.Config) {
 
 	if ctx.IsSet(initialEpoch.Name) {
 		cfg.Config.Simulator.InitialEpoch = uint32(ctx.GlobalUint(initialEpoch.Name))
+	}
+
+	if ctx.IsSet(autoGenerateBlocks.Name) {
+		cfg.Config.Simulator.AutoGenerateBlocks = ctx.GlobalBool(autoGenerateBlocks.Name)
+	}
+
+	if ctx.IsSet(blockTimeInMs.Name) {
+		cfg.Config.Simulator.BlockTimeInMs = ctx.GlobalUint64(blockTimeInMs.Name)
 	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -173,6 +174,17 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	cancelBlockAutoGeneration := func() {}
+	var ctxBlocksGeneration context.Context
+	ctxBlocksGeneration, cancelBlockAutoGeneration = context.WithCancel(context.Background())
+	defer cancelBlockAutoGeneration()
+
+	if cfg.Config.Simulator.AutoGenerateBlocks {
+		log.Info("chain simulator is running in auto-generate-blocks mode, starting the go routine...")
+		blockDuration := time.Duration(cfg.Config.Simulator.BlockTimeInMs) * time.Millisecond
+		go generateBlocks(ctxBlocksGeneration, simulator, blockDuration)
+	}
+
 	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
@@ -232,6 +244,23 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func generateBlocks(ctx context.Context, simulator facade.SimulatorHandler, blockTime time.Duration) {
+	timerBlock := time.NewTimer(blockTime)
+	for {
+		timerBlock.Reset(blockTime)
+		select {
+		case <-timerBlock.C:
+			err := simulator.GenerateBlocks(1)
+			if err != nil {
+				log.Error("failed to generate block", "error", err.Error())
+			}
+		case <-ctx.Done():
+			log.Debug("closing the automatic blocks generation goroutine...")
+			return
+		}
+	}
 }
 
 func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, error) {
