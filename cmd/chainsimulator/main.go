@@ -18,6 +18,7 @@ import (
 	"github.com/multiversx/mx-chain-logger-go/file"
 	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/factory"
 	endpoints "github.com/multiversx/mx-chain-simulator-go/pkg/proxy/api"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
@@ -173,6 +174,11 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	generator, err := factory.CreateBlocksGenerator(simulator, cfg.Config.BlocksGenerator)
+	if err != nil {
+		return err
+	}
+
 	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
@@ -220,6 +226,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	<-interrupt
 
 	log.Info("close")
+
+	generator.Close()
+
 	err = simulator.Close()
 	if err != nil {
 		log.Warn("cannot close simulator", "error", err)

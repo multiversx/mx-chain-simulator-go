@@ -20,5 +20,12 @@ type Config struct {
 			LogFilePrefix        string `toml:"log-file-prefix"`
 			LogsPath             string `toml:"logs-path"`
 		} `toml:"logs"`
+		BlocksGenerator BlocksGeneratorConfig `toml:"blocks-generator"`
 	} `toml:"config"`
+}
+
+// BlocksGeneratorConfig defined the configuration for the blocks generator
+type BlocksGeneratorConfig struct {
+	AutoGenerateBlocks bool   `toml:"auto-generate-blocks"`
+	BlockTimeInMs      uint64 `toml:"block-time-in-milliseconds"`
 }
