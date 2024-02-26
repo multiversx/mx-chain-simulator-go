@@ -47,11 +47,10 @@ func NewBlocksGenerator(args ArgBlocksGenerator) (*blocksGenerator, error) {
 func (generator *blocksGenerator) generateBlocks(ctx context.Context) {
 	log.Info("Running in auto-generate-blocks mode, starting the go routine...")
 
-	timerBlock := time.NewTimer(generator.blockTime)
+	blockTicker := time.NewTicker(generator.blockTime)
 	for {
-		timerBlock.Reset(generator.blockTime)
 		select {
-		case <-timerBlock.C:
+		case <-blockTicker.C:
 			err := generator.simulator.GenerateBlocks(1)
 			if err != nil {
 				log.Error("failed to generate block", "error", err.Error())

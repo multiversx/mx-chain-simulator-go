@@ -271,6 +271,11 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         log-file-life-span-in-sec = 432000 # 5 days
         log-file-prefix = "chain-simulator"
         logs-path = "logs"
+    [config.blocks-generator]
+        # auto-generate-blocks specifies if the chain simulator should auto generate blocks
+        auto-generate-blocks = false
+        # block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
+        block-time-in-milliseconds = 6000
 ```
 
 

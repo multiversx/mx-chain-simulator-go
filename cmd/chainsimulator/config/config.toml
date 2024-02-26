@@ -26,5 +26,5 @@
     [config.blocks-generator]
         # auto-generate-blocks specifies if the chain simulator should auto generate blocks
         auto-generate-blocks = false
-        #  block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
+        # block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
         block-time-in-milliseconds = 6000
