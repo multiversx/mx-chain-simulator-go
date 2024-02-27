@@ -278,6 +278,15 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         block-time-in-milliseconds = 6000
 ```
 
+### Build docker image
+```
+DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
+```
+
+### Run with docker
+```
+docker run -p 8085:8085 chainsimulator:latest --log-level *:DEBUG
+```
 
 ## Contribution
 
