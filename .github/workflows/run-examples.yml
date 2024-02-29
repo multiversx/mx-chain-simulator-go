@@ -1,0 +1,19 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, feat/*, rc/* ]
+  pull_request:
+    branches: [ main, feat/*, rc/* ]
+
+
+jobs:
+  test:
+    name: Unit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Run examples
+        run: |
+          make run-examples
