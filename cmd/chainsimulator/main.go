@@ -68,6 +68,8 @@ func main() {
 		initialRound,
 		initialNonce,
 		initialEpoch,
+		autoGenerateBlocks,
+		blockTimeInMs,
 	}
 
 	app.Authors = []cli.Author{
