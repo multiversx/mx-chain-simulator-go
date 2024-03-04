@@ -188,7 +188,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		PathToProxyConfig: proxyConfigs,
 		ServerPort:        cfg.Config.Simulator.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
-		InitialWallets:    simulator.GetInitialWalletKeys().ShardWallets,
+		InitialWallets:    simulator.GetInitialWalletKeys().BalanceWallets,
 	})
 	if err != nil {
 		return err
@@ -231,10 +231,7 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	generator.Close()
 
-	err = simulator.Close()
-	if err != nil {
-		log.Warn("cannot close simulator", "error", err)
-	}
+	simulator.Close()
 	proxyInstance.Close()
 
 	if !check.IfNilReflect(fileLogging) {

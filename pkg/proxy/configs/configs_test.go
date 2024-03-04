@@ -19,7 +19,9 @@ func createArgsProxyConfigs(t *testing.T) ArgsProxyConfigs {
 		},
 		InitialWallets: map[uint32]*dtos.WalletKey{
 			0: {
-				Address:       "erd17g9splt634xppt782cktfyyfmhdqlya9vqlqjeclpk65ckuxkcwqxu78wy",
+				Address: dtos.WalletAddress{
+					Bech32: "erd17g9splt634xppt782cktfyyfmhdqlya9vqlqjeclpk65ckuxkcwqxu78wy",
+				},
 				PrivateKeyHex: "NzhkOGI1ZDYxOWVkNzkyY2U5ZWE1YTk5YjZkYjA4NzgwMDA1MzE3OTRlYmVhNzFk\nNWRhYWUwODdlNDE4MGZmZGYyMGIwMGZkN2E4ZDRjMTBhZmM3NTYyY2I0OTA4OWRk\nZGEwZjkzYTU2MDNlMDk2NzFmMGRiNTRjNWI4NmI2MWM=",
 			},
 		},
