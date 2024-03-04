@@ -65,8 +65,7 @@ def main():
     # ################## merge validator in delegator
     response = provider.do_get(f"{INITIAL_WALLETS_URL}")
     initial_address_with_stake = factory.create_from_bech32(
-        response.to_dictionary()["initialWalletWithStake"]["address"])
-    private_key_hex = response.to_dictionary()["initialWalletWithStake"]["privateKeyHex"]
+        response.to_dictionary()["stakeWallets"][0]["address"]["bech32"])
 
     print(f"initial address with stake: {initial_address_with_stake.to_bech32()}")
 
