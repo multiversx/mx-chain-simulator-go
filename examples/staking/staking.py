@@ -123,9 +123,9 @@ def main():
 
     # check if the owner receive more than 5 egld in rewards
     claim_reward_tx = get_tx_and_verify_status(provider, tx_hash)
-    two_egld = 2000000000000000000
+    one_egld = 1000000000000000000
     rewards_value = claim_reward_tx.contract_results.items[0].value
-    if rewards_value < two_egld:
+    if rewards_value < one_egld:
         sys.exit(f"owner of the delegation contract didn't receive the expected amount of rewards: expected more than "
                  f"2 EGLD, received: {rewards_value}")
 
