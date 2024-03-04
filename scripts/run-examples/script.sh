@@ -32,6 +32,9 @@ wait_simulator_to_start() {
 
 wait_simulator_to_start
 
+# run staking example
+run_python_script ../../examples/staking staking.py
+
 # run adder example
 run_python_script ../../examples/contracts/adder/ adder.py
 
@@ -40,9 +43,6 @@ run_python_script ../../examples/contracts/wrappedegld wrapped-egld.py
 
 # run esdt create example
 run_python_script ../../examples/esdt/ issue-fungible.py
-
-# run staking example
-run_python_script ../../examples/staking staking.py
 
 # run move balance example
 run_python_script ../../examples/movebalance move-balance.py
