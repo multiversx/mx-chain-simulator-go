@@ -127,7 +127,7 @@ def main():
     rewards_value = claim_reward_tx.contract_results.items[0].value
     if rewards_value < one_egld:
         sys.exit(f"owner of the delegation contract didn't receive the expected amount of rewards: expected more than "
-                 f"2 EGLD, received: {rewards_value}")
+                 f"1 EGLD, received: {rewards_value}")
 
     print(f"owner has received rewards, received rewards: {rewards_value}")
 
