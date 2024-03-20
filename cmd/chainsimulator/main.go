@@ -156,7 +156,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		return errors.New("invalid value for the number of validators for metachain")
 	}
 	numWaitingValidatorsMetaShard := ctx.GlobalInt(numWaitingValidatorsMeta.Name)
-	if numWaitingValidatorsMetaShard < 1 {
+	if numWaitingValidatorsMetaShard < 0 {
 		return errors.New("invalid value for the number of waiting validators for metachain")
 	}
 
