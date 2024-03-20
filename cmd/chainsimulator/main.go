@@ -12,6 +12,8 @@ import (
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/core/closing"
+	nodeConfig "github.com/multiversx/mx-chain-go/config"
+	"github.com/multiversx/mx-chain-go/config/overridableConfig"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
 	logger "github.com/multiversx/mx-chain-logger-go"
@@ -52,6 +54,7 @@ func main() {
 	app.Usage = ""
 	app.Flags = []cli.Flag{
 		configurationFile,
+		nodeOverrideConfigurationFile,
 		logLevel,
 		logSaveFile,
 		disableAnsiColor,
@@ -64,7 +67,9 @@ func main() {
 		roundDurationInMs,
 		bypassTransactionsSignature,
 		numValidatorsPerShard,
+		numWaitingValidatorsPerShard,
 		numValidatorsMeta,
+		numWaitingValidatorsMeta,
 		initialRound,
 		initialNonce,
 		initialEpoch,
@@ -97,6 +102,11 @@ func startChainSimulator(ctx *cli.Context) error {
 	cfg, err := loadMainConfig(ctx.GlobalString(configurationFile.Name))
 	if err != nil {
 		return fmt.Errorf("%w while loading the config file", err)
+	}
+
+	overrideCfg, err := loadOverrideConfig(ctx.GlobalString(nodeOverrideConfigurationFile.Name))
+	if err != nil {
+		return fmt.Errorf("%w while loading the node override config file", err)
 	}
 
 	applyFlags(ctx, &cfg)
@@ -136,9 +146,18 @@ func startChainSimulator(ctx *cli.Context) error {
 	if numValidatorsShard < 1 {
 		return errors.New("invalid value for the number of validators per shard")
 	}
+	numWaitingValidatorsShard := ctx.GlobalInt(numWaitingValidatorsPerShard.Name)
+	if numWaitingValidatorsShard < 0 {
+		return errors.New("invalid value for the number of waiting validators per shard")
+	}
+
 	numValidatorsMetaShard := ctx.GlobalInt(numValidatorsMeta.Name)
 	if numValidatorsMetaShard < 1 {
 		return errors.New("invalid value for the number of validators for metachain")
+	}
+	numWaitingValidatorsMetaShard := ctx.GlobalInt(numWaitingValidatorsMeta.Name)
+	if numWaitingValidatorsMetaShard < 1 {
+		return errors.New("invalid value for the number of waiting validators for metachain")
 	}
 
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
@@ -149,24 +168,34 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
-		BypassTxSignatureCheck: bypassTxsSignature,
-		TempDir:                tempDir,
-		PathToInitialConfig:    nodeConfigs,
-		NumOfShards:            uint32(cfg.Config.Simulator.NumOfShards),
-		GenesisTimestamp:       startTimeUnix,
-		RoundDurationInMillis:  roundDurationInMillis,
-		RoundsPerEpoch:         rounds,
-		ApiInterface:           apiConfigurator,
-		MinNodesPerShard:       uint32(numValidatorsShard),
-		MetaChainMinNodes:      uint32(numValidatorsMetaShard),
-		InitialRound:           cfg.Config.Simulator.InitialRound,
-		InitialNonce:           cfg.Config.Simulator.InitialNonce,
-		InitialEpoch:           cfg.Config.Simulator.InitialEpoch,
+		BypassTxSignatureCheck:   bypassTxsSignature,
+		TempDir:                  tempDir,
+		PathToInitialConfig:      nodeConfigs,
+		NumOfShards:              uint32(cfg.Config.Simulator.NumOfShards),
+		GenesisTimestamp:         startTimeUnix,
+		RoundDurationInMillis:    roundDurationInMillis,
+		RoundsPerEpoch:           rounds,
+		ApiInterface:             apiConfigurator,
+		MinNodesPerShard:         uint32(numValidatorsShard),
+		NumNodesWaitingListShard: uint32(numWaitingValidatorsShard),
+		MetaChainMinNodes:        uint32(numValidatorsMetaShard),
+		NumNodesWaitingListMeta:  uint32(numWaitingValidatorsMetaShard),
+		InitialRound:             cfg.Config.Simulator.InitialRound,
+		InitialNonce:             cfg.Config.Simulator.InitialNonce,
+		InitialEpoch:             cfg.Config.Simulator.InitialEpoch,
+		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
+			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
+		},
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
 		return err
+	}
+
+	if alterConfigsError != nil {
+		return alterConfigsError
 	}
 
 	log.Info("simulators were initialized")
@@ -288,6 +317,13 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 
 func loadMainConfig(filepath string) (config.Config, error) {
 	cfg := config.Config{}
+	err := core.LoadTomlFile(&cfg, filepath)
+
+	return cfg, err
+}
+
+func loadOverrideConfig(filepath string) (config.OverrideConfigs, error) {
+	cfg := config.OverrideConfigs{}
 	err := core.LoadTomlFile(&cfg, filepath)
 
 	return cfg, err
