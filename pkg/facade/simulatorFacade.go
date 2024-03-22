@@ -68,6 +68,11 @@ func (sf *simulatorFacade) AddValidatorKeys(validators *dtoc.ValidatorKeys) erro
 	return sf.simulator.AddValidatorKeys(validatorsPrivateKeys)
 }
 
+// GenerateBlocksUntilEpochIsReached will generate as many blocks are required until the target epoch is reached
+func (sf *simulatorFacade) GenerateBlocksUntilEpochIsReached(targetEpoch int32) error {
+	return sf.simulator.GenerateBlocksUntilEpochIsReached(targetEpoch)
+}
+
 // IsInterfaceNil returns true if there is no value under the interface
 func (sf *simulatorFacade) IsInterfaceNil() bool {
 	return sf == nil

@@ -14,11 +14,12 @@ import (
 )
 
 const (
-	generateBlocksEndpoint   = "/simulator/generate-blocks/:num"
-	initialWalletsEndpoint   = "/simulator/initial-wallets"
-	setKeyValuesEndpoint     = "/simulator/address/:address/set-state"
-	setStateMultipleEndpoint = "/simulator/set-state"
-	addValidatorsKeys        = "/simulator/add-keys"
+	generateBlocksEndpoint        = "/simulator/generate-blocks/:num"
+	generateBlockUnitEpochReached = "/simulator/generate-blocks-until-epoch-reached/:epoch"
+	initialWalletsEndpoint        = "/simulator/initial-wallets"
+	setKeyValuesEndpoint          = "/simulator/address/:address/set-state"
+	setStateMultipleEndpoint      = "/simulator/set-state"
+	addValidatorsKeys             = "/simulator/add-keys"
 )
 
 type endpointsProcessor struct {
@@ -40,6 +41,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	}
 
 	ws.POST(generateBlocksEndpoint, ep.generateBlocks)
+	ws.POST(generateBlockUnitEpochReached, ep.generateBlocksUntilEpochReached)
 	ws.GET(initialWalletsEndpoint, ep.initialWallets)
 	ws.POST(setKeyValuesEndpoint, ep.setKeyValue)
 	ws.POST(setStateMultipleEndpoint, ep.setStateMultiple)
@@ -62,6 +64,28 @@ func (ep *endpointsProcessor) generateBlocks(c *gin.Context) {
 	}
 
 	err = ep.facade.GenerateBlocks(num)
+	if err != nil {
+		shared.RespondWithInternalError(c, errors.New("cannot generate blocks"), err)
+		return
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) generateBlocksUntilEpochReached(c *gin.Context) {
+	epochStr := c.Param("epoch")
+	if epochStr == "" {
+		shared.RespondWithBadRequest(c, "invalid epoch")
+		return
+	}
+
+	epoch, err := strconv.Atoi(epochStr)
+	if err != nil {
+		shared.RespondWithBadRequest(c, "cannot convert string to number")
+		return
+	}
+
+	err = ep.facade.GenerateBlocksUntilEpochIsReached(int32(epoch))
 	if err != nil {
 		shared.RespondWithInternalError(c, errors.New("cannot generate blocks"), err)
 		return

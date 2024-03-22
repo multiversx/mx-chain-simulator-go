@@ -7,6 +7,7 @@ import (
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 	"github.com/multiversx/mx-chain-simulator-go/testscommon"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -117,6 +118,25 @@ func TestSimulatorFacade_SetStateMultiple(t *testing.T) {
 	err = facade.SetStateMultiple(providedStateSlice)
 	require.NoError(t, err)
 	require.True(t, wasCalled)
+}
+
+func TestSimulatorFacade_GenerateBlocksUntilEpochIsReached(t *testing.T) {
+	t.Parallel()
+
+	testEpoch := int32(37)
+	generateBlocksCalled := false
+	simulator := &testscommon.SimulatorHandlerMock{
+		GenerateBlocksUntilEpochIsReachedCalled: func(targetEpoch int32) error {
+			assert.Equal(t, testEpoch, targetEpoch)
+			generateBlocksCalled = true
+			return nil
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator)
+	err := facade.GenerateBlocksUntilEpochIsReached(testEpoch)
+	assert.Nil(t, err)
+	assert.True(t, generateBlocksCalled)
 }
 
 func TestSimulatorFacade_AddValidatorKeys(t *testing.T) {

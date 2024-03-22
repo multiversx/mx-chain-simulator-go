@@ -12,5 +12,6 @@ type SimulatorFacade interface {
 	SetKeyValueForAddress(address string, keyValueMap map[string]string) error
 	SetStateMultiple(stateSlice []*dtos.AddressState) error
 	AddValidatorKeys(validators *dtosc.ValidatorKeys) error
+	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
 	IsInterfaceNil() bool
 }
