@@ -213,3 +213,20 @@ func TestSimulatorFacade_AddValidatorKeys(t *testing.T) {
 		require.True(t, wasCalled)
 	})
 }
+
+func TestSimulatorFacade_ForceUpdateValidatorStatistics(t *testing.T) {
+	t.Parallel()
+
+	forceResetCalled := false
+	simulator := &testscommon.SimulatorHandlerMock{
+		ForceResetValidatorStatisticsCacheCalled: func() error {
+			forceResetCalled = true
+			return nil
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator)
+	err := facade.ForceUpdateValidatorStatistics()
+	assert.Nil(t, err)
+	assert.True(t, forceResetCalled)
+}

@@ -13,5 +13,6 @@ type SimulatorFacade interface {
 	SetStateMultiple(stateSlice []*dtos.AddressState) error
 	AddValidatorKeys(validators *dtosc.ValidatorKeys) error
 	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
+	ForceUpdateValidatorStatistics() error
 	IsInterfaceNil() bool
 }

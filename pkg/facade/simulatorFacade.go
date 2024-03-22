@@ -73,6 +73,11 @@ func (sf *simulatorFacade) GenerateBlocksUntilEpochIsReached(targetEpoch int32) 
 	return sf.simulator.GenerateBlocksUntilEpochIsReached(targetEpoch)
 }
 
+// ForceUpdateValidatorStatistics will force the reset of the cache used for the validators statistics endpoint
+func (sf *simulatorFacade) ForceUpdateValidatorStatistics() error {
+	return sf.simulator.ForceResetValidatorStatisticsCache()
+}
+
 // IsInterfaceNil returns true if there is no value under the interface
 func (sf *simulatorFacade) IsInterfaceNil() bool {
 	return sf == nil

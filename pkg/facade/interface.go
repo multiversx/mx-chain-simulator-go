@@ -10,5 +10,6 @@ type SimulatorHandler interface {
 	SetStateMultiple(stateSlice []*dtos.AddressState) error
 	AddValidatorKeys(validatorsPrivateKeys [][]byte) error
 	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
+	ForceResetValidatorStatisticsCache() error
 	IsInterfaceNil() bool
 }
