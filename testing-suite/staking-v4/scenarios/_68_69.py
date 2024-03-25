@@ -87,7 +87,7 @@ def test_68_69():
     PUBLIC_VALIDATOR_KEY_3 = getPublicAddressFromPem(VALIDATOR_KEY_3)
     PUBLIC_VALIDATOR_KEY_4 = getPublicAddressFromPem(VALIDATOR_KEY_4)
     B_public_valid_keys_list = [PUBLIC_VALIDATOR_KEY_1, PUBLIC_VALIDATOR_KEY_2, PUBLIC_VALIDATOR_KEY_3,
-                              PUBLIC_VALIDATOR_KEY_4]
+                                PUBLIC_VALIDATOR_KEY_4]
 
     # stake
     tx_hash = stake(WALLET_B, B_valid_keys_list)
@@ -105,14 +105,13 @@ def test_68_69():
     for pub_key in B_public_valid_keys_list:
         time.sleep(0.5)
         # TODO: after release rc/v1.7.0next1. here should be "staked"
-        assert bls_keys_status_dict[pub_key] == "queued"
-
+        assert bls_keys_status_dict[pub_key] == "staked"
 
     # === STEP 2 ====
     # 2) Stake 2 nodes with C in epoch 4
     VALIDATOR_KEY_5 = Path("./validatorKeys/validatorKey_5.pem")
     VALIDATOR_KEY_6 = Path("./validatorKeys/validatorKey_6.pem")
-    C_valid_keys_list = [VALIDATOR_KEY_5, VALIDATOR_KEY_5]
+    C_valid_keys_list = [VALIDATOR_KEY_5, VALIDATOR_KEY_6]
 
     PUBLIC_VALIDATOR_KEY_5 = getPublicAddressFromPem(VALIDATOR_KEY_5)
     PUBLIC_VALIDATOR_KEY_6 = getPublicAddressFromPem(VALIDATOR_KEY_6)
@@ -134,8 +133,7 @@ def test_68_69():
     for pub_key in C_public_valid_keys_list:
         time.sleep(0.5)
         # TODO: after release rc/v1.7.0next1. here should be "staked"
-        assert bls_keys_status_dict[pub_key] == "queued"
-
+        assert bls_keys_status_dict[pub_key] == "staked"
 
     # === STEP 3 ====
     # 3) Stake 2 nodes with D in epoch 4
@@ -163,8 +161,7 @@ def test_68_69():
     for pub_key in D_public_valid_keys_list:
         time.sleep(0.5)
         # TODO: after release rc/v1.7.0next1. here should be "staked"
-        assert bls_keys_status_dict[pub_key] == "queued"
-
+        assert bls_keys_status_dict[pub_key] == "staked"
 
     # === STEP 4 ===
     # 4) Create a delegation contract with A
@@ -180,6 +177,9 @@ def test_68_69():
 
     # get delegation contract address
     DELEGATION_CONTRACT_ADDRESS = getDelegationContractAddressFromTx(tx_hash)
+
+
+
 
 
 
