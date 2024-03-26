@@ -22,6 +22,6 @@ def addBlocks(nr_of_blocks):
     return req.text
 
 
-def addBlocksUntilEpochReached(epoch_to_be_reached: str):
-    req = requests.post(DEFAULT_PROXY + f"/simulator/generate-blocks-until-epoch-reached/{epoch_to_be_reached}")
+def addBlocksUntilEpochReached(epoch_to_be_reached: int):
+    req = requests.post(DEFAULT_PROXY + f"/simulator/generate-blocks-until-epoch-reached/{str(epoch_to_be_reached)}")
     return req.text

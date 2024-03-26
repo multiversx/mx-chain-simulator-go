@@ -5,7 +5,7 @@ from config import *
 from helpers import *
 from multiversx_sdk_core import Address
 import json
-
+import time
 
 def getBalance(address):
     req = requests.get(DEFAULT_PROXY + f"/address/{address}")
@@ -18,7 +18,7 @@ def getBalance(address):
     return balance
 
 
-def getPublicAddressFromPem(pem: Path):
+def getPublicAddressFromPem(pem: Path) -> str:
     f = open(pem)
     lines = f.readlines()
     for line in lines:
@@ -97,3 +97,5 @@ def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
         key_status_pair[bls_decoded] = status_decoded
 
     return key_status_pair
+
+
