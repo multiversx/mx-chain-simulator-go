@@ -11,15 +11,16 @@ def main():
     # create a network provider
     provider = ProxyNetworkProvider(SIMULATOR_URL)
 
-    # generate blocks until we reach the epoch 10
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/10", {})
+    targetEpoch = 10
+    # generate blocks until we reach the target epoch
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/{targetEpoch}", {})
 
     network_status = provider.get_network_status()  # will default to metachain
 
-    if network_status.epoch_number < 10:
-       sys.exit(f"epoch 10 not reached")
+    if network_status.epoch_number < targetEpoch:
+       sys.exit(f"epoch {targetEpoch} not reached")
 
-    print("successfully created blocks and epoch 10 was reached")
+    print(f"successfully created blocks and epoch {targetEpoch} was reached")
 
 
 if __name__ == "__main__":
