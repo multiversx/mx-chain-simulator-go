@@ -1,10 +1,13 @@
 package facade
 
 import (
-	"errors"
+	"encoding/base64"
+	"encoding/hex"
+	"fmt"
 
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
 type simulatorFacade struct {
@@ -14,7 +17,7 @@ type simulatorFacade struct {
 // NewSimulatorFacade will create a new instance of simulatorFacade
 func NewSimulatorFacade(simulator SimulatorHandler) (*simulatorFacade, error) {
 	if check.IfNil(simulator) {
-		return nil, errors.New("nil simulator handler ")
+		return nil, errNilSimulatorHandler
 	}
 
 	return &simulatorFacade{
@@ -25,7 +28,7 @@ func NewSimulatorFacade(simulator SimulatorHandler) (*simulatorFacade, error) {
 // GenerateBlocks will generate a provided number of blocks
 func (sf *simulatorFacade) GenerateBlocks(numOfBlocks int) error {
 	if numOfBlocks <= 0 {
-		return errors.New("num of blocks must be greater than zero")
+		return errInvalidNumOfBlocks
 	}
 	return sf.simulator.GenerateBlocks(numOfBlocks)
 }
@@ -43,6 +46,36 @@ func (sf *simulatorFacade) SetKeyValueForAddress(address string, keyValueMap map
 // SetStateMultiple will set the entire state for the provided addresses
 func (sf *simulatorFacade) SetStateMultiple(stateSlice []*dtos.AddressState) error {
 	return sf.simulator.SetStateMultiple(stateSlice)
+}
+
+// AddValidatorKeys will add the validator keys in the multi key handler
+func (sf *simulatorFacade) AddValidatorKeys(validators *dtoc.ValidatorKeys) error {
+	validatorsPrivateKeys := make([][]byte, 0, len(validators.PrivateKeysBase64))
+	for idx, privateKeyBase64 := range validators.PrivateKeysBase64 {
+		privateKeyHexBytes, err := base64.StdEncoding.DecodeString(privateKeyBase64)
+		if err != nil {
+			return fmt.Errorf("cannot base64 decode key index=%d, error=%s", idx, err.Error())
+		}
+
+		privateKeyBytes, err := hex.DecodeString(string(privateKeyHexBytes))
+		if err != nil {
+			return fmt.Errorf("cannot hex decode key index=%d, error=%s", idx, err.Error())
+		}
+
+		validatorsPrivateKeys = append(validatorsPrivateKeys, privateKeyBytes)
+	}
+
+	return sf.simulator.AddValidatorKeys(validatorsPrivateKeys)
+}
+
+// GenerateBlocksUntilEpochIsReached will generate as many blocks are required until the target epoch is reached
+func (sf *simulatorFacade) GenerateBlocksUntilEpochIsReached(targetEpoch int32) error {
+	return sf.simulator.GenerateBlocksUntilEpochIsReached(targetEpoch)
+}
+
+// ForceUpdateValidatorStatistics will force the reset of the cache used for the validators statistics endpoint
+func (sf *simulatorFacade) ForceUpdateValidatorStatistics() error {
+	return sf.simulator.ForceResetValidatorStatisticsCache()
 }
 
 // IsInterfaceNil returns true if there is no value under the interface

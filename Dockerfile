@@ -30,6 +30,5 @@ COPY --from=builder "/lib/libwasmer_linux_amd64.so" "/lib/libwasmer_linux_amd64.
 COPY --from=builder "/lib/libvmexeccapi.so" "/lib/libvmexeccapi.so"
 
 ENTRYPOINT ["./chainsimulator"]
-CMD ["--log-level", "*:DEBUG"]
 
 

@@ -40,7 +40,31 @@ This endpoint initiates the generation of a specified number of blocks for each 
 - **Status Codes:**
     - `200 OK`: Blocks generated successfully.
     - `400 Bad Request`: Invalid request parameters.
-    - 
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
+### `POST /simulator/generate-blocks-until-epoch-reached/:epoch`
+
+This endpoint initiates the generation of blocks for each shard until the target epoch is reached.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/generate-blocks-until-epoch-reached/:epoch`
+- **Parameters:**
+  - `epoch` (path parameter): The target epoch to be reached.
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Blocks generated successfully, target epoch reached.
+  - `400 Bad Request`: Invalid request parameters.
+
 #### Response Body
 ```json
 {
@@ -174,7 +198,64 @@ Example:
 ```
 
 
----
+### `POST /simulator/add-keys`
+
+This endpoint allows you to add new validator private keys in the multi key handler.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/add-keys`
+
+
+##### Request Body
+The request body should be a JSON object representing an object with the next format.
+
+Example:
+```
+{
+  "privateKeysBase64":[
+    "ZjVkYjgwZDE1NzE5MDJiN2UzMDNlNDIzOTUzZGU2NTQ4NzBiYzM1MDhmMThkNGRhODgzODk1NTI3ZjcyMjYxYw==",
+    "ZTVhYTU0NjI0ZmRjNDZkMDdmNDU5ZGZiZDFmNmUxYWZlMTRmN2YyOTY1ZTJiMGJhZjBmMGE0MGQ3ZjYwNDYxYg==",
+  ]
+}
+```
+
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Validator keys were added successfully.
+  - `404 Bad Request`: Invalid request parameters.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
+### `POST /simulator/force-reset-validator-statistics`
+
+This endpoint resets (clears) an internal cache used by the `/validator/statistics` API endpoint route.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/force-reset-validator-statistics`
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Cache cleared successfully.
+  - `400 Bad Request`: Internal error while clearing the cache.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
 
 
 ---
@@ -221,6 +302,12 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         round-duration-in-milliseconds = 6000
         # rounds-per-epoch specifies the number of rounds per epoch
         rounds-per-epoch = 20
+        # initial-round specifies with what round the chain simulator will start
+        initial-round = 0
+        # initial-nonce specifies with what nonce the chain simulator will start
+        initial-nonce = 0
+        # initial-epoch specifies with what epoch the chain simulator will start
+        initial-epoch = 0
         # mx-chain-go-repo will be used to fetch the node configs folder
         mx-chain-go-repo = "https://github.com/multiversx/mx-chain-go"
         # mx-chain-proxy-go-repo will be used to fetch the proxy configs folder
@@ -230,8 +317,47 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         log-file-life-span-in-sec = 432000 # 5 days
         log-file-prefix = "chain-simulator"
         logs-path = "logs"
+    [config.blocks-generator]
+        # auto-generate-blocks specifies if the chain simulator should auto generate blocks
+        auto-generate-blocks = false
+        # block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
+        block-time-in-milliseconds = 6000
 ```
 
+There is also an optional configuration file called `nodeOverride.toml` that can be used to alter specific configuration options 
+for the nodes that assemble the chain simulator. The override mechanism is the same as the one found on the mx-chain-go, prefs.toml file.
+
+The **_[nodeOverride.toml](./cmd/chainsimulator/config/config.toml)_** file:
+
+```toml 
+# OverridableConfigTomlValues represents an array of items to be overloaded inside other configuration files, which can be helpful
+# so that certain config values need to remain the same during upgrades.
+# (for example, an Elasticsearch user wants external.toml->ElasticSearchConnector.Enabled to remain true all the time during upgrades, while the default
+# configuration of the node has the false value)
+# The Path indicates what value to change, while Value represents the new value in string format. The node operator must make sure
+# to follow the same type of the original value (ex: uint32: "37", float32: "37.0", bool: "true")
+# File represents the file name that holds the configuration. Currently, the supported files are:
+# api.toml, config.toml, economics.toml, enableEpochs.toml, enableRounds.toml, external.toml, fullArchiveP2P.toml, p2p.toml, ratings.toml, systemSmartContractsConfig.toml
+# -------------------------------
+# Un-comment and update the following section in order to enable config values overloading
+# -------------------------------
+# OverridableConfigTomlValues = [
+#    { File = "config.toml", Path = "StoragePruning.NumEpochsToKeep", Value = "4" },
+#    { File = "config.toml", Path = "MiniBlocksStorage.Cache.Name", Value = "MiniBlocksStorage" },
+#    { File = "external.toml", Path = "ElasticSearchConnector.Enabled", Value = "true" }
+#]
+```
+
+
+### Build docker image
+```
+DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
+```
+
+### Run with docker
+```
+docker run -p 8085:8085 chainsimulator:latest --log-level *:DEBUG
+```
 
 ## Contribution
 

@@ -81,7 +81,7 @@ func generatePemFromInitialAddress(fileName string, initialAddresses map[uint32]
 
 	for _, wallet := range initialAddresses {
 		blk := pem.Block{
-			Type:  "PRIVATE KEY for " + wallet.Address,
+			Type:  "PRIVATE KEY for " + wallet.Address.Bech32,
 			Bytes: []byte(wallet.PrivateKeyHex),
 		}
 

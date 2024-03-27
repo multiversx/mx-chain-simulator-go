@@ -4,15 +4,17 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/multiversx/mx-chain-core-go v1.2.18
-	github.com/multiversx/mx-chain-go v1.6.4-0.20231229113646-14c74cbebec4
-	github.com/multiversx/mx-chain-logger-go v1.0.13
-	github.com/multiversx/mx-chain-proxy-go v1.1.41
+	github.com/multiversx/mx-chain-core-go v1.2.19-0.20240222081523-011c96ab2548
+	github.com/multiversx/mx-chain-go v1.7.7-0.20240322123517-e7dac66bf179
+	github.com/multiversx/mx-chain-logger-go v1.0.14-0.20240129144507-d00e967c890c
+	github.com/multiversx/mx-chain-proxy-go v1.1.44-0.20240212150040-5f7a82b10b0e
+	github.com/pelletier/go-toml v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli v1.22.10
 )
 
 require (
+	github.com/TwiN/go-color v1.1.0 // indirect
 	github.com/beevik/ntp v1.3.0 // indirect
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -24,7 +26,7 @@ require (
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/containerd/cgroups v1.1.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/davidlazar/go-crypto v0.0.0-20200604182044-b73af7476f6c // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
@@ -114,22 +116,22 @@ require (
 	github.com/multiformats/go-multistream v0.4.1 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
-	github.com/multiversx/mx-chain-communication-go v1.0.8 // indirect
-	github.com/multiversx/mx-chain-crypto-go v1.2.9 // indirect
-	github.com/multiversx/mx-chain-es-indexer-go v1.4.13 // indirect
-	github.com/multiversx/mx-chain-storage-go v1.0.13 // indirect
-	github.com/multiversx/mx-chain-vm-common-go v1.5.7 // indirect
-	github.com/multiversx/mx-chain-vm-go v1.5.19 // indirect
-	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.61 // indirect
-	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.62 // indirect
-	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.90 // indirect
+	github.com/multiversx/mx-chain-communication-go v1.0.13-0.20240126121117-627adccf10ad // indirect
+	github.com/multiversx/mx-chain-crypto-go v1.2.10-0.20231206065052-38843c1f1479 // indirect
+	github.com/multiversx/mx-chain-es-indexer-go v1.4.19-0.20240129150813-a772c480d33a // indirect
+	github.com/multiversx/mx-chain-scenario-go v1.4.3-0.20240212160120-cc32d1580157 // indirect
+	github.com/multiversx/mx-chain-storage-go v1.0.15-0.20240129144933-b1c0d642d7f8 // indirect
+	github.com/multiversx/mx-chain-vm-common-go v1.5.12-0.20240305123516-2231c71162a2 // indirect
+	github.com/multiversx/mx-chain-vm-go v1.5.28-0.20240307121727-b8d371971d9a // indirect
+	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.66-0.20240308085208-3b5a4ab4dd34 // indirect
+	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.67-0.20240308082903-132f9002736b // indirect
+	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.96-0.20240308082831-f05004a05b35 // indirect
 	github.com/multiversx/mx-components-big-int v1.0.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.11.0 // indirect
 	github.com/onsi/gomega v1.27.10 // indirect
 	github.com/opencontainers/runtime-spec v1.0.2 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
-	github.com/pelletier/go-toml v1.9.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -145,9 +147,8 @@ require (
 	github.com/quic-go/webtransport-go v0.5.3 // indirect
 	github.com/raulk/go-watchdog v1.3.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/russross/blackfriday/v2 v2.0.1 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tidwall/gjson v1.14.0 // indirect
