@@ -46,3 +46,6 @@ run_python_script ../../examples/esdt/ issue-fungible.py
 
 # run move balance example
 run_python_script ../../examples/movebalance move-balance.py
+
+# run generate blocks until epoch is reached example
+run_python_script ../../examples/generateBlocks epoch-reached.py
