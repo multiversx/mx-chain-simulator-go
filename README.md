@@ -359,6 +359,16 @@ DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
 docker run -p 8085:8085 chainsimulator:latest --log-level *:DEBUG
 ```
 
+### Enable `HostDriver`
+  
+To enable the host driver in the chain simulator, follow these steps:
+
+1. If you're using the chain simulator for the first time, initiate it once to retrieve
+   the node and proxy configuration from GitHub.
+2. Open the file located at `cmd/chainsimulator/config/node/config/external.toml`.
+   Enable the host driver and modify the configuration.
+   Ensure that the parameters AcknowledgeTimeoutInSec and RetryDurationInSec are set to a value of 1.
+
 ## Contribution
 
 Contributions to the mx-chain-simulator-go module are welcomed. Whether you're interested in improving its features, 
