@@ -14,6 +14,11 @@ var (
 		Usage: "The main configuration file to load",
 		Value: "./config/config.toml",
 	}
+	nodeOverrideConfigurationFile = cli.StringFlag{
+		Name:  "node-override-config",
+		Usage: "The node's override configuration file to load",
+		Value: "./config/nodeOverride.toml",
+	}
 	logLevel = cli.StringFlag{
 		Name: "log-level",
 		Usage: "This flag specifies the logger `level(s)`. It can contain multiple comma-separated value. For example" +
@@ -76,10 +81,20 @@ var (
 		Usage: "This flag is used to specify the number of validators per shard",
 		Value: 1,
 	}
+	numWaitingValidatorsPerShard = cli.IntFlag{
+		Name:  "num-waiting-validators-per-shard",
+		Usage: "This flag is used to specify the number of waiting validators per shard",
+		Value: 0,
+	}
 	numValidatorsMeta = cli.IntFlag{
 		Name:  "num-validators-meta",
 		Usage: "This flag is used to specify the number of validators on metachain",
 		Value: 1,
+	}
+	numWaitingValidatorsMeta = cli.IntFlag{
+		Name:  "num-waiting-validators-meta",
+		Usage: "This flag is used to specify the number of waiting validators on metachain",
+		Value: 0,
 	}
 	initialRound = cli.Uint64Flag{
 		Name:  "initial-round",

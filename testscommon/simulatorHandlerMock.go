@@ -4,11 +4,13 @@ import "github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 
 // SimulatorHandlerMock -
 type SimulatorHandlerMock struct {
-	GetInitialWalletKeysCalled  func() *dtos.InitialWalletKeys
-	GenerateBlocksCalled        func(numOfBlocks int) error
-	SetKeyValueForAddressCalled func(address string, keyValueMap map[string]string) error
-	SetStateMultipleCalled      func(stateSlice []*dtos.AddressState) error
-	AddValidatorKeysCalled      func(validatorsPrivateKeys [][]byte) error
+	GetInitialWalletKeysCalled               func() *dtos.InitialWalletKeys
+	GenerateBlocksCalled                     func(numOfBlocks int) error
+	SetKeyValueForAddressCalled              func(address string, keyValueMap map[string]string) error
+	SetStateMultipleCalled                   func(stateSlice []*dtos.AddressState) error
+	AddValidatorKeysCalled                   func(validatorsPrivateKeys [][]byte) error
+	GenerateBlocksUntilEpochIsReachedCalled  func(targetEpoch int32) error
+	ForceResetValidatorStatisticsCacheCalled func() error
 }
 
 // GetInitialWalletKeys -
@@ -48,6 +50,24 @@ func (mock *SimulatorHandlerMock) AddValidatorKeys(validatorsPrivateKeys [][]byt
 	if mock.AddValidatorKeysCalled != nil {
 		return mock.AddValidatorKeysCalled(validatorsPrivateKeys)
 	}
+	return nil
+}
+
+// GenerateBlocksUntilEpochIsReached -
+func (mock *SimulatorHandlerMock) GenerateBlocksUntilEpochIsReached(targetEpoch int32) error {
+	if mock.GenerateBlocksUntilEpochIsReachedCalled != nil {
+		return mock.GenerateBlocksUntilEpochIsReachedCalled(targetEpoch)
+	}
+
+	return nil
+}
+
+// ForceResetValidatorStatisticsCache -
+func (mock *SimulatorHandlerMock) ForceResetValidatorStatisticsCache() error {
+	if mock.ForceResetValidatorStatisticsCacheCalled != nil {
+		return mock.ForceResetValidatorStatisticsCacheCalled()
+	}
+
 	return nil
 }
 

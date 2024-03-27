@@ -1,5 +1,7 @@
 package config
 
+import "github.com/multiversx/mx-chain-go/config"
+
 // Config will hold the whole config file's data
 type Config struct {
 	Config struct {
@@ -28,4 +30,9 @@ type Config struct {
 type BlocksGeneratorConfig struct {
 	AutoGenerateBlocks bool   `toml:"auto-generate-blocks"`
 	BlockTimeInMs      uint64 `toml:"block-time-in-milliseconds"`
+}
+
+// OverrideConfigs defines the struct used for the overridable configs
+type OverrideConfigs struct {
+	OverridableConfigTomlValues []config.OverridableConfig
 }
