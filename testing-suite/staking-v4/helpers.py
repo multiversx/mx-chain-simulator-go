@@ -20,12 +20,3 @@ def base64ToString(b):
     return base64.b64decode(b).decode('utf-8')
 
 
-def checkResponseDataStructureForDelegationContractAddress(data: str) -> bool:
-    if "@6f6b@" in data:
-        data = data.split("@6f6b@")
-        if "'" in data[1]:
-            data = data[1].replace("'", "")
-            if len(data) == 64:
-                return True
-    else:
-        return False

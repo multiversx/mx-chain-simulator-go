@@ -146,9 +146,11 @@ def test_68_69():
 
     # create contract
     tx_hash = createNewDelegationContract(_A)
+    print(tx_hash)
 
     # move 5 blocks
     response = addBlocks(5)
+    time.sleep(0.5)
     assert "success" in response
     # check if delegation transaction succeeded
     assert getStatusOfTx(tx_hash) == "success"
@@ -170,28 +172,29 @@ def test_68_69():
 
     # 5.2 - send merging tx from C
     tx_hash = mergeValidatorToDelegationWithWhitelist(_C, DELEGATION_CONTRACT_ADDRESS)
-
+    print(tx_hash)
     # move 5 blocks
     response = addBlocks(5)
     assert "success" in response
 
     # check if transaction succeeded
+    time.sleep(0.5)
     assert getStatusOfTx(tx_hash) == "success"
 
     time.sleep(0.5)
-    # check if keys from C were transfered to A
+    # check if keys from C were transfered to A's contract
     for key in C_valid_keys_list:
-        assert key.belongs_to(_A)
+        assert key.belongs_to(DELEGATION_CONTRACT_ADDRESS)
 
     # check if keys are still staked
     for key in C_valid_keys_list:
-        assert key.get_status(_A) == "staked"
+        assert key.get_status(DELEGATION_CONTRACT_ADDRESS) == "staked"
 
     # === STEP 6 ==================================================
     # 6) Merge D nodes in A's contract - should succeed
     # 6.1 - send a whitelist for merge from A to D
     tx_hash = whitelistForMerge(_A, _D, DELEGATION_CONTRACT_ADDRESS)
-
+    print(tx_hash)
     # move 5 blocks
     response = addBlocks(5)
     assert "success" in response
@@ -201,7 +204,7 @@ def test_68_69():
 
     # 6.2 - send merging tx from A
     tx_hash = mergeValidatorToDelegationWithWhitelist(_D, DELEGATION_CONTRACT_ADDRESS)
-
+    print(tx_hash)
     # move 5 blocks
     response = addBlocks(5)
     assert "success" in response
@@ -210,19 +213,19 @@ def test_68_69():
     assert getStatusOfTx(tx_hash) == "success"
 
     time.sleep(0.5)
-    # check if keys from C were transfered to A
+    # check if keys from C were transfered to A's contract
     for key in C_valid_keys_list:
-        assert key.belongs_to(_A)
+        assert key.belongs_to(DELEGATION_CONTRACT_ADDRESS)
 
     # check if keys are still staked
     for key in C_valid_keys_list:
-        assert key.get_status(_A) == "staked"
+        assert key.get_status(DELEGATION_CONTRACT_ADDRESS) == "staked"
 
     # === STEP 7 ===============================================================
     # 7) Merge B nodes in A's contract - should fail
     # 7.1 - send a whitelist for merge from A to B
     tx_hash = whitelistForMerge(_A, _B, DELEGATION_CONTRACT_ADDRESS)
-
+    print(tx_hash)
     # move 5 blocks
     response = addBlocks(5)
     assert "success" in response
@@ -232,13 +235,16 @@ def test_68_69():
 
     # 7.2 - send merging tx from B
     tx_hash = mergeValidatorToDelegationWithWhitelist(_B, DELEGATION_CONTRACT_ADDRESS)
-
+    print(tx_hash)
     # move 5 blocks
     response = addBlocks(5)
     assert "success" in response
 
     # check if transaction failed
-    assert getStatusOfTx(tx_hash) == "failed"
+    assert getStatusOfTx(tx_hash) == "fail"
+
+    # check reason of failure
+    assert checkIfErrorIsPresentInTx("number of nodes is too high", tx_hash)
 
     # === FINISH ===============================================================
 

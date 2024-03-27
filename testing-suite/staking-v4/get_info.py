@@ -43,28 +43,25 @@ def getStatusOfTx(tx_hash: str):
 
 
 def getDelegationContractAddressFromTx(tx_hash):
-    delegation_contract_address_as_bech32 = ""
+    delegation_contract_address = ""
     req = requests.get(DEFAULT_PROXY + f"/transaction/{tx_hash}?withResults=True")
 
     response = req.text
-    response = response.split('"data":')
+    response = response.split('"logs":')
+    response = response[1].split("identifier")
     for element in response:
-        element = element.split('"')
+        if "delegate" in element:
+            element = element.split('"topics":["')
+            element = element[1].split(",")
+            element = element[4].split('"')
+            for _ in element:
+                if len(_) > 3:
+                    delegation_contract_address = _
 
-        if len(element) > 1:
-            try:
-                conversion_to_hex = base64ToHex(element[1])
-                if checkResponseDataStructureForDelegationContractAddress(conversion_to_hex):
-                    delegation_contract_address = conversion_to_hex.split("@6f6b@")
-                    delegation_contract_address = delegation_contract_address[1].replace("'", "")
+    delegation_contract_address = base64ToHex(delegation_contract_address)
+    delegation_contract_address = Address.from_hex(delegation_contract_address, "erd").to_bech32()
 
-                    delegation_contract_address_as_bech32 = Address.from_hex(delegation_contract_address,
-                                                                             "erd").to_bech32()
-
-            except:
-                continue
-
-    return delegation_contract_address_as_bech32
+    return  delegation_contract_address
 
 
 def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
@@ -82,6 +79,10 @@ def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
 
     # get returnData
     response = req.text
+
+    if '"returnData":null' in response:
+        return None
+
     response = response.split('"returnData":')
     response = response[1].split('"returnCode"')
     response = response[0].split('"')
@@ -99,3 +100,14 @@ def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
     return key_status_pair
 
 
+def checkIfErrorIsPresentInTx(error, tx_hash) -> bool:
+    flag = False
+    error = stringToBase64(error)
+
+    req = requests.get(DEFAULT_PROXY + f"/transaction/{tx_hash}?withResults=True")
+    response = req.text
+
+    if error.decode() in response:
+        flag = True
+
+    return flag
