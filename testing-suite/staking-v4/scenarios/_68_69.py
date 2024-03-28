@@ -32,7 +32,6 @@ def main():
 
 
 def test_68_69():
-    # # TODO: add cli param for epochs , so we can re-run the test in different epochs for staking-v4 activation
 
     # === PRE-REQUIRES ==============================================================
     # mint addresses
@@ -81,11 +80,11 @@ def test_68_69():
 
     # check bls keys statuses
     for key in B_valid_keys_list:
-        assert key.get_status(_B) == "staked"
+        assert key.get_status(_B.public_address()) == "staked"
 
     # check if owner is B
     for key in B_valid_keys_list:
-        assert key.belongs_to(_B)
+        assert key.belongs_to(_B.public_address())
 
     # === STEP 2 ================================================================
     # 2) Stake 2 nodes with C in epoch 4
@@ -101,11 +100,11 @@ def test_68_69():
 
     # check bls keys statuses
     for key in C_valid_keys_list:
-        assert key.get_status(_C) == "staked"
+        assert key.get_status(_C.public_address()) == "staked"
 
     # check if owner is C
     for key in C_valid_keys_list:
-        assert key.belongs_to(_C)
+        assert key.belongs_to(_C.public_address())
 
     # === STEP 3 ============================================================
     # 3) Stake 2 nodes with D in epoch 4
@@ -121,11 +120,11 @@ def test_68_69():
 
     # check bls keys statuses
     for key in D_valid_keys_list:
-        assert key.get_status(_D) == "staked"
+        assert key.get_status(_D.public_address()) == "staked"
 
     # check if owner is B
     for key in D_valid_keys_list:
-        assert key.belongs_to(_D)
+        assert key.belongs_to(_D.public_address())
 
     # === STEP 4 ============================================================
     # 4) Create a delegation contract with A

@@ -105,6 +105,35 @@ def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
     return key_status_pair
 
 
+def getOwner(public_validator_key: list[str]) -> str:
+
+    post_body = {
+        "scAddress": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqllls0lczs7",
+        "funcName": "getOwner",
+        "caller": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l",
+        "args": public_validator_key
+    }
+
+    json_structure = json.dumps(post_body)
+    req = requests.post(DEFAULT_PROXY + "/vm-values/query", data=json_structure)
+
+    # get returnData
+    response = req.text
+
+    if '"returnMessage":"owner address is nil"' in response:
+        return "validatorKey not staked"
+
+    response = response.split('"returnData":')
+    response = response[1].split('returnCode')
+    response = response[0].split('"')
+
+    address = response[1]
+    address = base64ToHex(address)
+    address = Address.from_hex(address, "erd").to_bech32()
+
+    return address
+
+
 def checkIfErrorIsPresentInTx(error, tx_hash) -> bool:
     flag = False
     error = stringToBase64(error)

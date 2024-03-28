@@ -12,6 +12,7 @@ from core.wallet import *
 from core.validatorKey import *
 from constants import *
 
+
 def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
 
     # nr of nodes staked
@@ -34,10 +35,10 @@ def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
 
     # create transaction
     tx = Transaction(sender=wallet.get_address().to_bech32(),
-                     receiver=SYSTEM_STAKING_CONTRACT,
+                     receiver=VALIDATOR_CONTRACT,
                      nonce=wallet.get_account().nonce,
                      gas_price=1000000000,
-                     gas_limit=590000000,
+                     gas_limit=200000000,
                      chain_id=proxy_config.chain_id,
                      value=int(amount))
 
@@ -54,3 +55,5 @@ def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
     tx_hash = proxy_default.send_transaction(tx)
 
     return tx_hash
+
+
