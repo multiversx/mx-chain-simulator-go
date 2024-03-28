@@ -1,0 +1,6 @@
+multiversx_sdk_core
+multiversx_sdk_wallet
+multiversx_sdk_network_providers
+pytest
+requests
+bech32
