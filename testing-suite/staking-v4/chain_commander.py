@@ -2,6 +2,9 @@ import requests
 import json
 
 from config import *
+from get_info import *
+from constants import *
+import time
 
 
 def SetEgldToAddress(egld_ammount, erd_address):
@@ -25,3 +28,21 @@ def addBlocks(nr_of_blocks):
 def addBlocksUntilEpochReached(epoch_to_be_reached: int):
     req = requests.post(DEFAULT_PROXY + f"/simulator/generate-blocks-until-epoch-reached/{str(epoch_to_be_reached)}")
     return req.text
+
+
+def addBlocksUntilTxSucceed(tx_hash) -> str:
+    print("Checking: ", tx_hash)
+    counter = 0
+
+    while counter < MAX_NR_OF_BLOCKS_UNTIL_TX_SHOULD_BE_EXECUTED:
+        addBlocks(1)
+
+        time.sleep(WAIT_UNTIL_API_REQUEST_IN_SEC)
+        if getStatusOfTx(tx_hash) == "pending":
+            counter += 1
+        else:
+            print("Succeeded after", counter, " blocks.")
+            return getStatusOfTx(tx_hash)
+
+
+

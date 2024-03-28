@@ -2,7 +2,7 @@ from core.wallet import *
 from pathlib import Path
 from helpers import *
 from get_info import *
-
+from constants import *
 
 class ValidatorKey:
     def __init__(self, path: Path) -> None:

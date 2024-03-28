@@ -7,9 +7,6 @@ PROXY_CHAIN_SIMULATOR = "http://localhost:8085"
 
 DEFAULT_PROXY = PROXY_CHAIN_SIMULATOR
 
-SYSTEM_STAKING_CONTRACT = "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l"
-SYSTEM_DELEGATION_MANAGER_CONTRACT = "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqylllslmq6y6"
-
 
 proxy_default = ProxyNetworkProvider(DEFAULT_PROXY)
 proxy_config = proxy_default.get_network_config()

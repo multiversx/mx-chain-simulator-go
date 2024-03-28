@@ -1,5 +1,5 @@
 import base64
-
+from constants import *
 
 def stringToHex(value):
     hex_value = f'{value:x}'

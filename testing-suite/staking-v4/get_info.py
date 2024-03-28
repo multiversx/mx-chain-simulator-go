@@ -6,6 +6,7 @@ from helpers import *
 from multiversx_sdk_core import Address
 import json
 import time
+from constants import *
 
 def getBalance(address):
     req = requests.get(DEFAULT_PROXY + f"/address/{address}")
@@ -32,10 +33,14 @@ def getPublicAddressFromPem(pem: Path) -> str:
     return address
 
 
-def getStatusOfTx(tx_hash: str):
+def getStatusOfTx(tx_hash: str) -> str:
     req = requests.get(DEFAULT_PROXY + f"/transaction/{tx_hash}/process-status")
 
     status = req.text
+
+    if "transaction not found" in status:
+        return "expired"
+
     status = status.split('"status":')
     status = status[1].split('"')
 

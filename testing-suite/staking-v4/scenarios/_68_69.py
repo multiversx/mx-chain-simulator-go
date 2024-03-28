@@ -32,7 +32,6 @@ def main():
 
 
 def test_68_69():
-
     # # TODO: add cli param for epochs , so we can re-run the test in different epochs for staking-v4 activation
 
     # === PRE-REQUIRES ==============================================================
@@ -77,13 +76,8 @@ def test_68_69():
     # stake
     tx_hash = stake(_B, B_valid_keys_list)
 
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
-
-    # check if tx succeeded
-    time.sleep(1)
-    assert getStatusOfTx(tx_hash) == "success"
+    # move 5 blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
     # check bls keys statuses
     for key in B_valid_keys_list:
@@ -102,12 +96,8 @@ def test_68_69():
     # stake
     tx_hash = stake(_C, C_valid_keys_list)
 
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
-    # check if tx succeeded
-    time.sleep(1)
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
     # check bls keys statuses
     for key in C_valid_keys_list:
@@ -126,12 +116,8 @@ def test_68_69():
     # stake
     tx_hash = stake(_D, D_valid_keys_list)
 
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
-    time.sleep(1)
-    # check if tx succeeded
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
     # check bls keys statuses
     for key in D_valid_keys_list:
@@ -146,14 +132,9 @@ def test_68_69():
 
     # create contract
     tx_hash = createNewDelegationContract(_A)
-    print(tx_hash)
 
-    # move 5 blocks
-    response = addBlocks(5)
-    time.sleep(0.5)
-    assert "success" in response
-    # check if delegation transaction succeeded
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
     # get delegation contract address
     DELEGATION_CONTRACT_ADDRESS = getDelegationContractAddressFromTx(tx_hash)
@@ -163,25 +144,15 @@ def test_68_69():
     # 5.1 - send a whitelist for merge from A to C
     tx_hash = whitelistForMerge(_A, _C, DELEGATION_CONTRACT_ADDRESS)
 
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
-
-    # check if transaction succeeded
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
     # 5.2 - send merging tx from C
     tx_hash = mergeValidatorToDelegationWithWhitelist(_C, DELEGATION_CONTRACT_ADDRESS)
-    print(tx_hash)
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
 
-    # check if transaction succeeded
-    time.sleep(0.5)
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
-    time.sleep(0.5)
     # check if keys from C were transfered to A's contract
     for key in C_valid_keys_list:
         assert key.belongs_to(DELEGATION_CONTRACT_ADDRESS)
@@ -194,25 +165,16 @@ def test_68_69():
     # 6) Merge D nodes in A's contract - should succeed
     # 6.1 - send a whitelist for merge from A to D
     tx_hash = whitelistForMerge(_A, _D, DELEGATION_CONTRACT_ADDRESS)
-    print(tx_hash)
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
 
-    # check if transaction succeeded
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
     # 6.2 - send merging tx from A
     tx_hash = mergeValidatorToDelegationWithWhitelist(_D, DELEGATION_CONTRACT_ADDRESS)
-    print(tx_hash)
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
 
-    # check if transaction succeeded
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
-    time.sleep(0.5)
     # check if keys from C were transfered to A's contract
     for key in C_valid_keys_list:
         assert key.belongs_to(DELEGATION_CONTRACT_ADDRESS)
@@ -225,29 +187,20 @@ def test_68_69():
     # 7) Merge B nodes in A's contract - should fail
     # 7.1 - send a whitelist for merge from A to B
     tx_hash = whitelistForMerge(_A, _B, DELEGATION_CONTRACT_ADDRESS)
-    print(tx_hash)
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
 
-    # check if transaction succeeded
-    assert getStatusOfTx(tx_hash) == "success"
+    # move few blocks and check tx
+    assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
     # 7.2 - send merging tx from B
     tx_hash = mergeValidatorToDelegationWithWhitelist(_B, DELEGATION_CONTRACT_ADDRESS)
-    print(tx_hash)
-    # move 5 blocks
-    response = addBlocks(5)
-    assert "success" in response
 
-    # check if transaction failed
-    assert getStatusOfTx(tx_hash) == "fail"
+    # move few blocks and check tx if is failed
+    assert addBlocksUntilTxSucceed(tx_hash) == "fail"
 
     # check reason of failure
     assert checkIfErrorIsPresentInTx("number of nodes is too high", tx_hash)
 
     # === FINISH ===============================================================
-
 
 
 if __name__ == '__main__':

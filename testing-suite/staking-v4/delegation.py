@@ -9,7 +9,7 @@ from get_info import *
 from config import *
 from helpers import *
 from core.wallet import *
-
+from constants import *
 
 proxy_default = ProxyNetworkProvider(DEFAULT_PROXY)
 proxy_config = proxy_default.get_network_config()
