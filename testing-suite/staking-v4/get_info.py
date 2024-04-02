@@ -108,9 +108,9 @@ def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
 def getOwner(public_validator_key: list[str]) -> str:
 
     post_body = {
-        "scAddress": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqllls0lczs7",
+        "scAddress": STAKING_CONTRACT,
         "funcName": "getOwner",
-        "caller": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l",
+        "caller": VALIDATOR_CONTRACT,
         "args": public_validator_key
     }
 
@@ -145,3 +145,24 @@ def checkIfErrorIsPresentInTx(error, tx_hash) -> bool:
         flag = True
 
     return flag
+
+
+def getTotalStaked(owner: str):
+    address_in_hex = Address.from_bech32(owner).to_hex()
+    post_body = {
+        "scAddress": VALIDATOR_CONTRACT,
+        "funcName": "getTotalStaked",
+        "args": [address_in_hex]
+    }
+
+    json_structure = json.dumps(post_body)
+    req = requests.post(DEFAULT_PROXY + "/vm-values/query", data=json_structure)
+
+    response = req.text
+    response = response.split('"returnData":')
+    response = response[1].split('returnCode')
+    response = response[0].split('"')
+
+    total_staked = response[1]
+    total_staked = base64ToString(total_staked)
+    return total_staked

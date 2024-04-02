@@ -4,6 +4,7 @@ from helpers import *
 from get_info import *
 from constants import *
 
+
 class ValidatorKey:
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -30,7 +31,6 @@ class ValidatorKey:
             if key == self.public_address():
                 return status
 
-
     # using getOwner vm-query
     def belongs_to(self, address: str) -> bool:
         owner = getOwner([self.public_address()])
@@ -38,6 +38,5 @@ class ValidatorKey:
             return True
         else:
             return False
-
 
     # TODO: get_state , to be using validator-statistics
