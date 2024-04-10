@@ -39,7 +39,7 @@ def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
                      nonce=wallet.get_account().nonce,
                      gas_price=1000000000,
                      gas_limit=200000000,
-                     chain_id=proxy_config.chain_id,
+                     chain_id=chain_id,
                      value=int(amount))
 
     tx.data = f"stake@{nr_of_nodes_staked}{stake_signature_and_public_key}".encode()

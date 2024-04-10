@@ -9,6 +9,7 @@ from multiversx_sdk_network_providers import accounts
 from helpers import *
 from constants import *
 
+
 class Wallet:
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -57,4 +58,3 @@ class Wallet:
 
     def get_account(self):
         return proxy_default.get_account(self.get_address())
-

@@ -41,8 +41,20 @@ def addBlocksUntilTxSucceed(tx_hash) -> str:
         if getStatusOfTx(tx_hash) == "pending":
             counter += 1
         else:
-            print("Succeeded after", counter, " blocks.")
+            print("Tx fully executed after", counter, " blocks.")
             return getStatusOfTx(tx_hash)
 
 
+def is_chain_online() -> bool:
+    flag = False
 
+    while not flag:
+        time.sleep(1)
+        try:
+            response = requests.get("http://localhost:8085/network/status/0")
+            print(response)
+            flag = True
+        except requests.exceptions.ConnectionError:
+            print("not jet")
+
+    return flag

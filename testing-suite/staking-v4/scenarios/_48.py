@@ -1,3 +1,5 @@
+import threading
+
 import delegation
 import time
 from config import *
@@ -8,7 +10,8 @@ from staking import *
 from delegation import *
 from core.wallet import *
 from core.validatorKey import *
-
+from core.chain_simulator import *
+from threading import Thread
 
 # Steps:
 # 1) Stake with A 2 nodes
@@ -18,63 +21,92 @@ from core.validatorKey import *
 # 5) check with getBlsKeysStatus if keys are staked
 # do this in epoch 3, 4, 5 and 6
 
+
+EPOCHS = [3, 4, 5, 6]
+blockchain = ChainSimulator(chain_simulator_path)
+
+
+def chain_start():
+    print("chain is starting...")
+    blockchain.start()
+
+
 def main():
-    print("Happy testing")
-    asd = proxy_default.get_network_status().epoch_number
-    print(type(asd))
+    print("Happy testing!")
 
 
 def test_48():
-    # # === PRE-CONDITIONS ==============================================================
-    AMMOUNT_TO_MINT = "6000" + "000000000000000000"
 
-    _A = Wallet(Path("./wallets/walletKey_1.pem"))
+    def scenario(epoch: int):
 
-    # check if minting is successful
-    assert "success" in _A.set_balance(AMMOUNT_TO_MINT)
+        if is_chain_online():
+            # === PRE-CONDITIONS ==============================================================
+            AMMOUNT_TO_MINT = "6000" + "000000000000000000"
 
-    # add some blocks
-    response = addBlocks(5)
-    assert "success" in response
-    time.sleep(0.5)
+            _A = Wallet(Path("./wallets/walletKey_1.pem"))
 
-    # check balance
-    assert _A.get_balance() == AMMOUNT_TO_MINT
+            # check if minting is successful
+            assert "success" in _A.set_balance(AMMOUNT_TO_MINT)
 
-    # move to epoch 2 so staking is enabled
-    assert "success" in addBlocksUntilEpochReached(4)
+            # add some blocks
+            response = addBlocks(5)
+            assert "success" in response
+            time.sleep(0.5)
 
-    # === STEP 1 ==============================================================
-    # 1) Stake with A 2 nodes
-    VALIDATOR_KEY_1 = ValidatorKey(Path("./validatorKeys/validatorKey_1.pem"))
-    VALIDATOR_KEY_2 = ValidatorKey(Path("./validatorKeys/validatorKey_2.pem"))
-    A_Keys = [VALIDATOR_KEY_1, VALIDATOR_KEY_2]
+            # check balance
+            assert _A.get_balance() == AMMOUNT_TO_MINT
 
-    tx_hash = stake(_A, A_Keys)
+            # move to epoch
+            assert "success" in addBlocksUntilEpochReached(epoch)
 
-    # move few blocks and check tx
-    assert addBlocksUntilTxSucceed(tx_hash) == "success"
+            # === STEP 1 ==============================================================
+            # 1) Stake with A 2 nodes
+            VALIDATOR_KEY_1 = ValidatorKey(Path("./validatorKeys/validatorKey_1.pem"))
+            VALIDATOR_KEY_2 = ValidatorKey(Path("./validatorKeys/validatorKey_2.pem"))
+            A_Keys = [VALIDATOR_KEY_1, VALIDATOR_KEY_2]
 
-    # === STEP 2 ==============================================================
-    # 2) check balance of A to be - (5000+gas fees)
-    assert int(_A.get_balance()) < int(AMMOUNT_TO_MINT) - 5000
+            tx_hash = stake(_A, A_Keys)
 
-    # === STEP 3 ==============================================================
-    # 3) check total stake of A
-    total_staked = getTotalStaked(_A.public_address())
-    assert total_staked == "5000" + "000000000000000000"
+            # move few blocks and check tx
+            assert addBlocksUntilTxSucceed(tx_hash) == "success"
 
-    # === STEP 4 ==============================================================
-    # 4) check owner of keys
-    for key in A_Keys:
-        assert key.belongs_to(_A.public_address())
+            # === STEP 2 ==============================================================
+            # 2) check balance of A to be - (5000+gas fees)
+            assert int(_A.get_balance()) < int(AMMOUNT_TO_MINT) - 5000
 
-    # === STEP 5 ==============================================================
-    # 5) check with getBlsKeysStatus if keys are staked
-    for key in A_Keys:
-        assert key.get_status(_A.public_address()) == "staked"
+            # === STEP 3 ==============================================================
+            # 3) check total stake of A
+            total_staked = getTotalStaked(_A.public_address())
+            assert total_staked == "5000" + "000000000000000000"
 
-    # === FINISH ===============================================================
+            # === STEP 4 ==============================================================
+            # 4) check owner of keys
+            for key in A_Keys:
+                assert key.belongs_to(_A.public_address())
+
+            # === STEP 5 ==============================================================
+            # 5) check with getBlsKeysStatus if keys are staked or queued if epoch 3
+            for key in A_Keys:
+                if epoch == 3:
+                    assert key.get_status(_A.public_address()) == "queued"
+                else:
+                    assert key.get_status(_A.public_address()) == "staked"
+
+            # make sure all checks were done in needed epoch
+            assert proxy_default.get_network_status().epoch_number == epoch
+            # === FINISH ===============================================================
+
+            # stop chain
+            blockchain.stop()
+
+    # loop through all epochs needed for this scenario
+    for epoch in EPOCHS:
+        print(f"======================== EPOCH {epoch} =================================")
+        t1 = threading.Thread(target=chain_start)
+        t2 = threading.Thread(target=scenario, args=(epoch,))
+
+        t1.start(), t2.start()
+        t1.join(), t2.join()
 
 
 if __name__ == '__main__':
