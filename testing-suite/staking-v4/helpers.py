@@ -1,5 +1,8 @@
 import base64
 from constants import *
+import random
+import string
+
 
 def stringToHex(value):
     hex_value = f'{value:x}'
@@ -20,3 +23,12 @@ def base64ToString(b):
     return base64.b64decode(b).decode('utf-8')
 
 
+def replaceRandomDataWithAnotherRandomData(input_string: str) -> str:
+    def generateRandomLetter() -> str:
+        return random.choice(string.ascii_letters)
+
+    letter_to_be_replaced = random.choice(input_string)
+    letter_to_replace_with = generateRandomLetter()
+
+    new_string = input_string.replace(letter_to_be_replaced, letter_to_replace_with)
+    return new_string

@@ -30,7 +30,7 @@ def addBlocksUntilEpochReached(epoch_to_be_reached: int):
     return req.text
 
 
-def addBlocksUntilTxSucceed(tx_hash) -> str:
+def addBlocksUntilTxSucceeded(tx_hash) -> str:
     print("Checking: ", tx_hash)
     counter = 0
 

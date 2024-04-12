@@ -136,12 +136,15 @@ def getOwner(public_validator_key: list[str]) -> str:
 
 def checkIfErrorIsPresentInTx(error, tx_hash) -> bool:
     flag = False
-    error = stringToBase64(error)
+    error_bytes = stringToBase64(error)
 
     req = requests.get(DEFAULT_PROXY + f"/transaction/{tx_hash}?withResults=True")
     response = req.text
 
-    if error.decode() in response:
+    if error_bytes.decode() in response:
+        flag = True
+
+    if error in response:
         flag = True
 
     return flag

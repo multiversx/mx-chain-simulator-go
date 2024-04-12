@@ -13,7 +13,6 @@ from constants import *
 from core.validatorKey import *
 
 
-
 def createNewDelegationContract(owner: Wallet, AMOUNT="1250000000000000000000", SERVICE_FEE="00",
                                 DELEGATION_CAP="00") -> str:
     # compute tx
@@ -148,4 +147,3 @@ def stakeNodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[Va
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
     return tx_hash
-

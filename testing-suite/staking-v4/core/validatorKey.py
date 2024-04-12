@@ -22,9 +22,9 @@ class ValidatorKey:
         return address
 
     # is using vm-query with "getBlsKeysStatus" function
-    def get_status(self, address: str) -> str:
-        address = Address.from_bech32(address).to_hex()
-        key_status_pair = getBLSKeysStatus([address])
+    def get_status(self, owner_address: str) -> str:
+        owner_address = Address.from_bech32(owner_address).to_hex()
+        key_status_pair = getBLSKeysStatus([owner_address])
         if key_status_pair is None:
             return "no bls keys on this owner"
         for key, status in key_status_pair.items():

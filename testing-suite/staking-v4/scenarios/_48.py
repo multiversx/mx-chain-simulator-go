@@ -68,7 +68,7 @@ def test_48():
             tx_hash = stake(_A, A_Keys)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceed(tx_hash) == "success"
+            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
 
             # === STEP 2 ==============================================================
             # 2) check balance of A to be - (5000+gas fees)
