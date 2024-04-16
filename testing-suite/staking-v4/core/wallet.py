@@ -29,14 +29,15 @@ class Wallet:
         return address
 
     def get_balance(self) -> int:
-        req = requests.get(DEFAULT_PROXY + f"/address/{self.public_address()}")
+        response = requests.get(f"{DEFAULT_PROXY}/address/{self.public_address()}/balance")
+        response.raise_for_status()
+        parsed = response.json()
 
-        balance = req.text
-        balance = balance.split('"balance":')
-        balance = balance[1].split(',')
-        balance = balance[0].replace('"', "")
+        general_data = parsed.get("data")
+        balance = general_data.get("balance")
 
         return balance
+
 
     def set_balance(self, egld_ammount):
         details = {
@@ -46,7 +47,7 @@ class Wallet:
 
         details_list = [details]
         json_structure = json.dumps(details_list)
-        req = requests.post(DEFAULT_PROXY + "/simulator/set-state", data=json_structure)
+        req = requests.post(f"{DEFAULT_PROXY}/simulator/set-state", data=json_structure)
 
         return req.text
 

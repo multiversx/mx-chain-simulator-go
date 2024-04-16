@@ -8,16 +8,6 @@ import json
 import time
 from constants import *
 
-def getBalance(address):
-    req = requests.get(DEFAULT_PROXY + f"/address/{address}")
-
-    balance = req.text
-    balance = balance.split('"balance":')
-    balance = balance[1].split(',')
-    balance = balance[0].replace('"', "")
-
-    return balance
-
 
 def getPublicAddressFromPem(pem: Path) -> str:
     f = open(pem)
@@ -34,44 +24,40 @@ def getPublicAddressFromPem(pem: Path) -> str:
 
 
 def getStatusOfTx(tx_hash: str) -> str:
-    req = requests.get(DEFAULT_PROXY + f"/transaction/{tx_hash}/process-status")
+    response = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}/process-status")
+    response.raise_for_status()
+    parsed = response.json()
 
-    status = req.text
-
-    if "transaction not found" in status:
+    if "transaction not found" in response.text:
         return "expired"
 
-    status = status.split('"status":')
-    status = status[1].split('"')
-
-    return status[1]
+    general_data = parsed.get("data")
+    status = general_data.get("status")
+    return status
 
 
 def getDelegationContractAddressFromTx(tx_hash):
-    delegation_contract_address = ""
-    req = requests.get(DEFAULT_PROXY + f"/transaction/{tx_hash}?withResults=True")
 
-    response = req.text
-    response = response.split('"logs":')
-    response = response[1].split("identifier")
-    for element in response:
-        if "delegate" in element:
-            element = element.split('"topics":["')
-            element = element[1].split(",")
-            element = element[4].split('"')
-            for _ in element:
-                if len(_) > 3:
-                    delegation_contract_address = _
+    response = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}?withResults=True")
+    response.raise_for_status()
+    parsed = response.json()
+
+    general_data = parsed.get("data")
+    transaction_data = general_data.get("transaction")
+    logs_data = transaction_data.get("logs")
+    events_data = logs_data.get("events")
+    first_set_of_events = events_data[0]
+    topics = first_set_of_events.get("topics")
+    delegation_contract_address = topics[1]
 
     delegation_contract_address = base64ToHex(delegation_contract_address)
     delegation_contract_address = Address.from_hex(delegation_contract_address, "erd").to_bech32()
 
-    return  delegation_contract_address
+    return delegation_contract_address
 
 
 def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
     key_status_pair = {}
-    key_status_temp_list = []
 
     post_body = {
         "scAddress": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l",
@@ -80,20 +66,16 @@ def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
     }
 
     json_structure = json.dumps(post_body)
-    req = requests.post(DEFAULT_PROXY + "/vm-values/query", data=json_structure)
+    response = requests.post(f"{DEFAULT_PROXY}/vm-values/query", data=json_structure)
+    response.raise_for_status()
+    parsed = response.json()
 
-    # get returnData
-    response = req.text
-
-    if '"returnData":null' in response:
+    if '"returnData":null' in response.text:
         return None
 
-    response = response.split('"returnData":')
-    response = response[1].split('"returnCode"')
-    response = response[0].split('"')
-    for element in response:
-        if len(element) > 3:
-            key_status_temp_list.append(element)
+    general_data = parsed.get("data")
+    tx_response_data = general_data.get("data")
+    key_status_temp_list = tx_response_data.get("returnData")
 
     # convert all elements from list to hex and add to final dict:
     for i in range(0, len(key_status_temp_list), 2):
@@ -115,19 +97,18 @@ def getOwner(public_validator_key: list[str]) -> str:
     }
 
     json_structure = json.dumps(post_body)
-    req = requests.post(DEFAULT_PROXY + "/vm-values/query", data=json_structure)
+    response = requests.post(f"{DEFAULT_PROXY}/vm-values/query", data=json_structure)
+    response.raise_for_status()
+    parsed = response.json()
 
-    # get returnData
-    response = req.text
-
-    if '"returnMessage":"owner address is nil"' in response:
+    if '"returnMessage":"owner address is nil"' in response.text:
         return "validatorKey not staked"
 
-    response = response.split('"returnData":')
-    response = response[1].split('returnCode')
-    response = response[0].split('"')
+    general_data = parsed.get("data")
+    tx_response_data = general_data.get("data")
+    address_list = tx_response_data.get("returnData")
+    address = address_list[0]
 
-    address = response[1]
     address = base64ToHex(address)
     address = Address.from_hex(address, "erd").to_bech32()
 
@@ -138,7 +119,7 @@ def checkIfErrorIsPresentInTx(error, tx_hash) -> bool:
     flag = False
     error_bytes = stringToBase64(error)
 
-    req = requests.get(DEFAULT_PROXY + f"/transaction/{tx_hash}?withResults=True")
+    req = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}?withResults=True")
     response = req.text
 
     if error_bytes.decode() in response:
@@ -159,13 +140,14 @@ def getTotalStaked(owner: str):
     }
 
     json_structure = json.dumps(post_body)
-    req = requests.post(DEFAULT_PROXY + "/vm-values/query", data=json_structure)
+    response = requests.post(f"{DEFAULT_PROXY}/vm-values/query", data=json_structure)
+    response.raise_for_status()
+    parsed = response.json()
 
-    response = req.text
-    response = response.split('"returnData":')
-    response = response[1].split('returnCode')
-    response = response[0].split('"')
+    general_data = parsed.get("data")
+    tx_response_data = general_data.get("data")
+    total_staked_list = tx_response_data.get("returnData")
+    total_staked = total_staked_list[0]
 
-    total_staked = response[1]
     total_staked = base64ToString(total_staked)
     return total_staked

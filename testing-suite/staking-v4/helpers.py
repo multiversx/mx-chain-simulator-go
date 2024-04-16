@@ -4,7 +4,7 @@ import random
 import string
 
 
-def stringToHex(value):
+def decimalToHex(value: int):
     hex_value = f'{value:x}'
     if len(hex_value) % 2 > 0:
         hex_value = "0" + hex_value

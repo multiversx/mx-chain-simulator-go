@@ -32,7 +32,7 @@ def chain_start():
 
 
 def main():
-    print("Happy testing!")
+    print("Happy testing")
 
 
 def test_48():

@@ -7,6 +7,7 @@ from get_info import *
 from constants import *
 from chain_commander import *
 
+
 class ValidatorKey:
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -40,16 +41,18 @@ class ValidatorKey:
         # sometimes it needs a second until cache is resetting
         time.sleep(1)
 
-        req = requests.get(DEFAULT_PROXY + "/validator/statistics")
-        response = req.text
+        response = requests.get(f"{DEFAULT_PROXY}/validator/statistics")
+        response.raise_for_status()
+        parsed = response.json()
 
-        if self.public_address() in response:
-            state = response.split(self.public_address())
-            state = state[1].split('"validatorStatus":')
-            state = state[1].split('"')
-            return state[1]
-        else:
+        general_data = parsed.get("data")
+        general_statistics = general_data.get("statistics")
+        key_data = general_statistics.get(self.public_address())
+        if key_data is None:
             return "Key not present in validator/statistics"
+        else:
+            status = key_data.get("validatorStatus")
+            return status
 
     # using getOwner vm-query
     def belongs_to(self, address: str) -> bool:
