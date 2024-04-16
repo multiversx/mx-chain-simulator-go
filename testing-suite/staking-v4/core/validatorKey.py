@@ -1,9 +1,11 @@
+import requests
+
 from core.wallet import *
 from pathlib import Path
 from helpers import *
 from get_info import *
 from constants import *
-
+from chain_commander import *
 
 class ValidatorKey:
     def __init__(self, path: Path) -> None:
@@ -31,6 +33,24 @@ class ValidatorKey:
             if key == self.public_address():
                 return status
 
+    # is using /validator/statistics route
+    def get_state(self) -> str:
+        force_reset_validator_statistics()
+
+        # sometimes it needs a second until cache is resetting
+        time.sleep(1)
+
+        req = requests.get(DEFAULT_PROXY + "/validator/statistics")
+        response = req.text
+
+        if self.public_address() in response:
+            state = response.split(self.public_address())
+            state = state[1].split('"validatorStatus":')
+            state = state[1].split('"')
+            return state[1]
+        else:
+            return "Key not present in validator/statistics"
+
     # using getOwner vm-query
     def belongs_to(self, address: str) -> bool:
         owner = getOwner([self.public_address()])
@@ -39,4 +59,15 @@ class ValidatorKey:
         else:
             return False
 
-    # TODO: get_state , to be using validator-statistics
+    def get_private_key(self) -> str:
+        private_key = ""
+
+        f = open(self.path)
+        lines = f.readlines()
+        for line in lines:
+            if not "BEGIN" in line and not "END" in line:
+                private_key += line
+        if "\n" in private_key:
+            private_key = private_key.replace("\n", "")
+
+        return private_key

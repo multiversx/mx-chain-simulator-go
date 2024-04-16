@@ -7,6 +7,7 @@ from constants import *
 import time
 
 
+
 def SetEgldToAddress(egld_ammount, erd_address):
     details = {
         'address': f'{erd_address}',
@@ -58,3 +59,23 @@ def is_chain_online() -> bool:
             print("not jet")
 
     return flag
+
+
+def force_reset_validator_statistics():
+    req = requests.post(DEFAULT_PROXY + f"/simulator/force-reset-validator-statistics")
+    print(req.text)
+
+    return req.text
+
+
+def addKey(private_keys: list) -> str:
+
+    post_body = {
+        "privateKeysBase64": private_keys
+    }
+
+    json_structure = json.dumps(post_body)
+    req = requests.post(DEFAULT_PROXY + f"/simulator/add-keys", data=json_structure)
+
+    return req.text
+

@@ -9,7 +9,7 @@ from get_info import *
 from config import *
 from helpers import *
 from core.wallet import *
-from core.validatorKey import *
+from core.validatorKey import ValidatorKey
 from constants import *
 
 
@@ -92,6 +92,31 @@ def malicious_stake(wallet: Wallet, validatorKeys: list[ValidatorKey], AMOUNT_DE
     else:
         tx.data = f"stake@{nr_of_nodes_staked}{stake_signature_and_public_key}".encode()
 
+    # prepare signature
+    tx_comp = TransactionComputer()
+    result_bytes = tx_comp.compute_bytes_for_signing(tx)
+
+    signature = wallet.get_signer().sign(result_bytes)
+    tx.signature = signature
+
+    # send tx
+    tx_hash = proxy_default.send_transaction(tx)
+
+    return tx_hash
+
+
+def unStake(wallet: Wallet, validator_key: ValidatorKey) -> str:
+
+    # create transaction
+    tx = Transaction(sender=wallet.get_address().to_bech32(),
+                     receiver=VALIDATOR_CONTRACT,
+                     nonce=wallet.get_account().nonce,
+                     gas_price=1000000000,
+                     gas_limit=200000000,
+                     chain_id=chain_id,
+                     value=0)
+
+    tx.data = f"unStake@{validator_key.public_address()}".encode()
 
     # prepare signature
     tx_comp = TransactionComputer()
