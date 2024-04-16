@@ -25,3 +25,4 @@ num_validators_meta = "10"
 num_waiting_validators_per_shard = "6"
 num_waiting_validators_meta = "6"
 
+rounds_per_epoch = "50"
