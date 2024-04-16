@@ -9,21 +9,7 @@ import time
 from constants import *
 
 
-def getPublicAddressFromPem(pem: Path) -> str:
-    f = open(pem)
-    lines = f.readlines()
-    for line in lines:
-        if "BEGIN" in line:
-            line = line.split(" ")
-            address = line[-1].replace("-----", "")
-            if "\n" in address:
-                address = address.replace("\n", "")
-            break
-
-    return address
-
-
-def getStatusOfTx(tx_hash: str) -> str:
+def get_status_of_tx(tx_hash: str) -> str:
     response = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}/process-status")
     response.raise_for_status()
     parsed = response.json()
@@ -36,7 +22,7 @@ def getStatusOfTx(tx_hash: str) -> str:
     return status
 
 
-def getDelegationContractAddressFromTx(tx_hash):
+def get_delegation_contract_address_from_tx(tx_hash):
 
     response = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}?withResults=True")
     response.raise_for_status()
@@ -50,13 +36,13 @@ def getDelegationContractAddressFromTx(tx_hash):
     topics = first_set_of_events.get("topics")
     delegation_contract_address = topics[1]
 
-    delegation_contract_address = base64ToHex(delegation_contract_address)
+    delegation_contract_address = base64_to_hex(delegation_contract_address)
     delegation_contract_address = Address.from_hex(delegation_contract_address, "erd").to_bech32()
 
     return delegation_contract_address
 
 
-def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
+def get_bls_key_status(owner_public_key_in_hex: list[str]):
     key_status_pair = {}
 
     post_body = {
@@ -79,15 +65,15 @@ def getBLSKeysStatus(owner_public_key_in_hex: list[str]):
 
     # convert all elements from list to hex and add to final dict:
     for i in range(0, len(key_status_temp_list), 2):
-        bls_decoded = base64ToHex(key_status_temp_list[i])
-        status_decoded = base64ToString(key_status_temp_list[i + 1])
+        bls_decoded = base64_to_hex(key_status_temp_list[i])
+        status_decoded = base64_to_string(key_status_temp_list[i + 1])
 
         key_status_pair[bls_decoded] = status_decoded
 
     return key_status_pair
 
 
-def getOwner(public_validator_key: list[str]) -> str:
+def get_owner(public_validator_key: list[str]) -> str:
 
     post_body = {
         "scAddress": STAKING_CONTRACT,
@@ -109,15 +95,15 @@ def getOwner(public_validator_key: list[str]) -> str:
     address_list = tx_response_data.get("returnData")
     address = address_list[0]
 
-    address = base64ToHex(address)
+    address = base64_to_hex(address)
     address = Address.from_hex(address, "erd").to_bech32()
 
     return address
 
 
-def checkIfErrorIsPresentInTx(error, tx_hash) -> bool:
+def check_if_error_is_present_in_tx(error, tx_hash) -> bool:
     flag = False
-    error_bytes = stringToBase64(error)
+    error_bytes = string_to_base64(error)
 
     req = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}?withResults=True")
     response = req.text
@@ -131,7 +117,7 @@ def checkIfErrorIsPresentInTx(error, tx_hash) -> bool:
     return flag
 
 
-def getTotalStaked(owner: str):
+def get_total_staked(owner: str):
     address_in_hex = Address.from_bech32(owner).to_hex()
     post_body = {
         "scAddress": VALIDATOR_CONTRACT,
@@ -149,5 +135,5 @@ def getTotalStaked(owner: str):
     total_staked_list = tx_response_data.get("returnData")
     total_staked = total_staked_list[0]
 
-    total_staked = base64ToString(total_staked)
+    total_staked = base64_to_string(total_staked)
     return total_staked

@@ -13,8 +13,8 @@ from constants import *
 from core.validatorKey import *
 
 
-def createNewDelegationContract(owner: Wallet, AMOUNT="1250000000000000000000", SERVICE_FEE="00",
-                                DELEGATION_CAP="00") -> str:
+def create_new_delegation_contract(owner: Wallet, AMOUNT="1250000000000000000000", SERVICE_FEE="00",
+                                   DELEGATION_CAP="00") -> str:
     # compute tx
     tx = Transaction(sender=owner.get_address().to_bech32(),
                      receiver=SYSTEM_DELEGATION_MANAGER_CONTRACT,
@@ -37,7 +37,7 @@ def createNewDelegationContract(owner: Wallet, AMOUNT="1250000000000000000000", 
     return tx_hash
 
 
-def whitelistForMerge(old_owner: Wallet, new_owner: Wallet, delegation_sc_address: str) -> str:
+def whitelist_for_merge(old_owner: Wallet, new_owner: Wallet, delegation_sc_address: str) -> str:
     delegation_sc_address = Address.from_bech32(delegation_sc_address)
 
     # compute tx
@@ -62,7 +62,7 @@ def whitelistForMerge(old_owner: Wallet, new_owner: Wallet, delegation_sc_addres
     return tx_hash
 
 
-def mergeValidatorToDelegationWithWhitelist(new_owner: Wallet, delegation_sc_address: str):
+def merge_validator_to_delegation_with_whitelist(new_owner: Wallet, delegation_sc_address: str):
     delegation_sc_address_as_hex = Address.from_bech32(delegation_sc_address).to_hex()
 
     # compute tx
@@ -87,7 +87,7 @@ def mergeValidatorToDelegationWithWhitelist(new_owner: Wallet, delegation_sc_add
     return tx_hash
 
 
-def addNodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[ValidatorKey]) -> str:
+def add_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[ValidatorKey]) -> str:
     # load needed data for stake transactions signatures
     stake_signature_and_public_key = ''
     for key in validatorKeys:
@@ -121,7 +121,7 @@ def addNodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[Vali
     return tx_hash
 
 
-def stakeNodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[ValidatorKey]):
+def stake_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[ValidatorKey]):
     pub_key_string = ''
     for key in validatorKeys:
         pub_key_string += f"@{key.public_address()}"

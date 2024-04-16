@@ -38,29 +38,29 @@ def test_49_50():
 
         if is_chain_online():
             # === PRE-CONDITIONS ==============================================================
-            AMMOUNT_TO_MINT = "6000" + "000000000000000000"
+            AMOUNT_TO_MINT = "6000" + "000000000000000000"
 
             _A = Wallet(Path("./wallets/walletKey_1.pem"))
             _B = Wallet(Path("./wallets/walletKey_2.pem"))
             _C = Wallet(Path("./wallets/walletKey_3.pem"))
 
             # check if minting is successful
-            assert "success" in _A.set_balance(AMMOUNT_TO_MINT)
-            assert "success" in _B.set_balance(AMMOUNT_TO_MINT)
-            assert "success" in _C.set_balance(AMMOUNT_TO_MINT)
+            assert "success" in _A.set_balance(AMOUNT_TO_MINT)
+            assert "success" in _B.set_balance(AMOUNT_TO_MINT)
+            assert "success" in _C.set_balance(AMOUNT_TO_MINT)
 
             # add some blocks
-            response = addBlocks(5)
+            response = add_blocks(5)
             assert "success" in response
             time.sleep(0.5)
 
             # check balance
-            assert _A.get_balance() == AMMOUNT_TO_MINT
-            assert _B.get_balance() == AMMOUNT_TO_MINT
-            assert _C.get_balance() == AMMOUNT_TO_MINT
+            assert _A.get_balance() == AMOUNT_TO_MINT
+            assert _B.get_balance() == AMOUNT_TO_MINT
+            assert _C.get_balance() == AMOUNT_TO_MINT
 
             # move to epoch
-            assert "success" in addBlocksUntilEpochReached(epoch)
+            assert "success" in add_blocks_until_epoch_reached(epoch)
 
             # === STEP 1 ==============================================================
             # 1) Test 49 : Stake a node with an invalid bls key
@@ -91,7 +91,7 @@ def test_49_50():
             _key = ValidatorKey(Path("./validatorKeys/validatorKey_2.pem"))
             tx_hash = stake(_A, [_key])
 
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # make sure key is staked
             if epoch == 3:
@@ -102,10 +102,10 @@ def test_49_50():
             # stake same key again
             tx_hash = stake(_B, [_key])
 
-            assert addBlocksUntilTxSucceeded(tx_hash) == "fail"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "fail"
 
             # check if it fails with the correct error message
-            assert checkIfErrorIsPresentInTx("error bls key already registered", tx_hash)
+            assert check_if_error_is_present_in_tx("error bls key already registered", tx_hash)
 
             # === STEP 3 ==============================================================
             # 3) Test 50 : Stake a node with less than 2500 egld
@@ -113,10 +113,10 @@ def test_49_50():
             _key = ValidatorKey(Path("./validatorKeys/validatorKey_3.pem"))
             tx_hash = malicious_stake(_C, [_key], AMOUNT_DEFICIT=1)
 
-            assert addBlocksUntilTxSucceeded(tx_hash) == "fail"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "fail"
 
             # check if error message is present in tx
-            assert checkIfErrorIsPresentInTx("insufficient stake value", tx_hash)
+            assert check_if_error_is_present_in_tx("insufficient stake value", tx_hash)
 
             # make sure all checks were done in needed epoch
             assert proxy_default.get_network_status().epoch_number == epoch

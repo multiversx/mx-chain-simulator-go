@@ -46,7 +46,7 @@ def test_68_69():
         if is_chain_online():
             # === PRE-CONDITIONS ==============================================================
             # mint addresses
-            AMMOUNT_TO_MINT = "50000" + "000000000000000000"
+            AMOUNT_TO_MINT = "50000" + "000000000000000000"
 
             _A = Wallet(Path("./wallets/walletKey_1.pem"))
             _B = Wallet(Path("./wallets/walletKey_2.pem"))
@@ -54,25 +54,25 @@ def test_68_69():
             _D = Wallet(Path("./wallets/walletKey_4.pem"))
 
             # check minting request will succeed
-            assert "success" in _A.set_balance(AMMOUNT_TO_MINT)
-            assert "success" in _B.set_balance(AMMOUNT_TO_MINT)
-            assert "success" in _C.set_balance(AMMOUNT_TO_MINT)
-            assert "success" in _D.set_balance(AMMOUNT_TO_MINT)
+            assert "success" in _A.set_balance(AMOUNT_TO_MINT)
+            assert "success" in _B.set_balance(AMOUNT_TO_MINT)
+            assert "success" in _C.set_balance(AMOUNT_TO_MINT)
+            assert "success" in _D.set_balance(AMOUNT_TO_MINT)
 
             # add some blocks
-            response = addBlocks(5)
+            response = add_blocks(5)
             assert "success" in response
             time.sleep(0.5)
 
             # check balances
-            assert _A.get_balance() == AMMOUNT_TO_MINT
-            assert _B.get_balance() == AMMOUNT_TO_MINT
-            assert _C.get_balance() == AMMOUNT_TO_MINT
-            assert _D.get_balance() == AMMOUNT_TO_MINT
+            assert _A.get_balance() == AMOUNT_TO_MINT
+            assert _B.get_balance() == AMOUNT_TO_MINT
+            assert _C.get_balance() == AMOUNT_TO_MINT
+            assert _D.get_balance() == AMOUNT_TO_MINT
 
             # go to needed epoch
             time.sleep(1)
-            response = addBlocksUntilEpochReached(epoch)
+            response = add_blocks_until_epoch_reached(epoch)
             assert "success" in response
 
             # === STEP 1 ===============================================================
@@ -87,7 +87,7 @@ def test_68_69():
             tx_hash = stake(_B, B_valid_keys_list)
 
             # move on until tx is success
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # check bls keys statuses
             for key in B_valid_keys_list:
@@ -110,7 +110,7 @@ def test_68_69():
             tx_hash = stake(_C, C_valid_keys_list)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # check bls keys statuses
             for key in C_valid_keys_list:
@@ -133,7 +133,7 @@ def test_68_69():
             tx_hash = stake(_D, D_valid_keys_list)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # check bls keys statuses
             for key in D_valid_keys_list:
@@ -150,27 +150,27 @@ def test_68_69():
             # 4) Create a delegation contract with A
 
             # create contract
-            tx_hash = createNewDelegationContract(_A)
+            tx_hash = create_new_delegation_contract(_A)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # get delegation contract address
-            DELEGATION_CONTRACT_ADDRESS = getDelegationContractAddressFromTx(tx_hash)
+            DELEGATION_CONTRACT_ADDRESS = get_delegation_contract_address_from_tx(tx_hash)
 
             # === STEP 5 ============================================================
             # 5) Merge C nodes in A's contract - should succeed
             # 5.1 - send a whitelist for merge from A to C
-            tx_hash = whitelistForMerge(_A, _C, DELEGATION_CONTRACT_ADDRESS)
+            tx_hash = whitelist_for_merge(_A, _C, DELEGATION_CONTRACT_ADDRESS)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # 5.2 - send merging tx from C
-            tx_hash = mergeValidatorToDelegationWithWhitelist(_C, DELEGATION_CONTRACT_ADDRESS)
+            tx_hash = merge_validator_to_delegation_with_whitelist(_C, DELEGATION_CONTRACT_ADDRESS)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # check if keys from C were transfered to A's contract
             for key in C_valid_keys_list:
@@ -186,16 +186,16 @@ def test_68_69():
             # === STEP 6 ==================================================
             # 6) Merge D nodes in A's contract - should succeed
             # 6.1 - send a whitelist for merge from A to D
-            tx_hash = whitelistForMerge(_A, _D, DELEGATION_CONTRACT_ADDRESS)
+            tx_hash = whitelist_for_merge(_A, _D, DELEGATION_CONTRACT_ADDRESS)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # 6.2 - send merging tx from A
-            tx_hash = mergeValidatorToDelegationWithWhitelist(_D, DELEGATION_CONTRACT_ADDRESS)
+            tx_hash = merge_validator_to_delegation_with_whitelist(_D, DELEGATION_CONTRACT_ADDRESS)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # check if keys from C were transfered to A's contract
             for key in C_valid_keys_list:
@@ -211,21 +211,21 @@ def test_68_69():
             # === STEP 7 ===============================================================
             # 7) Merge B nodes in A's contract - should fail
             # 7.1 - send a whitelist for merge from A to B
-            tx_hash = whitelistForMerge(_A, _B, DELEGATION_CONTRACT_ADDRESS)
+            tx_hash = whitelist_for_merge(_A, _B, DELEGATION_CONTRACT_ADDRESS)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # 7.2 - send merging tx from B
-            tx_hash = mergeValidatorToDelegationWithWhitelist(_B, DELEGATION_CONTRACT_ADDRESS)
+            tx_hash = merge_validator_to_delegation_with_whitelist(_B, DELEGATION_CONTRACT_ADDRESS)
 
             # move few blocks and check tx if is failed
             if epoch == 3:
-                assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+                assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
             else:
-                assert addBlocksUntilTxSucceeded(tx_hash) == "fail"
+                assert add_blocks_until_tx_fully_executed(tx_hash) == "fail"
                 # check reason of failure
-                assert checkIfErrorIsPresentInTx("number of nodes is too high", tx_hash)
+                assert check_if_error_is_present_in_tx("number of nodes is too high", tx_hash)
 
             # make sure all checks were done in needed epoch
             assert proxy_default.get_network_status().epoch_number == epoch

@@ -41,23 +41,23 @@ def test_48():
 
         if is_chain_online():
             # === PRE-CONDITIONS ==============================================================
-            AMMOUNT_TO_MINT = "6000" + "000000000000000000"
+            AMOUNT_TO_MINT = "6000" + "000000000000000000"
 
             _A = Wallet(Path("./wallets/walletKey_1.pem"))
 
             # check if minting is successful
-            assert "success" in _A.set_balance(AMMOUNT_TO_MINT)
+            assert "success" in _A.set_balance(AMOUNT_TO_MINT)
 
             # add some blocks
-            response = addBlocks(5)
+            response = add_blocks(5)
             assert "success" in response
             time.sleep(0.5)
 
             # check balance
-            assert _A.get_balance() == AMMOUNT_TO_MINT
+            assert _A.get_balance() == AMOUNT_TO_MINT
 
             # move to epoch
-            assert "success" in addBlocksUntilEpochReached(epoch)
+            assert "success" in add_blocks_until_epoch_reached(epoch)
 
             # === STEP 1 ==============================================================
             # 1) Stake with A 2 nodes
@@ -68,15 +68,15 @@ def test_48():
             tx_hash = stake(_A, A_Keys)
 
             # move few blocks and check tx
-            assert addBlocksUntilTxSucceeded(tx_hash) == "success"
+            assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
             # === STEP 2 ==============================================================
             # 2) check balance of A to be - (5000+gas fees)
-            assert int(_A.get_balance()) < int(AMMOUNT_TO_MINT) - 5000
+            assert int(_A.get_balance()) < int(AMOUNT_TO_MINT) - 5000
 
             # === STEP 3 ==============================================================
             # 3) check total stake of A
-            total_staked = getTotalStaked(_A.public_address())
+            total_staked = get_total_staked(_A.public_address())
             assert total_staked == "5000" + "000000000000000000"
 
             # === STEP 4 ==============================================================

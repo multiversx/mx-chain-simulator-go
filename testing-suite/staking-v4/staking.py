@@ -17,7 +17,7 @@ def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
 
     # nr of nodes staked
     nr_of_nodes_staked = len(validatorKeys)
-    nr_of_nodes_staked = decimalToHex(nr_of_nodes_staked)
+    nr_of_nodes_staked = decimal_to_hex(nr_of_nodes_staked)
 
     # load needed data for stake transactions signatures
     stake_signature_and_public_key = ''
@@ -60,7 +60,7 @@ def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
 def malicious_stake(wallet: Wallet, validatorKeys: list[ValidatorKey], AMOUNT_DEFICIT="0", TX_DATA_MANIPULATOR=False):
     # nr of nodes staked
     nr_of_nodes_staked = len(validatorKeys)
-    nr_of_nodes_staked = decimalToHex(nr_of_nodes_staked)
+    nr_of_nodes_staked = decimal_to_hex(nr_of_nodes_staked)
 
     # load needed data for stake transactions signatures
     stake_signature_and_public_key = ''
@@ -87,7 +87,7 @@ def malicious_stake(wallet: Wallet, validatorKeys: list[ValidatorKey], AMOUNT_DE
 
     if TX_DATA_MANIPULATOR:
         data = f"{nr_of_nodes_staked}{stake_signature_and_public_key}"
-        manipulated_data = replaceRandomDataWithAnotherRandomData(data)
+        manipulated_data = replace_random_data_with_another_random_data(data)
         tx.data = f"stake@{manipulated_data}".encode()
     else:
         tx.data = f"stake@{nr_of_nodes_staked}{stake_signature_and_public_key}".encode()

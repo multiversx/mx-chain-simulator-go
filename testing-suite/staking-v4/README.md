@@ -1,7 +1,7 @@
 # Testing suite using mvx python sdk and chain-simulator for staking-v4 feature 
 
 ## Overview:
-- All tests are written based on scenarios from the testing plan that can be found [here](https://docs.google.com/spreadsheets/d/154IAPppvYBScPHYOVk696o7Izi4Ode9b7Lwk2iFt_p4/edit#gid=2043239020).
+- All tests are written based on scenarios from the internal testing plan.
 
 ## How to run: 
 

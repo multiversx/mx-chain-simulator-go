@@ -27,7 +27,7 @@ class ValidatorKey:
     # is using vm-query with "getBlsKeysStatus" function
     def get_status(self, owner_address: str) -> str:
         owner_address = Address.from_bech32(owner_address).to_hex()
-        key_status_pair = getBLSKeysStatus([owner_address])
+        key_status_pair = get_bls_key_status([owner_address])
         if key_status_pair is None:
             return "no bls keys on this owner"
         for key, status in key_status_pair.items():
@@ -56,7 +56,7 @@ class ValidatorKey:
 
     # using getOwner vm-query
     def belongs_to(self, address: str) -> bool:
-        owner = getOwner([self.public_address()])
+        owner = get_owner([self.public_address()])
         if owner == address:
             return True
         else:
