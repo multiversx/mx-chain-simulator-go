@@ -7,6 +7,13 @@
 *.dll
 *.so
 *.dylib
+*.DS_Store
+
+# python stuff
+__pycache__/
+venv/
+.idea/
+.pytest_cache/
 
 # Test binary, built with `go test -c`
 *.test
