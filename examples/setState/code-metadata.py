@@ -48,7 +48,7 @@ def main():
     response = provider.do_get_generic(f'address/erd1qyqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqlqnj4d')
     account_response = response.get("account")
     code_metadata = account_response.get('codeMetadata', '')
-    if code_metadata != '':
+    if code_metadata is not None:
         sys.exit(f"code metadata is not empty")
 
     # for this address the code metadata should be set as the address is a valid SC address
