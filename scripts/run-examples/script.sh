@@ -49,3 +49,6 @@ run_python_script ../../examples/movebalance move-balance.py
 
 # run generate blocks until epoch is reached example
 run_python_script ../../examples/generateBlocks epoch-reached.py
+
+# run set state examples
+run_python_script ../../examples/setState code-metadata.py
