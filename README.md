@@ -232,8 +232,8 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         logs-path = "logs"
 ```
 
-**Note:** If the port for the proxy server is set to 0, a random free port will be selected. The URL for the proxy 
-is printed in the logs in a line that looks like:
+**Note:** If the port for the proxy server is set to 0, a random free port will be selected. 
+The URL for the proxy is printed in the logs in a line that looks like:
 ```
 INFO [2024-04-18 10:48:47.231]   chain simulator's is accessible through the URL localhost:38099 
 ```
