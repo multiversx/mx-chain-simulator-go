@@ -178,7 +178,6 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
-	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
 
 	tempDir, err := os.MkdirTemp(os.TempDir(), "")
 	if err != nil {
