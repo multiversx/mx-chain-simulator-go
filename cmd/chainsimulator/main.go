@@ -26,7 +26,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-const timeToAllowProxyToStart = time.Second * 2
+const timeToAllowProxyToStart = time.Millisecond * 10
 
 var (
 	log          = logger.GetOrCreate("chainsimulator")
