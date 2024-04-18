@@ -294,7 +294,7 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
 ```toml
 [config]
     [config.simulator]
-        # server-port paramter specifies the port of the http server
+        # server-port paramter specifies the port of the http server that the proxy component will respond on
         server-port = 8085
         # num-of-shards parameter specifies the number of shard that chain simulator will simulate
         num-of-shards = 3
@@ -346,6 +346,12 @@ The **_[nodeOverride.toml](./cmd/chainsimulator/config/config.toml)_** file:
 #    { File = "config.toml", Path = "MiniBlocksStorage.Cache.Name", Value = "MiniBlocksStorage" },
 #    { File = "external.toml", Path = "ElasticSearchConnector.Enabled", Value = "true" }
 #]
+```
+
+**Note:** If the port for the proxy server is set to 0, a random free port will be selected. 
+The URL for the proxy is printed in the logs in a line that looks like:
+```
+INFO [2024-04-18 10:48:47.231]   chain simulator's is accessible through the URL localhost:38099 
 ```
 
 
