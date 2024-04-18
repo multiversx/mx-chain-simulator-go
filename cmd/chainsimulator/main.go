@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -27,6 +28,8 @@ import (
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/creator"
 	"github.com/urfave/cli"
 )
+
+const timeToAllowProxyToStart = time.Millisecond * 10
 
 var (
 	log          = logger.GetOrCreate("chainsimulator")
@@ -160,6 +163,20 @@ func startChainSimulator(ctx *cli.Context) error {
 		return errors.New("invalid value for the number of waiting validators for metachain")
 	}
 
+	localRestApiInterface := "localhost"
+	apiConfigurator := api.NewFreePortAPIConfigurator(localRestApiInterface)
+	proxyPort := cfg.Config.Simulator.ServerPort
+	proxyURL := fmt.Sprintf("%s:%d", localRestApiInterface, proxyPort)
+	if proxyPort == 0 {
+		proxyURL = apiConfigurator.RestApiInterface(0)
+		portString := proxyURL[len(localRestApiInterface)+1:]
+		port, errConvert := strconv.Atoi(portString)
+		if errConvert != nil {
+			return fmt.Errorf("internal error while searching a free port for the proxy component: %w", errConvert)
+		}
+		proxyPort = port
+	}
+
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 	apiConfigurator := api.NewFreePortAPIConfigurator("localhost")
 
@@ -215,7 +232,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            tempDir,
 		PathToProxyConfig: proxyConfigs,
-		ServerPort:        cfg.Config.Simulator.ServerPort,
+		ServerPort:        proxyPort,
 		RestApiInterfaces: restApiInterfaces,
 		InitialWallets:    simulator.GetInitialWalletKeys().BalanceWallets,
 	})
@@ -251,6 +268,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	proxyInstance.Start()
+
+	time.Sleep(timeToAllowProxyToStart)
+	log.Info(fmt.Sprintf("chain simulator's is accessible through the URL %s", proxyURL))
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)

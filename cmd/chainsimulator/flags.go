@@ -64,7 +64,7 @@ var (
 	}
 	serverPort = cli.IntFlag{
 		Name:  "server-port",
-		Usage: "The port of the http server",
+		Usage: "The port of the http server that the proxy component will respond on. If this is set to 0, a random free port will be selected.",
 		Value: 8085,
 	}
 	roundDurationInMs = cli.IntFlag{
