@@ -141,7 +141,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	localRestApiInterface := "localhost"
 	apiConfigurator := api.NewFreePortAPIConfigurator(localRestApiInterface)
 	proxyPort := cfg.Config.Simulator.ServerPort
-	proxyURL := fmt.Sprintf(fmt.Sprintf("%s:%d", localRestApiInterface, proxyPort))
+	proxyURL := fmt.Sprintf("%s:%d", localRestApiInterface, proxyPort)
 	if proxyPort == 0 {
 		proxyURL = apiConfigurator.RestApiInterface(0)
 		portString := proxyURL[len(localRestApiInterface)+1:]
