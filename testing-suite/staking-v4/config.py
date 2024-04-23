@@ -8,6 +8,9 @@ PROXY_CHAIN_SIMULATOR = "http://localhost:8085"
 
 DEFAULT_PROXY = PROXY_CHAIN_SIMULATOR
 
+# TEMP
+OBSERVER_META = "http://localhost:55802"
+
 try:
     proxy_default = ProxyNetworkProvider(DEFAULT_PROXY)
 except:
@@ -24,5 +27,7 @@ num_validators_per_shard = "10"
 num_validators_meta = "10"
 num_waiting_validators_per_shard = "6"
 num_waiting_validators_meta = "6"
+# real config after staking v4 full activation: eligible = 10 *4 , waiting = (6-2) *4, qualified =  2*4
+# qualified nodes from auction will stay in wiating 2 epochs
 
 rounds_per_epoch = "50"

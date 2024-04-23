@@ -5,7 +5,6 @@ from multiversx_sdk_core import Address
 from multiversx_sdk_core.transaction import TransactionComputer
 from multiversx_sdk_network_providers import ProxyNetworkProvider
 from multiversx_sdk_wallet import UserSigner
-from get_info import *
 from config import *
 from helpers import *
 from core.wallet import *

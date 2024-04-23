@@ -1,11 +1,15 @@
 import requests
 
+import time
+import urllib.request, json
+import wget
+
 from core.wallet import *
 from pathlib import Path
-from helpers import *
-from get_info import *
-from constants import *
-from chain_commander import *
+from caching import force_reset_validator_statistics
+from get_infos.get_validator_info import get_bls_key_status
+from get_infos.get_validator_info import get_owner
+from config import DEFAULT_PROXY, OBSERVER_META
 
 
 class ValidatorKey:
@@ -35,26 +39,53 @@ class ValidatorKey:
                 return status
 
     # is using /validator/statistics route
-    def get_state(self) -> str:
+    def get_state(self):
+
         force_reset_validator_statistics()
 
-        # sometimes it needs a second until cache is resetting
+        # sometimes it needs few seconds until cache is resetting
         time.sleep(1)
 
-        response = requests.get(f"{DEFAULT_PROXY}/validator/statistics")
+        response = requests.get(f"{OBSERVER_META}/validator/statistics")
         response.raise_for_status()
         parsed = response.json()
 
         general_data = parsed.get("data")
         general_statistics = general_data.get("statistics")
         key_data = general_statistics.get(self.public_address())
+
         if key_data is None:
-            return "Key not present in validator/statistics"
+            return None
         else:
             status = key_data.get("validatorStatus")
             return status
 
-    # using getOwner vm-query
+    # is using /validator/auction
+    def get_auction_state(self):
+        force_reset_validator_statistics()
+
+        # sometimes it needs few seconds until cache is resetting
+        time.sleep(1)
+
+        response = requests.get(f"{OBSERVER_META}/validator/auction")
+        response.raise_for_status()
+        parsed = response.json()
+
+        general_data = parsed.get("data")
+        auction_list_data = general_data.get("auctionList")
+
+        for list in auction_list_data:
+            nodes_lists = list.get("nodes")
+            for node_list in nodes_lists:
+                if node_list.get("blsKey") == self.public_address():
+                    state = node_list.get("qualified")
+                    if state:
+                        return "qualified"
+                    else:
+                        return "unqualified"
+
+
+        # using getOwner vm-query
     def belongs_to(self, address: str) -> bool:
         owner = get_owner([self.public_address()])
         if owner == address:

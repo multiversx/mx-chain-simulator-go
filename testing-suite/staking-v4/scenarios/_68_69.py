@@ -20,7 +20,8 @@ import time
 from config import *
 from delegation import *
 from chain_commander import *
-from get_info import *
+from get_infos.get_delegation_info import get_delegation_contract_address_from_tx
+from get_infos.get_transaction_info import check_if_error_is_present_in_tx
 from staking import *
 from delegation import *
 from core.wallet import *

@@ -1,13 +1,9 @@
-from pathlib import Path
+
 from config import *
 import requests
 import json
-from multiversx_sdk_network_providers import ProxyNetworkProvider
 from multiversx_sdk_wallet import UserSigner
 from multiversx_sdk_core import Address
-from multiversx_sdk_network_providers import accounts
-from helpers import *
-from constants import *
 
 
 class Wallet:

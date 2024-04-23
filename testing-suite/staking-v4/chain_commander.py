@@ -2,9 +2,10 @@ import requests
 import json
 
 from config import *
-from get_info import *
+from get_infos.get_transaction_info import get_status_of_tx
 from constants import *
 import time
+from core.validatorKey import ValidatorKey
 
 
 def send_egld_to_address(egld_amount, erd_address):
@@ -26,8 +27,19 @@ def add_blocks(nr_of_blocks):
     return req.text
 
 
+def get_block() -> int:
+    response = requests.get(f"{DEFAULT_PROXY}/network/status/0")
+    parsed = response.json()
+
+    general_data = parsed.get("data")
+    general_status = general_data.get("status")
+    nonce = general_status.get("erd_nonce")
+    return nonce
+
+
 def add_blocks_until_epoch_reached(epoch_to_be_reached: int):
     req = requests.post(f"{DEFAULT_PROXY}/simulator/generate-blocks-until-epoch-reached/{str(epoch_to_be_reached)}")
+    add_blocks(1)
     return req.text
 
 
@@ -61,14 +73,11 @@ def is_chain_online() -> bool:
     return flag
 
 
-def force_reset_validator_statistics():
-    req = requests.post(f"{DEFAULT_PROXY}/simulator/force-reset-validator-statistics")
-    print(req.text)
+def add_key(keys: list[ValidatorKey]) -> str:
+    private_keys = []
+    for key in keys:
+        private_keys.append(key.get_private_key())
 
-    return req.text
-
-
-def add_key(private_keys: list) -> str:
     post_body = {
         "privateKeysBase64": private_keys
     }
@@ -77,3 +86,36 @@ def add_key(private_keys: list) -> str:
     req = requests.post(f"{DEFAULT_PROXY}/simulator/add-keys", data=json_structure)
 
     return req.text
+
+
+def add_blocks_until_key_eligible(keys: list[ValidatorKey]) -> ValidatorKey:
+    flag = False
+    while not flag:
+        for key in keys:
+            if key.get_state() == "eligible":
+                eligible_key = key
+                print("eligible key found")
+                flag = True
+
+            else:
+                print("no eligible key found , moving to next epoch...")
+                current_epoch = proxy_default.get_network_status().epoch_number
+                add_blocks_until_epoch_reached(current_epoch+1)
+                add_blocks(3)
+
+    return eligible_key
+
+
+def add_blocks_until_last_block_of_current_epoch() -> str:
+    response = requests.get(f"{DEFAULT_PROXY}/network/status/4294967295")
+    response.raise_for_status()
+    parsed = response.json()
+
+    general_data = parsed.get("data")
+    status = general_data.get("status")
+    passed_nonces = status.get("erd_nonces_passed_in_current_epoch")
+
+    blocks_to_be_added = 50 - passed_nonces
+    response_from_add_blocks = add_blocks(blocks_to_be_added)
+    return response_from_add_blocks
+
