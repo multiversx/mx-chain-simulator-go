@@ -78,6 +78,7 @@ func main() {
 		initialEpoch,
 		autoGenerateBlocks,
 		blockTimeInMs,
+		skipConfigsDownload,
 	}
 
 	app.Authors = []cli.Author{
@@ -97,11 +98,6 @@ func main() {
 }
 
 func startChainSimulator(ctx *cli.Context) error {
-	buildInfo, ok := debug.ReadBuildInfo()
-	if !ok {
-		return errors.New("cannot read build info")
-	}
-
 	cfg, err := loadMainConfig(ctx.GlobalString(configurationFile.Name))
 	if err != nil {
 		return fmt.Errorf("%w while loading the config file", err)
@@ -119,22 +115,12 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while initializing the logger", err)
 	}
 
-	gitFetcher := git.NewGitFetcher()
-	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher)
-	if err != nil {
-		return err
-	}
-
+	skipDownload := ctx.GlobalBool(skipConfigsDownload.Name)
 	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
-	err = configsFetcher.FetchNodeConfigs(buildInfo, nodeConfigs)
-	if err != nil {
-		return err
-	}
-
 	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
-	err = configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
+	err = fetchConfigs(skipDownload, cfg, nodeConfigs, proxyConfigs)
 	if err != nil {
-		return err
+		return fmt.Errorf("%w while fetching configs", err)
 	}
 
 	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
@@ -332,6 +318,35 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 	}
 
 	return fileLogging, nil
+}
+
+func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfigs string) error {
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		return errors.New("cannot read build info")
+	}
+	if skipDownload {
+		log.Warn(`flag "skip-configs-download" has been provided, if configs for node and proxy are missing simulator will not start`)
+		return nil
+	}
+
+	gitFetcher := git.NewGitFetcher()
+	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher)
+	if err != nil {
+		return err
+	}
+
+	err = configsFetcher.FetchNodeConfigs(buildInfo, nodeConfigs)
+	if err != nil {
+		return err
+	}
+
+	err = configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func loadMainConfig(filepath string) (config.Config, error) {

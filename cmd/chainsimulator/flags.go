@@ -120,6 +120,10 @@ var (
 		Usage: "The time between blocks generations, when autoGenerateBlocks flag is true",
 		Value: 6000,
 	}
+	skipConfigsDownload = cli.BoolFlag{
+		Name:  "skip-configs-download",
+		Usage: "The flag is used to specify whether to skip downloading configs",
+	}
 )
 
 func applyFlags(ctx *cli.Context, cfg *config.Config) {
