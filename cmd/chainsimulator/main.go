@@ -326,7 +326,7 @@ func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfig
 		return errors.New("cannot read build info")
 	}
 	if skipDownload {
-		log.Warn(`flag "skip-configs-download" has been provided, if configs for node and proxy are missing simulator will not start`)
+		log.Warn(`flag "skip-configs-download" has been provided, if the configs are missing, them simulator will not start`)
 		return nil
 	}
 
