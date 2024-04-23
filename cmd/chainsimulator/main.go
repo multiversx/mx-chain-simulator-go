@@ -341,12 +341,7 @@ func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfig
 		return err
 	}
 
-	err = configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
 }
 
 func loadMainConfig(filepath string) (config.Config, error) {
