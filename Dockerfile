@@ -31,4 +31,3 @@ COPY --from=builder "/lib/libvmexeccapi.so" "/lib/libvmexeccapi.so"
 
 ENTRYPOINT ["./chainsimulator"]
 
-
