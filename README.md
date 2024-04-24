@@ -200,7 +200,7 @@ Example:
 
 ### `POST /simulator/set-state-overwrite`
 
-This endpoint allows you to set the entire state (also will clean the old state of provided accounts) for a provided list of addresses.
+This endpoint allows you to set the entire state (also will clean the old state of the provided accounts) for a provided list of addresses.
 
 ##### Request
 - **Method:** POST

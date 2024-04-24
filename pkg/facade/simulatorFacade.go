@@ -48,7 +48,7 @@ func (sf *simulatorFacade) SetStateMultiple(stateSlice []*dtos.AddressState) err
 	return sf.simulator.SetStateMultiple(stateSlice)
 }
 
-// SetStateMultipleOverwrite will set  the entire state for the provided address and cleanup the old state of the provided addresses
+// SetStateMultipleOverwrite will set the entire state for the provided address and cleanup the old state of the provided addresses
 func (sf *simulatorFacade) SetStateMultipleOverwrite(stateSlice []*dtos.AddressState) error {
 	accounts := make([]string, 0)
 	for _, state := range stateSlice {
