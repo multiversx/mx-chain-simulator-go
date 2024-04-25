@@ -154,7 +154,7 @@ func (ep *endpointsProcessor) setStateMultipleOverwrite(c *gin.Context) {
 
 	err = ep.facade.SetStateMultipleOverwrite(stateSlice)
 	if err != nil {
-		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot set state, error: %s", err.Error()))
+		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot overwrite state, error: %s", err.Error()))
 		return
 	}
 
