@@ -11,6 +11,16 @@ type SimulatorHandlerMock struct {
 	AddValidatorKeysCalled                   func(validatorsPrivateKeys [][]byte) error
 	GenerateBlocksUntilEpochIsReachedCalled  func(targetEpoch int32) error
 	ForceResetValidatorStatisticsCacheCalled func() error
+	RemoveAccountsCalled                     func(addresses []string) error
+}
+
+// RemoveAccounts -
+func (mock *SimulatorHandlerMock) RemoveAccounts(addresses []string) error {
+	if mock.RemoveAccountsCalled != nil {
+		return mock.RemoveAccountsCalled(addresses)
+	}
+
+	return nil
 }
 
 // GetInitialWalletKeys -

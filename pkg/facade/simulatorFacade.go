@@ -48,6 +48,21 @@ func (sf *simulatorFacade) SetStateMultiple(stateSlice []*dtos.AddressState) err
 	return sf.simulator.SetStateMultiple(stateSlice)
 }
 
+// SetStateMultipleOverwrite will set the entire state for the provided address and cleanup the old state of the provided addresses
+func (sf *simulatorFacade) SetStateMultipleOverwrite(stateSlice []*dtos.AddressState) error {
+	accounts := make([]string, 0, len(stateSlice))
+	for _, state := range stateSlice {
+		accounts = append(accounts, state.Address)
+	}
+
+	err := sf.simulator.RemoveAccounts(accounts)
+	if err != nil {
+		return err
+	}
+
+	return sf.simulator.SetStateMultiple(stateSlice)
+}
+
 // AddValidatorKeys will add the validator keys in the multi key handler
 func (sf *simulatorFacade) AddValidatorKeys(validators *dtoc.ValidatorKeys) error {
 	validatorsPrivateKeys := make([][]byte, 0, len(validators.PrivateKeysBase64))

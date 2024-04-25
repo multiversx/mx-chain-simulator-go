@@ -14,13 +14,14 @@ import (
 )
 
 const (
-	generateBlocksEndpoint         = "/simulator/generate-blocks/:num"
-	generateBlockUnitEpochReached  = "/simulator/generate-blocks-until-epoch-reached/:epoch"
-	initialWalletsEndpoint         = "/simulator/initial-wallets"
-	setKeyValuesEndpoint           = "/simulator/address/:address/set-state"
-	setStateMultipleEndpoint       = "/simulator/set-state"
-	addValidatorsKeys              = "/simulator/add-keys"
-	forceUpdateValidatorStatistics = "/simulator/force-reset-validator-statistics"
+	generateBlocksEndpoint            = "/simulator/generate-blocks/:num"
+	generateBlockUnitEpochReached     = "/simulator/generate-blocks-until-epoch-reached/:epoch"
+	initialWalletsEndpoint            = "/simulator/initial-wallets"
+	setKeyValuesEndpoint              = "/simulator/address/:address/set-state"
+	setStateMultipleEndpoint          = "/simulator/set-state"
+	setStateMultipleOverwriteEndpoint = "/simulator/set-state-overwrite"
+	addValidatorsKeys                 = "/simulator/add-keys"
+	forceUpdateValidatorStatistics    = "/simulator/force-reset-validator-statistics"
 )
 
 type endpointsProcessor struct {
@@ -46,6 +47,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws.GET(initialWalletsEndpoint, ep.initialWallets)
 	ws.POST(setKeyValuesEndpoint, ep.setKeyValue)
 	ws.POST(setStateMultipleEndpoint, ep.setStateMultiple)
+	ws.POST(setStateMultipleOverwriteEndpoint, ep.setStateMultipleOverwrite)
 	ws.POST(addValidatorsKeys, ep.addValidatorKeys)
 	ws.POST(forceUpdateValidatorStatistics, ep.forceUpdateValidatorStatistics)
 
@@ -136,6 +138,23 @@ func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
 	err = ep.facade.SetStateMultiple(stateSlice)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot set state, error: %s", err.Error()))
+		return
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) setStateMultipleOverwrite(c *gin.Context) {
+	var stateSlice []*dtos.AddressState
+	err := c.ShouldBindJSON(&stateSlice)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid state structure, error: %s", err.Error()))
+		return
+	}
+
+	err = ep.facade.SetStateMultipleOverwrite(stateSlice)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot overwrite state, error: %s", err.Error()))
 		return
 	}
 
