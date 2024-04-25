@@ -7,8 +7,8 @@ import wget
 from core.wallet import *
 from pathlib import Path
 from caching import force_reset_validator_statistics
-from get_infos.get_validator_info import get_bls_key_status
-from get_infos.get_validator_info import get_owner
+from network_provider.get_validator_info import get_bls_key_status
+from network_provider.get_validator_info import get_owner
 from config import DEFAULT_PROXY, OBSERVER_META
 
 

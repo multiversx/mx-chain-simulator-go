@@ -1,6 +1,6 @@
 import threading
 from chain_commander import *
-from get_infos.get_staking_info import get_total_staked
+from network_provider.get_staking_info import get_total_staked
 from staking import *
 from core.validatorKey import ValidatorKey
 from core.chain_simulator import ChainSimulator

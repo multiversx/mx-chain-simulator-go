@@ -1,6 +1,6 @@
 import threading
 
-from get_infos.get_transaction_info import check_if_error_is_present_in_tx
+from network_provider.get_transaction_info import check_if_error_is_present_in_tx
 from chain_commander import *
 from staking import *
 from core.validatorKey import *

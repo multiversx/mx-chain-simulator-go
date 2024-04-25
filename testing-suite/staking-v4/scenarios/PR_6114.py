@@ -1,11 +1,12 @@
 import threading
 import time
 
+
 from core.validatorKey import *
 from core.chain_simulator import *
 from chain_commander import *
 from staking import stake, unStake, unBondNodes
-from get_infos.get_validator_info import get_keys_state, get_keys_from_validator_statistics, \
+from network_provider.get_validator_info import get_keys_state, get_keys_from_validator_statistics, \
     get_keys_from_validator_auction
 import requests
 
@@ -30,8 +31,8 @@ import requests
 #       4.5) we should have still 16 keys with status "waiting"
 # 5) go to epoch X+1  and 5 blocks and make sure:
 #       5.1) unstaked key should be inactive
-#       5.2) 8 keys from auction (qualified or not qualified , cause is not deterministic)  are now waiting
-#       5.3) we still have 9 keys in auction, 8 of them are qualified, 1 not qualified , 40 keys eligible, 16 waiting
+#       5.2) 8 keys were selected from auction in epoch x and are now waiting
+#       5.3) we will now have 9 keys in auction, 8 of them are qualified, 1 not qualified , 40 keys eligible, 16 waiting
 
 
 def main():
@@ -154,7 +155,7 @@ def test_PR_6114():
     assert "inactive" == eligible_key.get_state()
     print("key", un_staked_key.get_state())
 
-    # 5.2) 8 keys from auction (qualified or not qualified , cause is not deterministic)  are now waiting
+    # 5.2) 8 keys were selected from auction in epoch x and are now waiting
     all_auction_keys_from_epoch_x = qualified_keys_in_epoch_x + not_qualified_keys_in_epoch_x
     waiting_keys_now = get_keys_from_validator_statistics("waiting")
     to_be_checked_list = []
@@ -163,7 +164,7 @@ def test_PR_6114():
             to_be_checked_list.append(key)
     assert len(to_be_checked_list) == 8
 
-    # 5.3) we still have 9 keys in auction, 8 of them are qualified, 1 not qualified , 40 keys eligible, 16 waiting
+    # 5.3) we will now have 9 keys in auction, 8 of them are qualified, 1 not qualified , 40 keys eligible, 16 waiting
     qualified_keys = get_keys_from_validator_auction(QUALIFIED=True)
     assert len(qualified_keys) == 8
 

@@ -136,23 +136,3 @@ def get_keys_from_validator_statistics(needed_state: str) -> list[str]:
 
     return keys
 
-
-def find_same_shard_keys(num_keys: int, keys: list[str]) -> list[str]:
-    keys = []
-
-    force_reset_validator_statistics()
-    time.sleep(1)
-
-    response = requests.get(f"{OBSERVER_META}/validator/statistics")
-    response.raise_for_status()
-    parsed = response.json()
-
-    general_data = parsed.get("data")
-    statistics = general_data.get("statistics")
-
-
-
-
-
-
-    return keys

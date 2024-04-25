@@ -2,7 +2,7 @@ import requests
 import json
 
 from config import *
-from get_infos.get_transaction_info import get_status_of_tx
+from network_provider.get_transaction_info import get_status_of_tx
 from constants import *
 import time
 from core.validatorKey import ValidatorKey
@@ -23,8 +23,9 @@ def send_egld_to_address(egld_amount, erd_address):
 
 
 def add_blocks(nr_of_blocks):
-    req = requests.post(f"{DEFAULT_PROXY}/simulator/generate-blocks/{nr_of_blocks}")
-    return req.text
+    response = requests.post(f"{DEFAULT_PROXY}/simulator/generate-blocks/{nr_of_blocks}")
+    response.raise_for_status()
+    return response.text
 
 
 def get_block() -> int:
@@ -115,7 +116,7 @@ def add_blocks_until_last_block_of_current_epoch() -> str:
     status = general_data.get("status")
     passed_nonces = status.get("erd_nonces_passed_in_current_epoch")
 
-    blocks_to_be_added = 50 - passed_nonces
+    blocks_to_be_added = rounds_per_epoch - passed_nonces
     response_from_add_blocks = add_blocks(blocks_to_be_added)
     return response_from_add_blocks
 
