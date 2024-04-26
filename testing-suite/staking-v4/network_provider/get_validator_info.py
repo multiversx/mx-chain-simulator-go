@@ -74,7 +74,6 @@ def get_keys_state(keys: list) -> list[str]:
     states = []
 
     force_reset_validator_statistics()
-    time.sleep(1)
 
     response = requests.get(f"{OBSERVER_META}/validator/statistics")
     response.raise_for_status()
@@ -97,7 +96,6 @@ def get_keys_from_validator_auction(QUALIFIED=True) -> list[str]:
     keys = []
 
     force_reset_validator_statistics()
-    time.sleep(1)
 
     response = requests.get(f"{OBSERVER_META}/validator/auction")
     response.raise_for_status()
@@ -119,7 +117,6 @@ def get_keys_from_validator_statistics(needed_state: str) -> list[str]:
     keys = []
 
     force_reset_validator_statistics()
-    time.sleep(1)
 
     response = requests.get(f"{OBSERVER_META}/validator/statistics")
     response.raise_for_status()

@@ -1,9 +1,5 @@
 import requests
-
 import time
-import urllib.request, json
-import wget
-
 from core.wallet import *
 from pathlib import Path
 from caching import force_reset_validator_statistics
@@ -29,22 +25,18 @@ class ValidatorKey:
         return address
 
     # is using vm-query with "getBlsKeysStatus" function
-    def get_status(self, owner_address: str) -> str:
+    def get_status(self, owner_address: str):
         owner_address = Address.from_bech32(owner_address).to_hex()
         key_status_pair = get_bls_key_status([owner_address])
         if key_status_pair is None:
-            return "no bls keys on this owner"
+            return None
         for key, status in key_status_pair.items():
             if key == self.public_address():
                 return status
 
     # is using /validator/statistics route
     def get_state(self):
-
         force_reset_validator_statistics()
-
-        # sometimes it needs few seconds until cache is resetting
-        time.sleep(1)
 
         response = requests.get(f"{OBSERVER_META}/validator/statistics")
         response.raise_for_status()
@@ -64,9 +56,6 @@ class ValidatorKey:
     def get_auction_state(self):
         force_reset_validator_statistics()
 
-        # sometimes it needs few seconds until cache is resetting
-        time.sleep(1)
-
         response = requests.get(f"{OBSERVER_META}/validator/auction")
         response.raise_for_status()
         parsed = response.json()
@@ -83,9 +72,10 @@ class ValidatorKey:
                         return "qualified"
                     else:
                         return "unqualified"
+                else:
+                    return None
 
-
-        # using getOwner vm-query
+    # using getOwner vm-query
     def belongs_to(self, address: str) -> bool:
         owner = get_owner([self.public_address()])
         if owner == address:

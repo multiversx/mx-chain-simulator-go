@@ -1,6 +1,7 @@
 import requests
 from config import DEFAULT_PROXY
 from chain_commander import add_blocks
+import time
 
 
 def force_reset_validator_statistics():
@@ -9,7 +10,7 @@ def force_reset_validator_statistics():
     response.raise_for_status()
 
     # add an extra block
-    response = add_blocks(1)
+    add_blocks(1)
 
-
-
+    # wait 1 sec
+    time.sleep(1)

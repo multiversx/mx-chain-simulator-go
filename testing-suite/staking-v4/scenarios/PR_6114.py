@@ -17,9 +17,19 @@ import requests
 # and call auction list api; we should see 8 qualified nodes. Next epoch we need to check that exactly 8 nodes were qualified.
 # Afterwards(some epochs), those leaving nodes will be leaving and replaced by the auction nodes
 
+# Testnet configuration:
+# num_validators_per_shard = 10
+# num_validators_meta = 10
+# num_waiting_validators_per_shard = 6
+# num_waiting_validators_meta = 6
+# nodes_to_shuffle_per_shard = 2
+
+# from this config results:
+#   eligible nodes = 10*4 = 40
+#   waiting nodes = (6 - 2 (auction)) * 4 = 16
+#   auction nodes = 2*4 = 8
 
 # Steps:
-#
 # 1) In epoch 5 stake with A that 2 keys  - will go in auction
 # 2) Add blocks and epochs until 1 of this 2 keys are eligible - let's call it epoch X
 # 3) unStake the eligible key in epoch X
