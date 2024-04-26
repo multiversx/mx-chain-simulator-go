@@ -12,5 +12,6 @@ type SimulatorHandler interface {
 	AddValidatorKeys(validatorsPrivateKeys [][]byte) error
 	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
 	ForceResetValidatorStatisticsCache() error
+	GetRestAPIInterfaces() map[uint32]string
 	IsInterfaceNil() bool
 }

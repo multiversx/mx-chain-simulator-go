@@ -22,6 +22,7 @@ const (
 	setStateMultipleOverwriteEndpoint = "/simulator/set-state-overwrite"
 	addValidatorsKeys                 = "/simulator/add-keys"
 	forceUpdateValidatorStatistics    = "/simulator/force-reset-validator-statistics"
+	observersInfo                     = "/simulator/observers"
 )
 
 type endpointsProcessor struct {
@@ -50,6 +51,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws.POST(setStateMultipleOverwriteEndpoint, ep.setStateMultipleOverwrite)
 	ws.POST(addValidatorsKeys, ep.addValidatorKeys)
 	ws.POST(forceUpdateValidatorStatistics, ep.forceUpdateValidatorStatistics)
+	ws.GET(observersInfo, ep.getObserversInfo)
 
 	return nil
 }
@@ -96,6 +98,16 @@ func (ep *endpointsProcessor) generateBlocksUntilEpochReached(c *gin.Context) {
 	}
 
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) getObserversInfo(c *gin.Context) {
+	observersData, err := ep.facade.GetObserversInfo()
+	if err != nil {
+		shared.RespondWithInternalError(c, errors.New("cannot get observers info"), err)
+		return
+	}
+
+	shared.RespondWith(c, http.StatusOK, observersData, "", data.ReturnCodeSuccess)
 }
 
 func (ep *endpointsProcessor) initialWallets(c *gin.Context) {

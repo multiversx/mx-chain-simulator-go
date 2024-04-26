@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
@@ -91,6 +93,30 @@ func (sf *simulatorFacade) GenerateBlocksUntilEpochIsReached(targetEpoch int32) 
 // ForceUpdateValidatorStatistics will force the reset of the cache used for the validators statistics endpoint
 func (sf *simulatorFacade) ForceUpdateValidatorStatistics() error {
 	return sf.simulator.ForceResetValidatorStatisticsCache()
+}
+
+// GetObserversInfo will return information about the observers
+func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, error) {
+	restApiInterface := sf.simulator.GetRestAPIInterfaces()
+
+	response := make(map[uint32]*dtoc.ObserverInfo)
+	for shardID, apiInterface := range restApiInterface {
+		split := strings.Split(apiInterface, ":")
+		if len(split) != 2 {
+			return nil, fmt.Errorf("cannot extrac port for shard ID=%d", shardID)
+		}
+
+		port, err := strconv.Atoi(split[1])
+		if err != nil {
+			return nil, fmt.Errorf("cannot cast port string to int for shard ID=%d", shardID)
+		}
+
+		response[shardID] = &dtoc.ObserverInfo{
+			APIPort: port,
+		}
+	}
+
+	return response, nil
 }
 
 // IsInterfaceNil returns true if there is no value under the interface
