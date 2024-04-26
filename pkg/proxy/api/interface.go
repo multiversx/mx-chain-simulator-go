@@ -15,5 +15,6 @@ type SimulatorFacade interface {
 	AddValidatorKeys(validators *dtosc.ValidatorKeys) error
 	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
 	ForceUpdateValidatorStatistics() error
+	GetObserversInfo() (map[uint32]*dtosc.ObserverInfo, error)
 	IsInterfaceNil() bool
 }

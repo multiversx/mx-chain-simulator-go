@@ -230,3 +230,24 @@ func TestSimulatorFacade_ForceUpdateValidatorStatistics(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, forceResetCalled)
 }
+
+func TestSimulatorFacade_GetObserversInfo(t *testing.T) {
+	t.Parallel()
+
+	simulator := &testscommon.SimulatorHandlerMock{
+		GetRestAPIInterfacesCalled: func() map[uint32]string {
+			return map[uint32]string{
+				0: ":1234",
+				1: "localhost:2233",
+			}
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator)
+	response, err := facade.GetObserversInfo()
+	require.NoError(t, err)
+	require.Equal(t, map[uint32]*dtoc.ObserverInfo{
+		0: {APIPort: 1234},
+		1: {APIPort: 2233},
+	}, response)
+}

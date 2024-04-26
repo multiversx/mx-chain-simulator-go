@@ -107,6 +107,36 @@ This endpoint returns the initial wallets (address and private key hex encoded).
 }
 ```
 
+### `GET /simulator/observers`
+
+This endpoint returns information about the observers that are behind chain simulator
+
+##### Request
+- **Method:** GET
+- **Path:** `/simulator/observers`
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Observers information retrieved successfully.
+
+#### Response Body (Example)
+```
+{
+  "data": {
+    "0": {
+       "api-port": 52747
+    },
+    "1": {
+       "api-port": 52749
+    }
+     // ... additional observers entries
+  },
+  "error": "",
+  "code": "successful"
+}
+```
+
+
 
 ### `POST /simulator/address/:address/set-state`
 

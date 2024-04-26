@@ -12,6 +12,16 @@ type SimulatorHandlerMock struct {
 	GenerateBlocksUntilEpochIsReachedCalled  func(targetEpoch int32) error
 	ForceResetValidatorStatisticsCacheCalled func() error
 	RemoveAccountsCalled                     func(addresses []string) error
+	GetRestAPIInterfacesCalled               func() map[uint32]string
+}
+
+// GetRestAPIInterfaces -
+func (mock *SimulatorHandlerMock) GetRestAPIInterfaces() map[uint32]string {
+	if mock.GetRestAPIInterfacesCalled != nil {
+		return mock.GetRestAPIInterfacesCalled()
+	}
+
+	return nil
 }
 
 // RemoveAccounts -
