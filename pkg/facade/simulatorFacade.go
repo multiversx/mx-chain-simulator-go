@@ -12,6 +12,8 @@ import (
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
+const errMsgAccountNotFound = "account was not found"
+
 type simulatorFacade struct {
 	simulator SimulatorHandler
 }
@@ -58,7 +60,8 @@ func (sf *simulatorFacade) SetStateMultipleOverwrite(stateSlice []*dtos.AddressS
 	}
 
 	err := sf.simulator.RemoveAccounts(accounts)
-	if err != nil {
+	shouldReturnErr := err != nil && !strings.Contains(err.Error(), errMsgAccountNotFound)
+	if shouldReturnErr {
 		return err
 	}
 
@@ -103,7 +106,7 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 	for shardID, apiInterface := range restApiInterface {
 		split := strings.Split(apiInterface, ":")
 		if len(split) != 2 {
-			return nil, fmt.Errorf("cannot extrac port for shard ID=%d", shardID)
+			return nil, fmt.Errorf("cannot extract port for shard ID=%d", shardID)
 		}
 
 		port, err := strconv.Atoi(split[1])

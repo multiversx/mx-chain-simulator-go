@@ -109,7 +109,7 @@ This endpoint returns the initial wallets (address and private key hex encoded).
 
 ### `GET /simulator/observers`
 
-This endpoint returns the initial wallets (address and private key hex encoded).
+This endpoint returns information about the observers that are behind chain simulator
 
 ##### Request
 - **Method:** GET
