@@ -54,13 +54,13 @@ def test_PR_6114():
     # === PRE-CONDITIONS ==============================================================
     AMOUNT_TO_MINT = "10000" + "000000000000000000"
 
-    _A = Wallet(Path("./wallets/walletKey_1.pem"))
+    wallet_a = Wallet(Path("./wallets/walletKey_1.pem"))
     key_1 = ValidatorKey(Path("./validatorKeys/validatorKey_1.pem"))
     key_2 = ValidatorKey(Path("./validatorKeys/validatorKey_2.pem"))
     all_keys = [key_1, key_2]
 
     # check if minting is successful
-    assert "success" in _A.set_balance(AMOUNT_TO_MINT)
+    assert "success" in wallet_a.set_balance(AMOUNT_TO_MINT)
 
     # add some blocks
     response = add_blocks(5)
@@ -68,7 +68,7 @@ def test_PR_6114():
     time.sleep(0.5)
 
     # check balance
-    assert _A.get_balance() == AMOUNT_TO_MINT
+    assert wallet_a.get_balance() == AMOUNT_TO_MINT
 
     # add keys to protocol. This way staked keys will not go to jail.
     assert "success" in add_key(all_keys)
@@ -79,14 +79,14 @@ def test_PR_6114():
     # === STEP 1 ==============================================================
     # 1) In epoch 5 stake with A that 2 keys  - will go in auction
 
-    tx_hash = stake(_A, all_keys)
+    tx_hash = stake(wallet_a, all_keys)
 
     # check if tx is success
     assert "success" in add_blocks_until_tx_fully_executed(tx_hash)
 
     # check that nodes are staked
     for key in all_keys:
-        assert "staked" in key.get_status(_A.public_address())
+        assert "staked" in key.get_status(wallet_a.public_address())
 
     # move 2 blocks before calling validator/statistics
     assert "success" in add_blocks(2)
@@ -108,7 +108,7 @@ def test_PR_6114():
     # === STEP 3 ==============================================================
     # 3) unStake the eligible key in epoch X
 
-    tx_hash = unStake(_A, eligible_key)
+    tx_hash = unStake(wallet_a, eligible_key)
 
     # check if tx is success
     assert "success" in add_blocks_until_tx_fully_executed(tx_hash)
@@ -117,7 +117,7 @@ def test_PR_6114():
     print("Key unstaked in epoch:", current_epoch)
 
     # check if key is now unStaked on getBlsKeyStatus
-    assert "unStaked" in eligible_key.get_status(_A.public_address())
+    assert "unStaked" in eligible_key.get_status(wallet_a.public_address())
 
     # eligible_key becomes un_staked_key to be easier to read the test
     un_staked_key = eligible_key
@@ -136,11 +136,11 @@ def test_PR_6114():
     print("Key is leaving in epoch:", epoch_x)
 
     # 4.2) we should have still 8 keys qualified
-    qualified_keys_in_epoch_x = get_keys_from_validator_auction(QUALIFIED=True)
+    qualified_keys_in_epoch_x = get_keys_from_validator_auction(isQualified=True)
     assert len(qualified_keys_in_epoch_x) == 8
 
     # 4.3) we should have still 2 keys not qualified
-    not_qualified_keys_in_epoch_x = get_keys_from_validator_auction(QUALIFIED=False)
+    not_qualified_keys_in_epoch_x = get_keys_from_validator_auction(isQualified=False)
     assert len(not_qualified_keys_in_epoch_x) == 2
 
     # 4.4) we should have 39 keys with status "eligible"
@@ -175,10 +175,10 @@ def test_PR_6114():
     assert len(to_be_checked_list) == 8
 
     # 5.3) we will now have 9 keys in auction, 8 of them are qualified, 1 not qualified , 40 keys eligible, 16 waiting
-    qualified_keys = get_keys_from_validator_auction(QUALIFIED=True)
+    qualified_keys = get_keys_from_validator_auction(isQualified=True)
     assert len(qualified_keys) == 8
 
-    not_qualified_keys = get_keys_from_validator_auction(QUALIFIED=False)
+    not_qualified_keys = get_keys_from_validator_auction(isQualified=False)
     assert len(not_qualified_keys) == 1
 
     eligible_keys = get_keys_from_validator_statistics("eligible")

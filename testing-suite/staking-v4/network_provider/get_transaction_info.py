@@ -3,6 +3,7 @@ import requests
 from config import DEFAULT_PROXY
 from helpers import string_to_base64
 
+
 def get_status_of_tx(tx_hash: str) -> str:
     response = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}/process-status")
     response.raise_for_status()
@@ -29,4 +30,4 @@ def check_if_error_is_present_in_tx(error, tx_hash) -> bool:
     if error in response.text:
         flag = True
 
-    return flag
+    return error_bytes.decode() in response.text or error in response.text

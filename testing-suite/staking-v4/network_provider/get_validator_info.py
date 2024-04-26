@@ -92,7 +92,7 @@ def get_keys_state(keys: list) -> list[str]:
     return states
 
 
-def get_keys_from_validator_auction(QUALIFIED=True) -> list[str]:
+def get_keys_from_validator_auction(isQualified=True) -> list[str]:
     keys = []
 
     force_reset_validator_statistics()
@@ -107,7 +107,7 @@ def get_keys_from_validator_auction(QUALIFIED=True) -> list[str]:
     for list in auction_list_data:
         nodes_lists = list.get("nodes")
         for node_list in nodes_lists:
-            if node_list.get("qualified") == QUALIFIED:
+            if node_list.get("qualified") == isQualified:
                 keys.append(node_list.get("blsKey"))
 
     return keys
@@ -132,4 +132,5 @@ def get_keys_from_validator_statistics(needed_state: str) -> list[str]:
             keys.append(dict)
 
     return keys
+
 

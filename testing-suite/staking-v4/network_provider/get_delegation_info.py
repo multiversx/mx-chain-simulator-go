@@ -5,7 +5,6 @@ from multiversx_sdk_core import Address
 
 
 def get_delegation_contract_address_from_tx(tx_hash):
-
     response = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}?withResults=True")
     response.raise_for_status()
     parsed = response.json()
@@ -22,4 +21,3 @@ def get_delegation_contract_address_from_tx(tx_hash):
     delegation_contract_address = Address.from_hex(delegation_contract_address, "erd").to_bech32()
 
     return delegation_contract_address
-
