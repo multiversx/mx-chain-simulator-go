@@ -5,7 +5,7 @@ from multiversx_sdk_core import Address
 from multiversx_sdk_core.transaction import TransactionComputer
 from multiversx_sdk_network_providers import ProxyNetworkProvider
 from multiversx_sdk_wallet import UserSigner
-from get_info import *
+
 from config import *
 from helpers import *
 from core.wallet import *
@@ -101,7 +101,6 @@ def malicious_stake(wallet: Wallet, validatorKeys: list[ValidatorKey], AMOUNT_DE
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
-
     return tx_hash
 
 
@@ -127,5 +126,30 @@ def unStake(wallet: Wallet, validator_key: ValidatorKey) -> str:
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
-
     return tx_hash
+
+
+def unBondNodes(wallet : Wallet, validator_key: ValidatorKey) -> str:
+
+    # create transaction
+    tx = Transaction(sender=wallet.get_address().to_bech32(),
+                     receiver=VALIDATOR_CONTRACT,
+                     nonce=wallet.get_account().nonce,
+                     gas_price=1000000000,
+                     gas_limit=200000000,
+                     chain_id=chain_id,
+                     value=0)
+
+    tx.data = f"unBondNodes@{validator_key.public_address()}".encode()
+
+    # prepare signature
+    tx_comp = TransactionComputer()
+    result_bytes = tx_comp.compute_bytes_for_signing(tx)
+
+    signature = wallet.get_signer().sign(result_bytes)
+    tx.signature = signature
+
+    # send tx
+    tx_hash = proxy_default.send_transaction(tx)
+    return tx_hash
+

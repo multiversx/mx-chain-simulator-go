@@ -1,17 +1,9 @@
 import threading
-
-import delegation
-import time
-from config import *
-from delegation import *
 from chain_commander import *
-from get_info import *
+from network_provider.get_staking_info import get_total_staked
 from staking import *
-from delegation import *
-from core.wallet import *
-from core.validatorKey import *
-from core.chain_simulator import *
-from threading import Thread
+from core.validatorKey import ValidatorKey
+from core.chain_simulator import ChainSimulator
 
 # Steps:
 # 1) Stake with A 2 nodes
