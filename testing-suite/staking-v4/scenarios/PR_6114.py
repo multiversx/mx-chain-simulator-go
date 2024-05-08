@@ -8,6 +8,8 @@ from chain_commander import *
 from staking import stake, unStake, unBondNodes
 from network_provider.get_validator_info import get_keys_state, get_keys_from_validator_statistics, \
     get_keys_from_validator_auction
+from network_provider.key_management import add_blocks_until_key_eligible, add_key
+
 import requests
 
 

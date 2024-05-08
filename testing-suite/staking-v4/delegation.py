@@ -36,6 +36,30 @@ def create_new_delegation_contract(owner: Wallet, AMOUNT="1250000000000000000000
     return tx_hash
 
 
+def make_new_contract_from_validator_data(owner: Wallet, SERVICE_FEE="00",
+                                   DELEGATION_CAP="00") -> str:
+    # compute tx
+    tx = Transaction(sender=owner.get_address().to_bech32(),
+                     receiver=SYSTEM_DELEGATION_MANAGER_CONTRACT,
+                     nonce=owner.get_account().nonce,
+                     gas_price=1000000000,
+                     gas_limit=590000000,
+                     chain_id=chain_id,
+                     value=0)
+
+    tx.data = f"makeNewContractFromValidatorData@{DELEGATION_CAP}@{SERVICE_FEE}".encode()
+
+    tx_comp = TransactionComputer()
+    result_bytes = tx_comp.compute_bytes_for_signing(tx)
+
+    signature = owner.get_signer().sign(result_bytes)
+    tx.signature = signature
+
+    # send tx
+    tx_hash = proxy_default.send_transaction(tx)
+    return tx_hash
+
+
 def whitelist_for_merge(old_owner: Wallet, new_owner: Wallet, delegation_sc_address: str) -> str:
     delegation_sc_address = Address.from_bech32(delegation_sc_address)
 
@@ -86,6 +110,31 @@ def merge_validator_to_delegation_with_whitelist(new_owner: Wallet, delegation_s
     return tx_hash
 
 
+def merge_validator_to_delegation_same_owner(owner: Wallet, delegation_sc_address: str):
+    delegation_sc_address_as_hex = Address.from_bech32(delegation_sc_address).to_hex()
+
+    # compute tx
+    tx = Transaction(sender=owner.get_address().to_bech32(),
+                     receiver=SYSTEM_DELEGATION_MANAGER_CONTRACT,
+                     nonce=owner.get_account().nonce,
+                     gas_price=1000000000,
+                     gas_limit=590000000,
+                     chain_id=chain_id,
+                     value=0)
+
+    tx.data = f"mergeValidatorToDelegationSameOwner@{delegation_sc_address_as_hex}".encode()
+
+    tx_comp = TransactionComputer()
+    result_bytes = tx_comp.compute_bytes_for_signing(tx)
+
+    signature = owner.get_signer().sign(result_bytes)
+    tx.signature = signature
+
+    # send tx
+    tx_hash = proxy_default.send_transaction(tx)
+    return tx_hash
+
+
 def add_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[ValidatorKey]) -> str:
     # load needed data for stake transactions signatures
     stake_signature_and_public_key = ''
@@ -106,7 +155,7 @@ def add_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[Val
                      chain_id=chain_id,
                      value=0)
 
-    tx.data = f"addNodes@{stake_signature_and_public_key}".encode()
+    tx.data = f"addNodes{stake_signature_and_public_key}".encode()
 
     # prepare signature
     tx_comp = TransactionComputer()
@@ -134,7 +183,7 @@ def stake_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[V
                      chain_id=chain_id,
                      value=0)
 
-    tx.data = f"stakeNodes@{pub_key_string}".encode()
+    tx.data = f"stakeNodes{pub_key_string}".encode()
 
     # prepare signature
     tx_comp = TransactionComputer()

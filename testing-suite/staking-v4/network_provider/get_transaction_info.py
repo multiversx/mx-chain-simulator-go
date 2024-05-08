@@ -18,16 +18,9 @@ def get_status_of_tx(tx_hash: str) -> str:
 
 
 def check_if_error_is_present_in_tx(error, tx_hash) -> bool:
-    flag = False
     error_bytes = string_to_base64(error)
 
     response = requests.get(f"{DEFAULT_PROXY}/transaction/{tx_hash}?withResults=True")
     response.raise_for_status()
-
-    if error_bytes.decode() in response.text:
-        flag = True
-
-    if error in response.text:
-        flag = True
 
     return error_bytes.decode() in response.text or error in response.text
