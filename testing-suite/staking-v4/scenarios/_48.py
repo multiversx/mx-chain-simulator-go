@@ -1,10 +1,10 @@
-import threading
 from chain_commander import *
 from network_provider.get_staking_info import get_total_staked
 from staking import *
 from core.validatorKey import ValidatorKey
 from core.chain_simulator import ChainSimulator
 from utils.logger import logger
+import pytest
 
 # Steps:
 # 1) Stake with A 2 nodes
@@ -15,8 +15,11 @@ from utils.logger import logger
 # do this in epoch 3, 4, 5 and 6
 
 
-EPOCHS = [3, 4, 5, 6]
 blockchain = ChainSimulator(chain_simulator_path)
+EPOCHS_ID = [3, 4, 5, 6]
+
+def epoch_id(val):
+    return f"EPOCH-{val}"
 
 
 def chain_start():
@@ -28,9 +31,8 @@ def main():
     logger.info("Happy testing")
 
 
-def test_48():
-    epoch = 3
-
+@pytest.mark.parametrize("epoch", EPOCHS_ID, indirect=True, ids=epoch_id)
+def test_48(blockchain, epoch):
     if is_chain_online():
         # === PRE-CONDITIONS ==============================================================
         AMOUNT_TO_MINT = "6000" + "000000000000000000"
