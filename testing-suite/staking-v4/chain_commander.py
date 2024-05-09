@@ -48,7 +48,7 @@ def add_blocks_until_epoch_reached(epoch_to_be_reached: int):
     logger.info(f"Generating blocks until epoch {epoch_to_be_reached} is reached")
     req = requests.post(f"{DEFAULT_PROXY}/simulator/generate-blocks-until-epoch-reached/{str(epoch_to_be_reached)}")
     req.raise_for_status()
-    add_blocks(1)  # Log this call inside add_blocks()
+    add_blocks(1)
     logger.info(f"Epoch {epoch_to_be_reached} reached")
     return req.text
 
@@ -58,7 +58,7 @@ def add_blocks_until_tx_fully_executed(tx_hash) -> str:
     counter = 0
 
     while counter < MAX_NUM_OF_BLOCKS_UNTIL_TX_SHOULD_BE_EXECUTED:
-        add_blocks(1)  # Assuming add_blocks logs internally
+        add_blocks(1)
 
         time.sleep(WAIT_UNTIL_API_REQUEST_IN_SEC)
         tx_status = get_status_of_tx(tx_hash)
@@ -76,7 +76,7 @@ def is_chain_online() -> bool:
         time.sleep(1)
         try:
             response = requests.get(f"{DEFAULT_PROXY}/network/status/0")
-            response.raise_for_status()  # Assumes chain is online if status call is successful
+            response.raise_for_status()
             logger.info("Chain is online")
             return True
         except requests.exceptions.ConnectionError as e:
@@ -97,6 +97,6 @@ def add_blocks_until_last_block_of_current_epoch() -> str:
 
     blocks_to_be_added = rounds_per_epoch - passed_nonces
     logger.info(f"Adding {blocks_to_be_added} blocks to reach the end of the current epoch")
-    response_from_add_blocks = add_blocks(blocks_to_be_added)  # Log inside add_blocks()
+    response_from_add_blocks = add_blocks(blocks_to_be_added)
     logger.info(f"Reached the last block of the current epoch")
     return response_from_add_blocks
