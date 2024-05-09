@@ -11,6 +11,7 @@ from config import DEFAULT_PROXY, OBSERVER_META
 class ValidatorKey:
     def __init__(self, path: Path) -> None:
         self.path = path
+        logger.info(f"ValidatorKey initialized with path: {path}")
 
     def public_address(self) -> str:
         f = open(self.path)
@@ -29,9 +30,11 @@ class ValidatorKey:
         owner_address = Address.from_bech32(owner_address).to_hex()
         key_status_pair = get_bls_key_status([owner_address])
         if key_status_pair is None:
+            logger.warning("No status found for any keys")
             return None
         for key, status in key_status_pair.items():
             if key == self.public_address():
+                logger.info(f"Status retrieved for BLS Key: {key} is:{status}")
                 return status
 
     # is using /validator/statistics route
@@ -47,15 +50,19 @@ class ValidatorKey:
         key_data = general_statistics.get(self.public_address())
 
         if key_data is None:
+            logger.warning(f"No state data found for validator key: {key_data}")
             return None
         else:
             status = key_data.get("validatorStatus")
+            logger.info(f"Validator status is: {status}")
             return status
 
     # is using /validator/auction
     def get_auction_state(self):
+        logger.info(f"Resetting validator statistics before fetching auction state.")
         force_reset_validator_statistics()
 
+        logger.info(f"Requesting auction state from {OBSERVER_META}/validator/auction.")
         response = requests.get(f"{OBSERVER_META}/validator/auction")
         response.raise_for_status()
         parsed = response.json()
@@ -69,18 +76,23 @@ class ValidatorKey:
                 if node_list.get("blsKey") == self.public_address():
                     state = node_list.get("qualified")
                     if state:
+                        logger.info(f"BLS key {self.public_address()} is qualified in the auction.")
                         return "qualified"
                     else:
+                        logger.info(f"BLS key {self.public_address()} is unqualified in the auction.")
                         return "unqualified"
                 else:
+                    logger.info(f"No auction data found for BLS key {self.public_address()}.")
                     return None
 
     # using getOwner vm-query
     def belongs_to(self, address: str) -> bool:
         owner = get_owner([self.public_address()])
         if owner == address:
+            logger.info(f"Checked ownership belongs to {address}: True")
             return True
         else:
+            logger.info(f"Checked ownership belongs to {address}: False")
             return False
 
     def get_private_key(self) -> str:
@@ -93,5 +105,5 @@ class ValidatorKey:
                 private_key += line
         if "\n" in private_key:
             private_key = private_key.replace("\n", "")
-
+        logger.debug(f"Private key retrieved for {self.path}")
         return private_key
