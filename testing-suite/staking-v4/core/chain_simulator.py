@@ -17,7 +17,7 @@ class ChainSimulator:
         self.num_waiting_validators_meta = num_waiting_validators_meta
         self.rounds_per_epoch = rounds_per_epoch
         self.process = None
-        logger.info(f"\nTrying to Initialize ChainSimulator with configuration at {path}\n")
+        logger.info(f"Trying to Initialize ChainSimulator with configuration at {path}\n")
 
         # Check if the ChainSimulator binary exists in the specified path
         if not os.path.exists(self.path / "chainsimulator"):
@@ -74,6 +74,6 @@ class ChainSimulator:
             if hasattr(self, 'stderr_thread'):
                 self.stderr_thread.join()
 
-            logger.info("\nChainSimulator process and all child processes stopped\n")
+            logger.info("ChainSimulator process and all child processes stopped\n")
         else:
             logger.warning("\nNo ChainSimulator process found.\n")

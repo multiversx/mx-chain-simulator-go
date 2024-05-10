@@ -2,13 +2,16 @@ import time
 
 from core.wallet import Wallet
 from core.validatorKey import ValidatorKey
-from chain_commander import add_blocks, add_blocks_until_epoch_reached, add_blocks_until_tx_fully_executed
+from chain_commander import add_blocks, add_blocks_until_epoch_reached, add_blocks_until_tx_fully_executed, \
+    is_chain_online
 from network_provider.key_management import add_key
 from pathlib import Path
-from delegation import create_new_delegation_contract, merge_validator_to_delegation_same_owner, merge_validator_to_delegation_with_whitelist, whitelist_for_merge
+from delegation import create_new_delegation_contract, merge_validator_to_delegation_same_owner, \
+    merge_validator_to_delegation_with_whitelist, whitelist_for_merge
 from network_provider.get_delegation_info import get_delegation_contract_address_from_tx
 from delegation import add_nodes, stake_nodes
 from staking import stake
+import pytest
 
 # General :
 # In this scenario we will test all posibilities of creating delegation contracts, and test that
@@ -40,12 +43,22 @@ from staking import stake
 # 8) In epoch x+20 undelegate everything with all delegators
 # 9) In epoch x+20 withdraw all with all delegators
 
+EPOCHS_ID = [3, 4, 5, 6]
+
+
+def epoch_id(val):
+    return f"EPOCH-{val}"
+
+
 def main():
     print("Happy testing")
 
 
-def test_70_75():
+@pytest.mark.parametrize("epoch", EPOCHS_ID, indirect=True, ids=epoch_id)
+def test_70_75_validator_to_sp_transitions_and_validations(blockchain, epoch):
     # === PRE-CONDITIONS ==============================================================
+    assert True == is_chain_online()
+
     # mint addresses
     AMOUNT_TO_MINT = "6000" + "000000000000000000"
     AMOUNT_FOR_SECONDARY_WALLET = "30000" + "000000000000000000"
@@ -109,7 +122,7 @@ def test_70_75():
     assert "success" in add_key(all_keys)
 
     # go to needed epoch
-    response = add_blocks_until_epoch_reached(3)
+    response = add_blocks_until_epoch_reached(epoch)
     assert "success" in response
 
     # === STEP 1 ===============================================================
@@ -117,7 +130,8 @@ def test_70_75():
     # All users will create the contract with fixed delegation cap of 10000 egld and with 10% service fee using 2 keys.
     #   1.1) User A - will use createNewDelegationContract function
 
-    tx_hash = create_new_delegation_contract(_A, AMOUNT="5000000000000000000000", SERVICE_FEE="03e8", DELEGATION_CAP="021e19e0c9bab2400000")
+    tx_hash = create_new_delegation_contract(_A, AMOUNT="5000000000000000000000", SERVICE_FEE="03e8",
+                                             DELEGATION_CAP="021e19e0c9bab2400000")
     assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
     SP_address_for_A = get_delegation_contract_address_from_tx(tx_hash)
@@ -135,7 +149,8 @@ def test_70_75():
     #   1.2) User B - will use createNewDelegationContract function, but the second node will be added
     #   with mergeValidatorToDelegationSameOwner
 
-    tx_hash = create_new_delegation_contract(_B, AMOUNT="2500000000000000000000", SERVICE_FEE="03e8", DELEGATION_CAP="021e19e0c9bab2400000")
+    tx_hash = create_new_delegation_contract(_B, AMOUNT="2500000000000000000000", SERVICE_FEE="03e8",
+                                             DELEGATION_CAP="021e19e0c9bab2400000")
     assert add_blocks_until_tx_fully_executed(tx_hash) == "success"
 
     SP_address_for_B = get_delegation_contract_address_from_tx(tx_hash)
@@ -163,9 +178,6 @@ def test_70_75():
 
     # check if the new owner is now the delegation contract
     assert B_keys[1].belongs_to(SP_address_for_B)
-
-
-
 
 
 if __name__ == '__main__':

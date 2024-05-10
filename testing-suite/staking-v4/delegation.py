@@ -33,6 +33,8 @@ def create_new_delegation_contract(owner: Wallet, AMOUNT="1250000000000000000000
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"New delegation contract created, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -57,6 +59,8 @@ def make_new_contract_from_validator_data(owner: Wallet, SERVICE_FEE="00",
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"New contract from validator data created, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -82,6 +86,8 @@ def whitelist_for_merge(old_owner: Wallet, new_owner: Wallet, delegation_sc_addr
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Whitelist for merge processed, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -107,6 +113,8 @@ def merge_validator_to_delegation_with_whitelist(new_owner: Wallet, delegation_s
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Validator merged to delegation with whitelist, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -132,6 +140,8 @@ def merge_validator_to_delegation_same_owner(owner: Wallet, delegation_sc_addres
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Validator merged to delegation with the same owner, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -166,6 +176,8 @@ def add_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[Val
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Nodes added to delegation, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -194,4 +206,6 @@ def stake_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[V
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Nodes staked in delegation, transaction hash: {tx_hash}")
     return tx_hash

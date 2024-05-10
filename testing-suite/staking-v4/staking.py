@@ -14,7 +14,6 @@ from constants import *
 
 
 def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
-
     # nr of nodes staked
     nr_of_nodes_staked = len(validatorKeys)
     nr_of_nodes_staked = decimal_to_hex(nr_of_nodes_staked)
@@ -54,6 +53,7 @@ def stake(wallet: Wallet, validatorKeys: list[ValidatorKey]):
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
 
+    logger.info(f"Staking transaction sent, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -101,11 +101,12 @@ def malicious_stake(wallet: Wallet, validatorKeys: list[ValidatorKey], AMOUNT_DE
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Malicious staking transaction sent, transaction hash: {tx_hash}")
     return tx_hash
 
 
 def unStake(wallet: Wallet, validator_key: ValidatorKey) -> str:
-
     # create transaction
     tx = Transaction(sender=wallet.get_address().to_bech32(),
                      receiver=VALIDATOR_CONTRACT,
@@ -126,11 +127,12 @@ def unStake(wallet: Wallet, validator_key: ValidatorKey) -> str:
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Unstaking transaction sent for key {validator_key.public_address()}, transaction hash: {tx_hash}")
     return tx_hash
 
 
-def unBondNodes(wallet : Wallet, validator_key: ValidatorKey) -> str:
-
+def unBondNodes(wallet: Wallet, validator_key: ValidatorKey) -> str:
     # create transaction
     tx = Transaction(sender=wallet.get_address().to_bech32(),
                      receiver=VALIDATOR_CONTRACT,
@@ -151,5 +153,7 @@ def unBondNodes(wallet : Wallet, validator_key: ValidatorKey) -> str:
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
-    return tx_hash
 
+    logger.info(
+        f"Un-bonding nodes transaction sent for key {validator_key.public_address()}, transaction hash: {tx_hash}")
+    return tx_hash
