@@ -33,6 +33,34 @@ def create_new_delegation_contract(owner: Wallet, AMOUNT="1250000000000000000000
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"New delegation contract created, transaction hash: {tx_hash}")
+    return tx_hash
+
+
+def make_new_contract_from_validator_data(owner: Wallet, SERVICE_FEE="00",
+                                   DELEGATION_CAP="00") -> str:
+    # compute tx
+    tx = Transaction(sender=owner.get_address().to_bech32(),
+                     receiver=SYSTEM_DELEGATION_MANAGER_CONTRACT,
+                     nonce=owner.get_account().nonce,
+                     gas_price=1000000000,
+                     gas_limit=590000000,
+                     chain_id=chain_id,
+                     value=0)
+
+    tx.data = f"makeNewContractFromValidatorData@{DELEGATION_CAP}@{SERVICE_FEE}".encode()
+
+    tx_comp = TransactionComputer()
+    result_bytes = tx_comp.compute_bytes_for_signing(tx)
+
+    signature = owner.get_signer().sign(result_bytes)
+    tx.signature = signature
+
+    # send tx
+    tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"New contract from validator data created, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -58,6 +86,8 @@ def whitelist_for_merge(old_owner: Wallet, new_owner: Wallet, delegation_sc_addr
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Whitelist for merge processed, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -83,6 +113,35 @@ def merge_validator_to_delegation_with_whitelist(new_owner: Wallet, delegation_s
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Validator merged to delegation with whitelist, transaction hash: {tx_hash}")
+    return tx_hash
+
+
+def merge_validator_to_delegation_same_owner(owner: Wallet, delegation_sc_address: str):
+    delegation_sc_address_as_hex = Address.from_bech32(delegation_sc_address).to_hex()
+
+    # compute tx
+    tx = Transaction(sender=owner.get_address().to_bech32(),
+                     receiver=SYSTEM_DELEGATION_MANAGER_CONTRACT,
+                     nonce=owner.get_account().nonce,
+                     gas_price=1000000000,
+                     gas_limit=590000000,
+                     chain_id=chain_id,
+                     value=0)
+
+    tx.data = f"mergeValidatorToDelegationSameOwner@{delegation_sc_address_as_hex}".encode()
+
+    tx_comp = TransactionComputer()
+    result_bytes = tx_comp.compute_bytes_for_signing(tx)
+
+    signature = owner.get_signer().sign(result_bytes)
+    tx.signature = signature
+
+    # send tx
+    tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Validator merged to delegation with the same owner, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -106,7 +165,7 @@ def add_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[Val
                      chain_id=chain_id,
                      value=0)
 
-    tx.data = f"addNodes@{stake_signature_and_public_key}".encode()
+    tx.data = f"addNodes{stake_signature_and_public_key}".encode()
 
     # prepare signature
     tx_comp = TransactionComputer()
@@ -117,6 +176,8 @@ def add_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[Val
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Nodes added to delegation, transaction hash: {tx_hash}")
     return tx_hash
 
 
@@ -134,7 +195,7 @@ def stake_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[V
                      chain_id=chain_id,
                      value=0)
 
-    tx.data = f"stakeNodes@{pub_key_string}".encode()
+    tx.data = f"stakeNodes{pub_key_string}".encode()
 
     # prepare signature
     tx_comp = TransactionComputer()
@@ -145,4 +206,6 @@ def stake_nodes(owner: Wallet, delegation_sc_address: str, validatorKeys: list[V
 
     # send tx
     tx_hash = proxy_default.send_transaction(tx)
+
+    logger.info(f"Nodes staked in delegation, transaction hash: {tx_hash}")
     return tx_hash

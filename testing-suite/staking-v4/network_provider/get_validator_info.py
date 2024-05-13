@@ -9,9 +9,11 @@ from helpers import base64_to_hex
 from helpers import base64_to_string
 from multiversx_sdk_core import Address
 from caching import force_reset_validator_statistics
+from utils.logger import logger
 
 
 def get_bls_key_status(owner_public_key_in_hex: list[str]):
+    logger.info(f"Fetching BLS key status for public keys")
     key_status_pair = {}
 
     post_body = {
@@ -26,6 +28,7 @@ def get_bls_key_status(owner_public_key_in_hex: list[str]):
     parsed = response.json()
 
     if '"returnData":null' in response.text:
+        logger.warning("No return data available for BLS keys status")
         return None
 
     general_data = parsed.get("data")
@@ -39,10 +42,12 @@ def get_bls_key_status(owner_public_key_in_hex: list[str]):
 
         key_status_pair[bls_decoded] = status_decoded
 
+    logger.info(f"Successfully retrieved BLS key statuses")
     return key_status_pair
 
 
 def get_owner(public_validator_key: list[str]) -> str:
+    logger.info(f"Fetching owner for public validator key")
     post_body = {
         "scAddress": STAKING_CONTRACT,
         "funcName": "getOwner",
@@ -56,6 +61,7 @@ def get_owner(public_validator_key: list[str]) -> str:
     parsed = response.json()
 
     if '"returnMessage":"owner address is nil"' in response.text:
+        logger.warning("No owner address found for given validator key")
         return "validatorKey not staked"
 
     general_data = parsed.get("data")
@@ -66,11 +72,13 @@ def get_owner(public_validator_key: list[str]) -> str:
     address = base64_to_hex(address)
     address = Address.from_hex(address, "erd").to_bech32()
 
+    logger.info(f"Owner address successfully retrieved: {address}")
     return address
 
 
 # using validator/statistics
 def get_keys_state(keys: list) -> list[str]:
+    logger.info("Fetching states for validator keys")
     states = []
 
     force_reset_validator_statistics()
@@ -89,10 +97,13 @@ def get_keys_state(keys: list) -> list[str]:
             state = key_data.get("validatorStatus")
             states.append(state)
 
+    logger.info(f"Successfully retrieved states for {len(states)} keys")
     return states
 
 
 def get_keys_from_validator_auction(isQualified=True) -> list[str]:
+    logger.info(f"Fetching keys from validator auction with qualification status {isQualified}")
+
     keys = []
 
     force_reset_validator_statistics()
@@ -110,10 +121,12 @@ def get_keys_from_validator_auction(isQualified=True) -> list[str]:
             if node_list.get("qualified") == isQualified:
                 keys.append(node_list.get("blsKey"))
 
+    logger.info(f"Successfully retrieved {len(keys)} qualified keys from validator auction")
     return keys
 
 
 def get_keys_from_validator_statistics(needed_state: str) -> list[str]:
+    logger.info(f"Fetching keys from validator statistics with needed state: {needed_state}")
     keys = []
 
     force_reset_validator_statistics()
@@ -131,6 +144,7 @@ def get_keys_from_validator_statistics(needed_state: str) -> list[str]:
         if state == needed_state:
             keys.append(dict)
 
+    logger.info(f"Successfully retrieved {len(keys)} keys with state '{needed_state}' from validator statistics")
     return keys
 
 
