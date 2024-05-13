@@ -12,7 +12,6 @@ from network_provider.key_management import add_blocks_until_key_eligible, add_k
 
 import requests
 
-
 # SCENARIO 1
 # Have every epoch auction list with enough nodes (let's say 8 qualified, 2 unqualified)
 # Unstake 1 or more eligible/waiting nodes (no more than all nodes per shard or no more than all eligible)
@@ -47,13 +46,18 @@ import requests
 #       5.3) we will now have 9 keys in auction, 8 of them are qualified, 1 not qualified , 40 keys eligible, 16 waiting
 
 
+
+def epoch_id(val):
+    return f"EPOCH-{val}"
+
 def main():
     print("Happy testing")
 
 
-def test_PR_6114():
+def test_PR_6114_key_auction_process_through_epochs(blockchain):
 
     # === PRE-CONDITIONS ==============================================================
+    assert True == is_chain_online()
     AMOUNT_TO_MINT = "10000" + "000000000000000000"
 
     wallet_a = Wallet(Path("./wallets/walletKey_1.pem"))

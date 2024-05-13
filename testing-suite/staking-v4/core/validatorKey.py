@@ -34,7 +34,7 @@ class ValidatorKey:
             return None
         for key, status in key_status_pair.items():
             if key == self.public_address():
-                logger.info(f"Status retrieved for BLS Key: {key} is:{status}")
+                logger.info(f"Status: {status} for BLS Key: {key} ")
                 return status
 
     # is using /validator/statistics route
@@ -89,10 +89,10 @@ class ValidatorKey:
     def belongs_to(self, address: str) -> bool:
         owner = get_owner([self.public_address()])
         if owner == address:
-            logger.info(f"Checked ownership belongs to {address}: True")
+            logger.info(f"Checked ownership: True for address: {address}")
             return True
         else:
-            logger.info(f"Checked ownership belongs to {address}: False")
+            logger.info(f"Checked ownership: False for address: {address}")
             return False
 
     def get_private_key(self) -> str:
