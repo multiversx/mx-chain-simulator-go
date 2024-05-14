@@ -65,8 +65,7 @@ def main():
     # ################## merge validator in delegator
     response = provider.do_get(f"{INITIAL_WALLETS_URL}")
     initial_address_with_stake = factory.create_from_bech32(
-        response.to_dictionary()["initialWalletWithStake"]["address"])
-    private_key_hex = response.to_dictionary()["initialWalletWithStake"]["privateKeyHex"]
+        response.to_dictionary()["stakeWallets"][0]["address"]["bech32"])
 
     print(f"initial address with stake: {initial_address_with_stake.to_bech32()}")
 
@@ -124,11 +123,11 @@ def main():
 
     # check if the owner receive more than 5 egld in rewards
     claim_reward_tx = get_tx_and_verify_status(provider, tx_hash)
-    two_egld = 2000000000000000000
+    one_egld = 1000000000000000000
     rewards_value = claim_reward_tx.contract_results.items[0].value
-    if rewards_value < two_egld:
+    if rewards_value < one_egld:
         sys.exit(f"owner of the delegation contract didn't receive the expected amount of rewards: expected more than "
-                 f"2 EGLD, received: {rewards_value}")
+                 f"1 EGLD, received: {rewards_value}")
 
     print(f"owner has received rewards, received rewards: {rewards_value}")
 

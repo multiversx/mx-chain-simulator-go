@@ -14,6 +14,11 @@ var (
 		Usage: "The main configuration file to load",
 		Value: "./config/config.toml",
 	}
+	nodeOverrideConfigurationFile = cli.StringFlag{
+		Name:  "node-override-config",
+		Usage: "The node's override configuration file to load",
+		Value: "./config/nodeOverride.toml",
+	}
 	logLevel = cli.StringFlag{
 		Name: "log-level",
 		Usage: "This flag specifies the logger `level(s)`. It can contain multiple comma-separated value. For example" +
@@ -76,10 +81,48 @@ var (
 		Usage: "This flag is used to specify the number of validators per shard",
 		Value: 1,
 	}
+	numWaitingValidatorsPerShard = cli.IntFlag{
+		Name:  "num-waiting-validators-per-shard",
+		Usage: "This flag is used to specify the number of waiting validators per shard",
+		Value: 0,
+	}
 	numValidatorsMeta = cli.IntFlag{
 		Name:  "num-validators-meta",
 		Usage: "This flag is used to specify the number of validators on metachain",
 		Value: 1,
+	}
+	numWaitingValidatorsMeta = cli.IntFlag{
+		Name:  "num-waiting-validators-meta",
+		Usage: "This flag is used to specify the number of waiting validators on metachain",
+		Value: 0,
+	}
+	initialRound = cli.Uint64Flag{
+		Name:  "initial-round",
+		Usage: "This flag is used to specify the initial round when chain simulator will start",
+		Value: 0,
+	}
+	initialNonce = cli.Uint64Flag{
+		Name:  "initial-nonce",
+		Usage: "This flag is used to specify the initial nonce when chain simulator will start",
+		Value: 0,
+	}
+	initialEpoch = cli.UintFlag{
+		Name:  "initial-epoch",
+		Usage: "This flag is used to specify the initial epoch when chain simulator will start",
+		Value: 0,
+	}
+	autoGenerateBlocks = cli.BoolFlag{
+		Name:  "auto-generate-blocks",
+		Usage: "Boolean option to specify that blocks should be generated automatically, after a given period of time",
+	}
+	blockTimeInMs = cli.Uint64Flag{
+		Name:  "block-time-in-milliseconds",
+		Usage: "The time between blocks generations, when autoGenerateBlocks flag is true",
+		Value: 6000,
+	}
+	skipConfigsDownload = cli.BoolFlag{
+		Name:  "skip-configs-download",
+		Usage: "The flag is used to specify whether to skip downloading configs",
 	}
 )
 
@@ -98,5 +141,25 @@ func applyFlags(ctx *cli.Context, cfg *config.Config) {
 
 	if ctx.IsSet(roundDurationInMs.Name) {
 		cfg.Config.Simulator.RoundDurationInMs = ctx.GlobalInt(roundDurationInMs.Name)
+	}
+
+	if ctx.IsSet(initialRound.Name) {
+		cfg.Config.Simulator.InitialRound = ctx.GlobalInt64(initialRound.Name)
+	}
+
+	if ctx.IsSet(initialNonce.Name) {
+		cfg.Config.Simulator.InitialNonce = ctx.GlobalUint64(initialNonce.Name)
+	}
+
+	if ctx.IsSet(initialEpoch.Name) {
+		cfg.Config.Simulator.InitialEpoch = uint32(ctx.GlobalUint(initialEpoch.Name))
+	}
+
+	if ctx.IsSet(autoGenerateBlocks.Name) {
+		cfg.Config.BlocksGenerator.AutoGenerateBlocks = ctx.GlobalBool(autoGenerateBlocks.Name)
+	}
+
+	if ctx.IsSet(blockTimeInMs.Name) {
+		cfg.Config.BlocksGenerator.BlockTimeInMs = ctx.GlobalUint64(blockTimeInMs.Name)
 	}
 }

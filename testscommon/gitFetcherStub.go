@@ -2,7 +2,8 @@ package testscommon
 
 // GitFetcherStub -
 type GitFetcherStub struct {
-	CloneCalled func(r, d string) error
+	CloneCalled    func(r, d string) error
+	CheckoutCalled func(repoDir string, commitHashOrBranch string) error
 }
 
 // Clone -
@@ -15,6 +16,10 @@ func (gf *GitFetcherStub) Clone(repo, dir string) error {
 }
 
 // Checkout -
-func (gf *GitFetcherStub) Checkout(_, _ string) error {
+func (gf *GitFetcherStub) Checkout(repoDir string, commitHashOrBranch string) error {
+	if gf.CheckoutCalled != nil {
+		return gf.CheckoutCalled(repoDir, commitHashOrBranch)
+	}
+
 	return nil
 }

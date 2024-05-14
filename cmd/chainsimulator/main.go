@@ -13,12 +13,15 @@ import (
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/core/closing"
+	nodeConfig "github.com/multiversx/mx-chain-go/config"
+	"github.com/multiversx/mx-chain-go/config/overridableConfig"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
 	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
+	"github.com/multiversx/mx-chain-simulator-go/pkg/factory"
 	endpoints "github.com/multiversx/mx-chain-simulator-go/pkg/proxy/api"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
@@ -54,6 +57,7 @@ func main() {
 	app.Usage = ""
 	app.Flags = []cli.Flag{
 		configurationFile,
+		nodeOverrideConfigurationFile,
 		logLevel,
 		logSaveFile,
 		disableAnsiColor,
@@ -66,7 +70,15 @@ func main() {
 		roundDurationInMs,
 		bypassTransactionsSignature,
 		numValidatorsPerShard,
+		numWaitingValidatorsPerShard,
 		numValidatorsMeta,
+		numWaitingValidatorsMeta,
+		initialRound,
+		initialNonce,
+		initialEpoch,
+		autoGenerateBlocks,
+		blockTimeInMs,
+		skipConfigsDownload,
 	}
 
 	app.Authors = []cli.Author{
@@ -86,14 +98,14 @@ func main() {
 }
 
 func startChainSimulator(ctx *cli.Context) error {
-	buildInfo, ok := debug.ReadBuildInfo()
-	if !ok {
-		return errors.New("cannot read build info")
-	}
-
 	cfg, err := loadMainConfig(ctx.GlobalString(configurationFile.Name))
 	if err != nil {
 		return fmt.Errorf("%w while loading the config file", err)
+	}
+
+	overrideCfg, err := loadOverrideConfig(ctx.GlobalString(nodeOverrideConfigurationFile.Name))
+	if err != nil {
+		return fmt.Errorf("%w while loading the node override config file", err)
 	}
 
 	applyFlags(ctx, &cfg)
@@ -103,22 +115,12 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while initializing the logger", err)
 	}
 
-	gitFetcher := git.NewGitFetcher()
-	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher)
-	if err != nil {
-		return err
-	}
-
+	skipDownload := ctx.GlobalBool(skipConfigsDownload.Name)
 	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
-	err = configsFetcher.FetchNodeConfigs(buildInfo, nodeConfigs)
-	if err != nil {
-		return err
-	}
-
 	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
-	err = configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
+	err = fetchConfigs(skipDownload, cfg, nodeConfigs, proxyConfigs)
 	if err != nil {
-		return err
+		return fmt.Errorf("%w while fetching configs", err)
 	}
 
 	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
@@ -133,9 +135,18 @@ func startChainSimulator(ctx *cli.Context) error {
 	if numValidatorsShard < 1 {
 		return errors.New("invalid value for the number of validators per shard")
 	}
+	numWaitingValidatorsShard := ctx.GlobalInt(numWaitingValidatorsPerShard.Name)
+	if numWaitingValidatorsShard < 0 {
+		return errors.New("invalid value for the number of waiting validators per shard")
+	}
+
 	numValidatorsMetaShard := ctx.GlobalInt(numValidatorsMeta.Name)
 	if numValidatorsMetaShard < 1 {
 		return errors.New("invalid value for the number of validators for metachain")
+	}
+	numWaitingValidatorsMetaShard := ctx.GlobalInt(numWaitingValidatorsMeta.Name)
+	if numWaitingValidatorsMetaShard < 0 {
+		return errors.New("invalid value for the number of waiting validators for metachain")
 	}
 
 	localRestApiInterface := "localhost"
@@ -153,21 +164,40 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
+
+	tempDir, err := os.MkdirTemp(os.TempDir(), "")
+	if err != nil {
+		return err
+	}
+
+	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
-		BypassTxSignatureCheck: bypassTxsSignature,
-		TempDir:                os.TempDir(),
-		PathToInitialConfig:    nodeConfigs,
-		NumOfShards:            uint32(cfg.Config.Simulator.NumOfShards),
-		GenesisTimestamp:       startTimeUnix,
-		RoundDurationInMillis:  roundDurationInMillis,
-		RoundsPerEpoch:         rounds,
-		ApiInterface:           apiConfigurator,
-		MinNodesPerShard:       uint32(numValidatorsShard),
-		MetaChainMinNodes:      uint32(numValidatorsMetaShard),
+		BypassTxSignatureCheck:   bypassTxsSignature,
+		TempDir:                  tempDir,
+		PathToInitialConfig:      nodeConfigs,
+		NumOfShards:              uint32(cfg.Config.Simulator.NumOfShards),
+		GenesisTimestamp:         startTimeUnix,
+		RoundDurationInMillis:    roundDurationInMillis,
+		RoundsPerEpoch:           rounds,
+		ApiInterface:             apiConfigurator,
+		MinNodesPerShard:         uint32(numValidatorsShard),
+		NumNodesWaitingListShard: uint32(numWaitingValidatorsShard),
+		MetaChainMinNodes:        uint32(numValidatorsMetaShard),
+		NumNodesWaitingListMeta:  uint32(numWaitingValidatorsMetaShard),
+		InitialRound:             cfg.Config.Simulator.InitialRound,
+		InitialNonce:             cfg.Config.Simulator.InitialNonce,
+		InitialEpoch:             cfg.Config.Simulator.InitialEpoch,
+		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
+			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
+		},
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
 		return err
+	}
+
+	if alterConfigsError != nil {
+		return alterConfigsError
 	}
 
 	log.Info("simulators were initialized")
@@ -177,14 +207,19 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	generator, err := factory.CreateBlocksGenerator(simulator, cfg.Config.BlocksGenerator)
+	if err != nil {
+		return err
+	}
+
 	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
-		TemDir:            os.TempDir(),
+		TemDir:            tempDir,
 		PathToProxyConfig: proxyConfigs,
 		ServerPort:        proxyPort,
 		RestApiInterfaces: restApiInterfaces,
-		InitialWallets:    simulator.GetInitialWalletKeys().ShardWallets,
+		InitialWallets:    simulator.GetInitialWalletKeys().BalanceWallets,
 	})
 	if err != nil {
 		return err
@@ -227,10 +262,10 @@ func startChainSimulator(ctx *cli.Context) error {
 	<-interrupt
 
 	log.Info("close")
-	err = simulator.Close()
-	if err != nil {
-		log.Warn("cannot close simulator", "error", err)
-	}
+
+	generator.Close()
+
+	simulator.Close()
 	proxyInstance.Close()
 
 	if !check.IfNilReflect(fileLogging) {
@@ -285,8 +320,39 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 	return fileLogging, nil
 }
 
+func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfigs string) error {
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		return errors.New("cannot read build info")
+	}
+	if skipDownload {
+		log.Warn(`flag "skip-configs-download" has been provided, if the configs are missing, then simulator will not start`)
+		return nil
+	}
+
+	gitFetcher := git.NewGitFetcher()
+	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher)
+	if err != nil {
+		return err
+	}
+
+	err = configsFetcher.FetchNodeConfigs(buildInfo, nodeConfigs)
+	if err != nil {
+		return err
+	}
+
+	return configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
+}
+
 func loadMainConfig(filepath string) (config.Config, error) {
 	cfg := config.Config{}
+	err := core.LoadTomlFile(&cfg, filepath)
+
+	return cfg, err
+}
+
+func loadOverrideConfig(filepath string) (config.OverrideConfigs, error) {
+	cfg := config.OverrideConfigs{}
 	err := core.LoadTomlFile(&cfg, filepath)
 
 	return cfg, err
