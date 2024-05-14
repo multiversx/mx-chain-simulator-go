@@ -8,6 +8,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+const nodeOverrideDefaultFilename = "./config/nodeOverrideDefault.toml"
+
 var (
 	configurationFile = cli.StringFlag{
 		Name:  "config",
@@ -15,9 +17,10 @@ var (
 		Value: "./config/config.toml",
 	}
 	nodeOverrideConfigurationFile = cli.StringFlag{
-		Name:  "node-override-config",
-		Usage: "The node's override configuration file to load",
-		Value: "./config/nodeOverride.toml",
+		Name: "node-override-config",
+		Usage: "The node's override configuration file to load. Can define multiple files separated by comma. " +
+			"Example: ./config/override1.toml,./config/override2.toml and so on",
+		Value: nodeOverrideDefaultFilename,
 	}
 	logLevel = cli.StringFlag{
 		Name: "log-level",

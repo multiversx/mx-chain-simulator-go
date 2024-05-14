@@ -1,0 +1,4 @@
+OverridableConfigTomlValues = [
+    { File = "config.toml", Path = "MiniBlocksStorage.Cache.Name", Value = "MiniBlocksStorage" },
+    { File = "external.toml", Path = "ElasticSearchConnector.Enabled", Value = "true" }
+]

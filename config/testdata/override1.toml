@@ -1,0 +1,3 @@
+OverridableConfigTomlValues = [
+    { File = "systemSmartContractsConfig.toml", Path = "StakingSystemSCConfig.NodeLimitPercentage", Value = "1.0" }, # no staking limits imposed
+]

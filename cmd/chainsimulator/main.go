@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 )
 
 const timeToAllowProxyToStart = time.Millisecond * 10
+const overrideConfigFilesSeparator = ","
 
 var (
 	log          = logger.GetOrCreate("chainsimulator")
@@ -103,9 +105,12 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while loading the config file", err)
 	}
 
-	overrideCfg, err := loadOverrideConfig(ctx.GlobalString(nodeOverrideConfigurationFile.Name))
+	overrideConfigsHandler := config.NewOverrideConfigsHandler()
+	overrideFiles := determineOverrideConfigFiles(ctx)
+	log.Info("using the override config files", "files", overrideFiles)
+	overrideCfg, err := overrideConfigsHandler.ReadAll(overrideFiles...)
 	if err != nil {
-		return fmt.Errorf("%w while loading the node override config file", err)
+		return fmt.Errorf("%w while loading the node override config files", err)
 	}
 
 	applyFlags(ctx, &cfg)
@@ -351,11 +356,16 @@ func loadMainConfig(filepath string) (config.Config, error) {
 	return cfg, err
 }
 
-func loadOverrideConfig(filepath string) (config.OverrideConfigs, error) {
-	cfg := config.OverrideConfigs{}
-	err := core.LoadTomlFile(&cfg, filepath)
+func determineOverrideConfigFiles(ctx *cli.Context) []string {
+	overrideFiles := strings.Split(ctx.GlobalString(nodeOverrideConfigurationFile.Name), overrideConfigFilesSeparator)
 
-	return cfg, err
+	for _, filename := range overrideFiles {
+		if filename == nodeOverrideDefaultFilename {
+			return overrideFiles
+		}
+	}
+
+	return append([]string{nodeOverrideDefaultFilename}, overrideFiles...)
 }
 
 func removeANSIColorsForLoggerIfNeeded(disableAnsi bool) error {

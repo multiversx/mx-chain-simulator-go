@@ -1,0 +1,3 @@
+OverridableConfigTomlValues = [
+    { File = "external.toml", Path = "ElasticSearchConnector.Enabled", Value = "false" }
+]
