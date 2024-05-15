@@ -408,6 +408,9 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
 
 There is also an optional configuration file called `nodeOverride.toml` that can be used to alter specific configuration options 
 for the nodes that assemble the chain simulator. The override mechanism is the same as the one found on the mx-chain-go, prefs.toml file.
+In this tool, the flag option called `--node-override-config` can load more than one override toml file by specifying the paths separated 
+by the `,` character. Example: `--node-override-config ./config/override1.toml,./config/override2.toml`. The default 
+`./config/nodeOverrideDefault.toml` file is added automatically.
 
 The **_[nodeOverride.toml](./cmd/chainsimulator/config/config.toml)_** file:
 

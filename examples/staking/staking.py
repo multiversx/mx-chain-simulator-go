@@ -67,7 +67,7 @@ def main():
     initial_address_with_stake = factory.create_from_bech32(
         response.to_dictionary()["stakeWallets"][0]["address"]["bech32"])
 
-    print(f"initial address with stake: {initial_address_with_stake.to_bech32()}")
+    print(f"initial address with stake: {initial_address_with_stake.to_bech32()}, balance: {provider.get_account(initial_address_with_stake).balance}")
 
     # white list transaction
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(
@@ -104,7 +104,7 @@ def main():
 
     time.sleep(0.5)
     # generate 30 blocks to pass an epoch and some rewards will be distributed
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/20", {})
+    provider.do_post(f"{GENERATE_BLOCKS_URL}/30", {})
 
     # check if the owner of the delegation contract has rewards
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(
