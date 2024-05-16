@@ -16,5 +16,6 @@ type SimulatorFacade interface {
 	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
 	ForceUpdateValidatorStatistics() error
 	GetObserversInfo() (map[uint32]*dtosc.ObserverInfo, error)
+	ForceChangeOfEpoch() error
 	IsInterfaceNil() bool
 }
