@@ -74,6 +74,28 @@ This endpoint initiates the generation of blocks for each shard until the target
 }
 ```
 
+### `POST /simulator/force-epoch-change`
+
+This endpoint will trigger the chain to move in the next epoch. (this endpoint will generate a few block till next epoch is reached)
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/force-epoch-change`
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Next epoch reached.
+  - `400 Bad Request`: Invalid request parameters.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
 ### `GET /simulator/initial-wallets`
 
 This endpoint returns the initial wallets (address and private key hex encoded).
