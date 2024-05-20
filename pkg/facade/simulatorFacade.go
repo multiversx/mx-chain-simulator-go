@@ -96,6 +96,11 @@ func (sf *simulatorFacade) ForceUpdateValidatorStatistics() error {
 	return sf.simulator.ForceResetValidatorStatisticsCache()
 }
 
+// ForceChangeOfEpoch will force change the current epoch
+func (sf *simulatorFacade) ForceChangeOfEpoch() error {
+	return sf.simulator.ForceChangeOfEpoch()
+}
+
 // GetObserversInfo will return information about the observers
 func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, error) {
 	restApiInterface := sf.simulator.GetRestAPIInterfaces()
