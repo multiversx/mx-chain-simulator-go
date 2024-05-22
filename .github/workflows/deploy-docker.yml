@@ -1,8 +1,5 @@
 name: Publish Docker image
 
-env:
-  IMAGE_NAME: chainsimulator
-  REGISTRY_HOSTNAME: multiversx
 
 on:
   release:
@@ -49,7 +46,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${REGISTRY_HOSTNAME}/${IMAGE_NAME}
+          images: multiversx/chainsimulator
 
       - name: Build and push Docker image
         id: push
