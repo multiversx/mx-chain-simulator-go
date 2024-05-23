@@ -24,6 +24,8 @@ const (
 	forceUpdateValidatorStatistics    = "/simulator/force-reset-validator-statistics"
 	observersInfo                     = "/simulator/observers"
 	epochChange                       = "/simulator/force-epoch-change"
+
+	queryParamNoGenerate = "noGenerate"
 )
 
 type endpointsProcessor struct {
@@ -150,15 +152,31 @@ func (ep *endpointsProcessor) setKeyValue(c *gin.Context) {
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
 }
 
+func getQueryParamNoGenerate(c *gin.Context) (bool, error) {
+	withResultsStr := c.Request.URL.Query().Get(queryParamNoGenerate)
+	if withResultsStr == "" {
+		return false, nil
+	}
+
+	return strconv.ParseBool(withResultsStr)
+}
+
 func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
 	var stateSlice []*dtos.AddressState
-	err := c.ShouldBindJSON(&stateSlice)
+
+	noGenerate, err := getQueryParamNoGenerate(c)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid query parameter %s, error: %s", queryParamNoGenerate, err.Error()))
+		return
+	}
+
+	err = c.ShouldBindJSON(&stateSlice)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid state structure, error: %s", err.Error()))
 		return
 	}
 
-	err = ep.facade.SetStateMultiple(stateSlice)
+	err = ep.facade.SetStateMultiple(stateSlice, noGenerate)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot set state, error: %s", err.Error()))
 		return
@@ -168,14 +186,20 @@ func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
 }
 
 func (ep *endpointsProcessor) setStateMultipleOverwrite(c *gin.Context) {
+	noGenerate, err := getQueryParamNoGenerate(c)
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid query parameter %s, error: %s", queryParamNoGenerate, err.Error()))
+		return
+	}
+
 	var stateSlice []*dtos.AddressState
-	err := c.ShouldBindJSON(&stateSlice)
+	err = c.ShouldBindJSON(&stateSlice)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("invalid state structure, error: %s", err.Error()))
 		return
 	}
 
-	err = ep.facade.SetStateMultipleOverwrite(stateSlice)
+	err = ep.facade.SetStateMultipleOverwrite(stateSlice, noGenerate)
 	if err != nil {
 		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot overwrite state, error: %s", err.Error()))
 		return
