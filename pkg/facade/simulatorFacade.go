@@ -72,6 +72,11 @@ func (sf *simulatorFacade) SetStateMultipleOverwrite(stateSlice []*dtos.AddressS
 		}
 	}
 
+	err := sf.simulator.SetStateMultiple(stateSlice)
+	if err != nil {
+		return err
+	}
+
 	if noGenerate {
 		return nil
 	}
