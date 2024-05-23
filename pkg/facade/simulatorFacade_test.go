@@ -115,7 +115,7 @@ func TestSimulatorFacade_SetStateMultiple(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	err = facade.SetStateMultiple(providedStateSlice)
+	err = facade.SetStateMultiple(providedStateSlice, true)
 	require.NoError(t, err)
 	require.True(t, wasCalled)
 }
