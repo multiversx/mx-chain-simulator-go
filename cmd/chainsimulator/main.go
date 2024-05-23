@@ -365,12 +365,12 @@ func determineOverrideConfigFiles(ctx *cli.Context) []string {
 	overrideFiles := strings.Split(ctx.GlobalString(nodeOverrideConfigurationFile.Name), overrideConfigFilesSeparator)
 
 	for _, filename := range overrideFiles {
-		if filename == nodeOverrideDefaultFilename {
+		if strings.Contains(filename, nodeOverrideDefaultFilename) {
 			return overrideFiles
 		}
 	}
 
-	return append([]string{nodeOverrideDefaultFilename}, overrideFiles...)
+	return append([]string{nodeOverrideDefaultPath}, overrideFiles...)
 }
 
 func removeANSIColorsForLoggerIfNeeded(disableAnsi bool) error {
