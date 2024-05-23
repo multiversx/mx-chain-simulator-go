@@ -191,8 +191,9 @@ will generate one block per shard to apply the address state, unless specified o
   - **Type:** Boolean
   - **Optional:** Yes
   - **Default:** `false`
-  - **Behavior:** When this parameter is provided and set to `true`, the endpoint will update the state for the provided addresses without generating a new block for each shard. 
-
+  - **Behavior:** Setting the noGenerate=true is useful when multiple calls to this
+  endpoint are required and the calls should be executed as fast as possible. In this case,
+  to reflect the state changes, the user should manually call the generate-blocks endpoint
 ##### Request Body
 The request body should be a JSON object representing an array of object with the next format.
 
@@ -250,8 +251,9 @@ This endpoint allows you to set the entire state (also will clean the old state 
   - **Type:** Boolean
   - **Optional:** Yes
   - **Default:** `false`
-  - **Behavior:** When this parameter is provided and set to `true`, the endpoint will update the state for the provided addresses without generating a new block for each shard.
-
+  - **Behavior:** Setting the noGenerate=true is useful when multiple calls to this endpoint are required and the calls
+  should be executed as fast as possible. In this case, to reflect the state changes, 
+  the user should manually call the generate-blocks endpoint
 
 ##### Request Body
 The request body should be a JSON object representing an array of object with the next format.
