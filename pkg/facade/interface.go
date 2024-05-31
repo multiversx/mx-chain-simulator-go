@@ -13,6 +13,6 @@ type SimulatorHandler interface {
 	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
 	ForceResetValidatorStatisticsCache() error
 	GetRestAPIInterfaces() map[uint32]string
-	ForceChangeOfEpoch() error
+	//ForceChangeOfEpoch() error
 	IsInterfaceNil() bool
 }

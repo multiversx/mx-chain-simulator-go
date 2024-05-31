@@ -9,6 +9,7 @@ import (
 
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
@@ -116,7 +117,8 @@ func (sf *simulatorFacade) ForceUpdateValidatorStatistics() error {
 
 // ForceChangeOfEpoch will force change the current epoch
 func (sf *simulatorFacade) ForceChangeOfEpoch() error {
-	return sf.simulator.ForceChangeOfEpoch()
+	//return sf.simulator.ForceChangeOfEpoch()
+	return nil
 }
 
 // GetObserversInfo will return information about the observers
