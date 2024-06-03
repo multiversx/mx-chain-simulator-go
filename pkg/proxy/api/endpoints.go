@@ -25,7 +25,8 @@ const (
 	observersInfo                     = "/simulator/observers"
 	epochChange                       = "/simulator/force-epoch-change"
 
-	queryParamNoGenerate = "noGenerate"
+	queryParamNoGenerate      = "noGenerate"
+	queryParameterTargetEpoch = "targetEpoch"
 )
 
 type endpointsProcessor struct {
@@ -61,12 +62,33 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 }
 
 func (ep *endpointsProcessor) forceEpochChange(c *gin.Context) {
-	err := ep.facade.ForceChangeOfEpoch()
+	targetEpoch, err := getTargetEpochQueryParam(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = ep.facade.ForceChangeOfEpoch(uint32(targetEpoch))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func getTargetEpochQueryParam(c *gin.Context) (int, error) {
+	epochStr := c.Request.URL.Query().Get(queryParameterTargetEpoch)
+	if epochStr == "" {
+		return 0, nil
+	}
+
+	epoch, err := strconv.Atoi(epochStr)
+	if err != nil {
+		shared.RespondWithBadRequest(c, "cannot convert string to number")
+		return 0, errors.New("cannot convert string to number")
+	}
+
+	return epoch, nil
 }
 
 func (ep *endpointsProcessor) generateBlocks(c *gin.Context) {
