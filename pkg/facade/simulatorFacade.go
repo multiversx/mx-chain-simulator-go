@@ -3,7 +3,9 @@ package facade
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"strconv"
 	"strings"
 
@@ -13,20 +15,28 @@ import (
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
-const errMsgAccountNotFound = "account was not found"
+const (
+	errMsgAccountNotFound                   = "account was not found"
+	maxNumOfBlockToGenerateUntilTxProcessed = 10
+)
 
 type simulatorFacade struct {
-	simulator SimulatorHandler
+	simulator          SimulatorHandler
+	transactionHandler ProxyTransactionsHandler
 }
 
 // NewSimulatorFacade will create a new instance of simulatorFacade
-func NewSimulatorFacade(simulator SimulatorHandler) (*simulatorFacade, error) {
+func NewSimulatorFacade(simulator SimulatorHandler, transactionHandler ProxyTransactionsHandler) (*simulatorFacade, error) {
 	if check.IfNil(simulator) {
 		return nil, errNilSimulatorHandler
 	}
+	if check.IfNilReflect(transactionHandler) {
+		return nil, errNilProxyTransactionsHandler
+	}
 
 	return &simulatorFacade{
-		simulator: simulator,
+		simulator:          simulator,
+		transactionHandler: transactionHandler,
 	}, nil
 }
 
@@ -160,6 +170,34 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 	}
 
 	return response, nil
+}
+
+// GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
+func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
+	txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+	if err != nil {
+		return err
+	}
+
+	count := 0
+	for txStatusInfo.Status == transaction.TxStatusPending.String() {
+		err = sf.GenerateBlocks(1)
+		if err != nil {
+			return err
+		}
+
+		txStatusInfo, err = sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+		if err != nil {
+			return err
+		}
+
+		count++
+		if count > maxNumOfBlockToGenerateUntilTxProcessed {
+			return errors.New("something went wrong, transaction is still in pending")
+		}
+	}
+
+	return nil
 }
 
 func (sf *simulatorFacade) getCurrentEpoch() uint32 {
