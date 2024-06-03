@@ -1,6 +1,9 @@
 package facade
 
-import "github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+import (
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/process"
+)
 
 // SimulatorHandler defines what a simulator handler should be able to do
 type SimulatorHandler interface {
@@ -14,5 +17,6 @@ type SimulatorHandler interface {
 	ForceResetValidatorStatisticsCache() error
 	GetRestAPIInterfaces() map[uint32]string
 	ForceChangeOfEpoch() error
+	GetNodeHandler(shardID uint32) process.NodeHandler
 	IsInterfaceNil() bool
 }

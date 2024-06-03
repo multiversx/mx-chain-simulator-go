@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
@@ -115,8 +116,26 @@ func (sf *simulatorFacade) ForceUpdateValidatorStatistics() error {
 }
 
 // ForceChangeOfEpoch will force change the current epoch
-func (sf *simulatorFacade) ForceChangeOfEpoch() error {
-	return sf.simulator.ForceChangeOfEpoch()
+func (sf *simulatorFacade) ForceChangeOfEpoch(targetEpoch uint32) error {
+	if targetEpoch == 0 {
+		return sf.simulator.ForceChangeOfEpoch()
+	}
+
+	currentEpoch := sf.getCurrentEpoch()
+	if currentEpoch >= targetEpoch {
+		return fmt.Errorf("target epoch must be greater than current epoch, current epoch: %d target epoch: %d", currentEpoch, targetEpoch)
+	}
+
+	for currentEpoch < targetEpoch {
+		err := sf.simulator.ForceChangeOfEpoch()
+		if err != nil {
+			return err
+		}
+
+		currentEpoch = sf.getCurrentEpoch()
+	}
+
+	return nil
 }
 
 // GetObserversInfo will return information about the observers
@@ -141,6 +160,10 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 	}
 
 	return response, nil
+}
+
+func (sf *simulatorFacade) getCurrentEpoch() uint32 {
+	return sf.simulator.GetNodeHandler(core.MetachainShardId).GetProcessComponents().EpochStartTrigger().Epoch()
 }
 
 // IsInterfaceNil returns true if there is no value under the interface
