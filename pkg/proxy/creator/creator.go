@@ -34,13 +34,19 @@ type ArgsProxy struct {
 	NodeHandler   process.NodeHandler
 }
 
+// ArgsOutputProxy the components that are returned by proxy creator
+type ArgsOutputProxy struct {
+	ProxyHandler            proxy2.ProxyHandler
+	ProxyTransactionHandler proxy2.ProxyTransactionsHandler
+}
+
 type proxy struct {
 	closableComponents *data.ClosableComponentsHandler
 	httpServer         *http.Server
 }
 
 // CreateProxy will create a new instance of proxy
-func CreateProxy(args ArgsProxy) (proxy2.ProxyHandler, error) {
+func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 	proxyInstance := &proxy{
 		closableComponents: data.NewClosableComponentsHandler(),
 	}
@@ -206,7 +212,10 @@ func CreateProxy(args ArgsProxy) (proxy2.ProxyHandler, error) {
 		return nil, err
 	}
 
-	return proxyInstance, nil
+	return &ArgsOutputProxy{
+		ProxyHandler:            proxyInstance,
+		ProxyTransactionHandler: txProc,
+	}, nil
 }
 
 // Start will start the proxy
