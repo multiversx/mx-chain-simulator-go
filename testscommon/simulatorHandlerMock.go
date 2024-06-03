@@ -1,6 +1,9 @@
 package testscommon
 
-import "github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+import (
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/process"
+)
 
 // SimulatorHandlerMock -
 type SimulatorHandlerMock struct {
@@ -14,6 +17,16 @@ type SimulatorHandlerMock struct {
 	RemoveAccountsCalled                     func(addresses []string) error
 	GetRestAPIInterfacesCalled               func() map[uint32]string
 	ForceChangeOfEpochCalled                 func() error
+	GetNodeHandlerCalled                     func(shardID uint32) process.NodeHandler
+}
+
+// GetNodeHandler -
+func (mock *SimulatorHandlerMock) GetNodeHandler(shardID uint32) process.NodeHandler {
+	if mock.GetNodeHandlerCalled != nil {
+		return mock.GetNodeHandlerCalled(shardID)
+	}
+
+	return nil
 }
 
 // ForceChangeOfEpoch -
