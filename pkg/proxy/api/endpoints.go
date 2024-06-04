@@ -23,6 +23,7 @@ const (
 	addValidatorsKeys                 = "/simulator/add-keys"
 	forceUpdateValidatorStatistics    = "/simulator/force-reset-validator-statistics"
 	observersInfo                     = "/simulator/observers"
+	epochChange                       = "/simulator/force-epoch-change"
 
 	queryParamNoGenerate = "noGenerate"
 )
@@ -54,8 +55,18 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws.POST(addValidatorsKeys, ep.addValidatorKeys)
 	ws.POST(forceUpdateValidatorStatistics, ep.forceUpdateValidatorStatistics)
 	ws.GET(observersInfo, ep.getObserversInfo)
+	ws.POST(epochChange, ep.forceEpochChange)
 
 	return nil
+}
+
+func (ep *endpointsProcessor) forceEpochChange(c *gin.Context) {
+	err := ep.facade.ForceChangeOfEpoch()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
 }
 
 func (ep *endpointsProcessor) generateBlocks(c *gin.Context) {

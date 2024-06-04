@@ -13,6 +13,16 @@ type SimulatorHandlerMock struct {
 	ForceResetValidatorStatisticsCacheCalled func() error
 	RemoveAccountsCalled                     func(addresses []string) error
 	GetRestAPIInterfacesCalled               func() map[uint32]string
+	ForceChangeOfEpochCalled                 func() error
+}
+
+// ForceChangeOfEpoch -
+func (mock *SimulatorHandlerMock) ForceChangeOfEpoch() error {
+	if mock.ForceChangeOfEpochCalled != nil {
+		return mock.ForceChangeOfEpochCalled()
+	}
+
+	return nil
 }
 
 // GetRestAPIInterfaces -
