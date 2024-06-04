@@ -178,13 +178,22 @@ Example:
 
 ### `POST /simulator/set-state`
 
-This endpoint allows you to set the entire state for a provided list of addresses.
+This endpoint allows you to set the entire state for a provided list of addresses. Additionally, this endpoint
+will generate one block per shard to apply the address state, unless specified otherwise.
 
 ##### Request
 - **Method:** POST
 - **Path:** `/simulator/set-state`
+- **URL parameter** `noGenerate` 
 
-
+##### URL Parameter: `noGenerate`
+- **Description:**
+  - **Type:** Boolean
+  - **Optional:** Yes
+  - **Default:** `false`
+  - **Behavior:** Setting the noGenerate=true is useful when multiple calls to this
+  endpoint are required and the calls should be executed as fast as possible. In this case,
+  to reflect the state changes, the user should manually call the generate-blocks endpoint
 ##### Request Body
 The request body should be a JSON object representing an array of object with the next format.
 
@@ -235,7 +244,16 @@ This endpoint allows you to set the entire state (also will clean the old state 
 ##### Request
 - **Method:** POST
 - **Path:** `/simulator/set-state`
-
+- **URL parameter** `noGenerate`
+- 
+##### URL Parameter: `noGenerate`
+- **Description:**
+  - **Type:** Boolean
+  - **Optional:** Yes
+  - **Default:** `false`
+  - **Behavior:** Setting the noGenerate=true is useful when multiple calls to this endpoint are required and the calls
+  should be executed as fast as possible. In this case, to reflect the state changes, 
+  the user should manually call the generate-blocks endpoint
 
 ##### Request Body
 The request body should be a JSON object representing an array of object with the next format.

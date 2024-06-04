@@ -81,6 +81,7 @@ func main() {
 		autoGenerateBlocks,
 		blockTimeInMs,
 		skipConfigsDownload,
+		fetchConfigsAndClose,
 	}
 
 	app.Authors = []cli.Author{
@@ -123,9 +124,13 @@ func startChainSimulator(ctx *cli.Context) error {
 	skipDownload := ctx.GlobalBool(skipConfigsDownload.Name)
 	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
 	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
+	fetchConfigsAndCloseBool := ctx.GlobalBool(fetchConfigsAndClose.Name)
 	err = fetchConfigs(skipDownload, cfg, nodeConfigs, proxyConfigs)
 	if err != nil {
 		return fmt.Errorf("%w while fetching configs", err)
+	}
+	if fetchConfigsAndCloseBool {
+		return nil
 	}
 
 	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
@@ -360,12 +365,12 @@ func determineOverrideConfigFiles(ctx *cli.Context) []string {
 	overrideFiles := strings.Split(ctx.GlobalString(nodeOverrideConfigurationFile.Name), overrideConfigFilesSeparator)
 
 	for _, filename := range overrideFiles {
-		if filename == nodeOverrideDefaultFilename {
+		if strings.Contains(filename, nodeOverrideDefaultFilename) {
 			return overrideFiles
 		}
 	}
 
-	return append([]string{nodeOverrideDefaultFilename}, overrideFiles...)
+	return append([]string{nodeOverrideDefaultPath}, overrideFiles...)
 }
 
 func removeANSIColorsForLoggerIfNeeded(disableAnsi bool) error {
