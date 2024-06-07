@@ -237,7 +237,7 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	time.Sleep(time.Second)
 
-	proxyInstance, err := creator.CreateProxy(creator.ArgsProxy{
+	outputProxy, err := creator.CreateProxy(creator.ArgsProxy{
 		Config:        outputProxyConfigs.Config,
 		NodeHandler:   metaNode,
 		PathToConfig:  outputProxyConfigs.PathToTempConfig,
@@ -247,7 +247,9 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	simulatorFacade, err := facade.NewSimulatorFacade(simulator)
+	proxyInstance := outputProxy.ProxyHandler
+
+	simulatorFacade, err := facade.NewSimulatorFacade(simulator, outputProxy.ProxyTransactionHandler)
 	if err != nil {
 		return err
 	}
