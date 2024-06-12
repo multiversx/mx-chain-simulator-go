@@ -74,6 +74,30 @@ This endpoint initiates the generation of blocks for each shard until the target
 }
 ```
 
+### `POST /simulator/generate-blocks-until-transcation-processed/:txHash`
+
+This endpoint initiates the generation of blocks for each shard until the status of the provided transaction hash is processed.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/generate-blocks-until-transcation-processed/:txHash`
+- **Parameters:**
+  - `txHash` (path parameter): The hash of the targeted transaction.
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Blocks generated successfully, transaction was processed.
+  - `400 Bad Request`: Invalid request parameters.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
 ### `POST /simulator/force-epoch-change`
 
 This endpoint will trigger the chain to move in the next epoch. (this endpoint will generate a few blocks till next epoch is reached)

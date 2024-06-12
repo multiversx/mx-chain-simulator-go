@@ -14,8 +14,9 @@ type SimulatorFacade interface {
 	SetStateMultipleOverwrite(stateSlice []*dtos.AddressState, noGenerate bool) error
 	AddValidatorKeys(validators *dtosc.ValidatorKeys) error
 	GenerateBlocksUntilEpochIsReached(targetEpoch int32) error
+	GenerateBlocksUntilTransactionIsProcessed(txHash string) error
 	ForceUpdateValidatorStatistics() error
 	GetObserversInfo() (map[uint32]*dtosc.ObserverInfo, error)
-	ForceChangeOfEpoch() error
+	ForceChangeOfEpoch(targetEpoch uint32) error
 	IsInterfaceNil() bool
 }
