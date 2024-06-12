@@ -5,20 +5,23 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"strconv"
 	"strings"
 
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
 const (
+	errMsgTargetEpochLowerThanCurrentEpoch  = "target epoch must be greater than current epoch"
 	errMsgAccountNotFound                   = "account was not found"
-	maxNumOfBlockToGenerateUntilTxProcessed = 10
+	maxNumOfBlockToGenerateUntilTxProcessed = 50
 )
+
+var errPendingTransaction = errors.New("something went wrong, transaction is still in pending")
 
 type simulatorFacade struct {
 	simulator          SimulatorHandler
@@ -133,7 +136,7 @@ func (sf *simulatorFacade) ForceChangeOfEpoch(targetEpoch uint32) error {
 
 	currentEpoch := sf.getCurrentEpoch()
 	if currentEpoch >= targetEpoch {
-		return fmt.Errorf("target epoch must be greater than current epoch, current epoch: %d target epoch: %d", currentEpoch, targetEpoch)
+		return fmt.Errorf("%s, current epoch: %d target epoch: %d", errMsgTargetEpochLowerThanCurrentEpoch, currentEpoch, targetEpoch)
 	}
 
 	for currentEpoch < targetEpoch {
@@ -193,7 +196,7 @@ func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash stri
 
 		count++
 		if count > maxNumOfBlockToGenerateUntilTxProcessed {
-			return errors.New("something went wrong, transaction is still in pending")
+			return errPendingTransaction
 		}
 	}
 
