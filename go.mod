@@ -4,10 +4,10 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/multiversx/mx-chain-core-go v1.2.21-0.20240508071047-fefea5737840
-	github.com/multiversx/mx-chain-go v1.7.13-0.20240612085726-1fb4786985b3
+	github.com/multiversx/mx-chain-core-go v1.2.21-0.20240611111433-86ff8cd5798b
+	github.com/multiversx/mx-chain-go v1.7.13-0.20240618122800-cf040ff80e60
 	github.com/multiversx/mx-chain-logger-go v1.0.15-0.20240508072523-3f00a726af57
-	github.com/multiversx/mx-chain-proxy-go v1.1.48
+	github.com/multiversx/mx-chain-proxy-go v1.1.49-0.20240613152057-935bdb359a0c
 	github.com/pelletier/go-toml v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli v1.22.10
