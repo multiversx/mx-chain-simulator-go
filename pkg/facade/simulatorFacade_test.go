@@ -2,9 +2,16 @@ package facade
 
 import (
 	"encoding/hex"
+	"errors"
+	"strings"
 	"testing"
 
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
+	"github.com/multiversx/mx-chain-go/factory"
+	"github.com/multiversx/mx-chain-go/factory/mock"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/process"
+	"github.com/multiversx/mx-chain-proxy-go/data"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 	"github.com/multiversx/mx-chain-simulator-go/testscommon"
 	"github.com/stretchr/testify/assert"
@@ -17,14 +24,14 @@ func TestNewSimulatorFacade(t *testing.T) {
 	t.Run("nil simulator should error", func(t *testing.T) {
 		t.Parallel()
 
-		facade, err := NewSimulatorFacade(nil)
+		facade, err := NewSimulatorFacade(nil, &testscommon.TransactionHandlerMock{})
 		require.Equal(t, errNilSimulatorHandler, err)
 		require.Nil(t, facade)
 	})
 	t.Run("should work", func(t *testing.T) {
 		t.Parallel()
 
-		facade, err := NewSimulatorFacade(&testscommon.SimulatorHandlerMock{})
+		facade, err := NewSimulatorFacade(&testscommon.SimulatorHandlerMock{}, &testscommon.TransactionHandlerMock{})
 		require.NoError(t, err)
 		require.NotNil(t, facade)
 	})
@@ -36,7 +43,7 @@ func TestSimulatorFacade_IsInterfaceNil(t *testing.T) {
 	var facade *simulatorFacade
 	require.True(t, facade.IsInterfaceNil())
 
-	facade, _ = NewSimulatorFacade(&testscommon.SimulatorHandlerMock{})
+	facade, _ = NewSimulatorFacade(&testscommon.SimulatorHandlerMock{}, &testscommon.TransactionHandlerMock{})
 	require.False(t, facade.IsInterfaceNil())
 }
 
@@ -49,7 +56,7 @@ func TestSimulatorFacade_GenerateBlocks(t *testing.T) {
 			cnt++
 			return nil
 		},
-	})
+	}, &testscommon.TransactionHandlerMock{})
 	require.NoError(t, err)
 
 	err = facade.GenerateBlocks(0)
@@ -70,7 +77,7 @@ func TestSimulatorFacade_GetInitialWalletKeys(t *testing.T) {
 			wasCalled = true
 			return providedInitialWalletKeys
 		},
-	})
+	}, &testscommon.TransactionHandlerMock{})
 	require.NoError(t, err)
 
 	walletKeys := facade.GetInitialWalletKeys()
@@ -92,7 +99,7 @@ func TestSimulatorFacade_SetKeyValueForAddress(t *testing.T) {
 
 			return nil
 		},
-	})
+	}, &testscommon.TransactionHandlerMock{})
 	require.NoError(t, err)
 
 	err = facade.SetKeyValueForAddress(providedAddress, providedKeyValue)
@@ -112,10 +119,10 @@ func TestSimulatorFacade_SetStateMultiple(t *testing.T) {
 
 			return nil
 		},
-	})
+	}, &testscommon.TransactionHandlerMock{})
 	require.NoError(t, err)
 
-	err = facade.SetStateMultiple(providedStateSlice)
+	err = facade.SetStateMultiple(providedStateSlice, true)
 	require.NoError(t, err)
 	require.True(t, wasCalled)
 }
@@ -133,7 +140,7 @@ func TestSimulatorFacade_GenerateBlocksUntilEpochIsReached(t *testing.T) {
 		},
 	}
 
-	facade, _ := NewSimulatorFacade(simulator)
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
 	err := facade.GenerateBlocksUntilEpochIsReached(testEpoch)
 	assert.Nil(t, err)
 	assert.True(t, generateBlocksCalled)
@@ -156,7 +163,7 @@ func TestSimulatorFacade_AddValidatorKeys(t *testing.T) {
 
 				return nil
 			},
-		})
+		}, &testscommon.TransactionHandlerMock{})
 		require.NoError(t, err)
 
 		err = facade.AddValidatorKeys(providedValidators)
@@ -176,7 +183,7 @@ func TestSimulatorFacade_AddValidatorKeys(t *testing.T) {
 
 				return nil
 			},
-		})
+		}, &testscommon.TransactionHandlerMock{})
 		require.NoError(t, err)
 
 		err = facade.AddValidatorKeys(providedValidators)
@@ -205,7 +212,7 @@ func TestSimulatorFacade_AddValidatorKeys(t *testing.T) {
 
 				return nil
 			},
-		})
+		}, &testscommon.TransactionHandlerMock{})
 		require.NoError(t, err)
 
 		err = facade.AddValidatorKeys(providedValidators)
@@ -225,7 +232,7 @@ func TestSimulatorFacade_ForceUpdateValidatorStatistics(t *testing.T) {
 		},
 	}
 
-	facade, _ := NewSimulatorFacade(simulator)
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
 	err := facade.ForceUpdateValidatorStatistics()
 	assert.Nil(t, err)
 	assert.True(t, forceResetCalled)
@@ -243,11 +250,166 @@ func TestSimulatorFacade_GetObserversInfo(t *testing.T) {
 		},
 	}
 
-	facade, _ := NewSimulatorFacade(simulator)
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
 	response, err := facade.GetObserversInfo()
 	require.NoError(t, err)
 	require.Equal(t, map[uint32]*dtoc.ObserverInfo{
 		0: {APIPort: 1234},
 		1: {APIPort: 2233},
 	}, response)
+}
+
+func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_CannotGetTxStatusInfo(t *testing.T) {
+	t.Parallel()
+
+	expectedErr := errors.New("expected error")
+
+	simulator := &testscommon.SimulatorHandlerMock{}
+
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{
+		GetProcessedTransactionStatusCalled: func(txHash string) (*data.ProcessStatusResponse, error) {
+			return nil, expectedErr
+		},
+	})
+
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	require.Equal(t, expectedErr, err)
+}
+
+func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_CannotGenerateBlockErr(t *testing.T) {
+	t.Parallel()
+
+	expectedErr := errors.New("cannot generate block")
+
+	simulator := &testscommon.SimulatorHandlerMock{
+		GenerateBlocksCalled: func(numOfBlocks int) error {
+			return expectedErr
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{
+
+		GetProcessedTransactionStatusCalled: func(txHash string) (*data.ProcessStatusResponse, error) {
+			return &data.ProcessStatusResponse{
+				Status: transaction.TxStatusPending.String(),
+			}, nil
+		},
+	})
+
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	require.Equal(t, expectedErr, err)
+}
+
+func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_ErrPendingTransaction(t *testing.T) {
+	t.Parallel()
+
+	simulator := &testscommon.SimulatorHandlerMock{
+		GenerateBlocksCalled: func(numOfBlocks int) error {
+			return nil
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{
+		GetProcessedTransactionStatusCalled: func(txHash string) (*data.ProcessStatusResponse, error) {
+			return &data.ProcessStatusResponse{
+				Status: transaction.TxStatusPending.String(),
+			}, nil
+		},
+	})
+
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	require.Equal(t, errPendingTransaction, err)
+}
+
+func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_ShouldWork(t *testing.T) {
+	t.Parallel()
+
+	count := 0
+	simulator := &testscommon.SimulatorHandlerMock{
+		GenerateBlocksCalled: func(numOfBlocks int) error {
+			return nil
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{
+		GetProcessedTransactionStatusCalled: func(txHash string) (*data.ProcessStatusResponse, error) {
+			count++
+			if count == 1 {
+				return &data.ProcessStatusResponse{
+					Status: transaction.TxStatusFail.String(),
+				}, nil
+			}
+			return &data.ProcessStatusResponse{
+				Status: transaction.TxStatusPending.String(),
+			}, nil
+		},
+	})
+
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	require.Nil(t, err)
+}
+
+func TestSimulatorFacade_ForceChangeOfEpoch_TargetEpochLowerThanCurrentEpoch(t *testing.T) {
+	t.Parallel()
+
+	epoch := uint32(10)
+	simulator := &testscommon.SimulatorHandlerMock{
+		GetNodeHandlerCalled: func(shardID uint32) process.NodeHandler {
+			return getNodeHandlerWithCurrentEpoch(epoch)
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
+
+	err := facade.ForceChangeOfEpoch(5)
+	require.NotNil(t, err)
+	require.True(t, strings.Contains(err.Error(), errMsgTargetEpochLowerThanCurrentEpoch))
+}
+
+func TestSimulatorFacade_ForceChangeOfEpochError(t *testing.T) {
+	epoch := uint32(0)
+	expectedErr := errors.New("expected error")
+	simulator := &testscommon.SimulatorHandlerMock{
+		GetNodeHandlerCalled: func(shardID uint32) process.NodeHandler {
+			epoch++
+			return getNodeHandlerWithCurrentEpoch(epoch)
+		},
+		ForceChangeOfEpochCalled: func() error {
+			return expectedErr
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
+
+	err := facade.ForceChangeOfEpoch(5)
+	require.Equal(t, expectedErr, err)
+}
+
+func TestSimulatorFacade_ForceChangeOfEpoch(t *testing.T) {
+	epoch := uint32(0)
+	simulator := &testscommon.SimulatorHandlerMock{
+		GetNodeHandlerCalled: func(shardID uint32) process.NodeHandler {
+			epoch++
+			return getNodeHandlerWithCurrentEpoch(epoch)
+		},
+	}
+
+	facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
+
+	err := facade.ForceChangeOfEpoch(5)
+	require.Nil(t, err)
+}
+
+func getNodeHandlerWithCurrentEpoch(epoch uint32) process.NodeHandler {
+	return &testscommon.NodeHandlerStub{
+		GetProcessComponentsCalled: func() factory.ProcessComponentsHolder {
+			return &mock.ProcessComponentsMock{
+				EpochTrigger: &mock.EpochStartTriggerStub{
+					EpochCalled: func() uint32 {
+						return epoch
+					},
+				},
+			}
+		},
+	}
 }

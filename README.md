@@ -74,6 +74,52 @@ This endpoint initiates the generation of blocks for each shard until the target
 }
 ```
 
+### `POST /simulator/generate-blocks-until-transcation-processed/:txHash`
+
+This endpoint initiates the generation of blocks for each shard until the status of the provided transaction hash is processed.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/generate-blocks-until-transcation-processed/:txHash`
+- **Parameters:**
+  - `txHash` (path parameter): The hash of the targeted transaction.
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Blocks generated successfully, transaction was processed.
+  - `400 Bad Request`: Invalid request parameters.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
+### `POST /simulator/force-epoch-change`
+
+This endpoint will trigger the chain to move in the next epoch. (this endpoint will generate a few blocks till next epoch is reached)
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/force-epoch-change`
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Next epoch reached.
+  - `400 Bad Request`: Invalid request parameters.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
 ### `GET /simulator/initial-wallets`
 
 This endpoint returns the initial wallets (address and private key hex encoded).
@@ -178,13 +224,22 @@ Example:
 
 ### `POST /simulator/set-state`
 
-This endpoint allows you to set the entire state for a provided list of addresses.
+This endpoint allows you to set the entire state for a provided list of addresses. Additionally, this endpoint
+will generate one block per shard to apply the address state, unless specified otherwise.
 
 ##### Request
 - **Method:** POST
 - **Path:** `/simulator/set-state`
+- **URL parameter** `noGenerate` 
 
-
+##### URL Parameter: `noGenerate`
+- **Description:**
+  - **Type:** Boolean
+  - **Optional:** Yes
+  - **Default:** `false`
+  - **Behavior:** Setting the noGenerate=true is useful when multiple calls to this
+  endpoint are required and the calls should be executed as fast as possible. In this case,
+  to reflect the state changes, the user should manually call the generate-blocks endpoint
 ##### Request Body
 The request body should be a JSON object representing an array of object with the next format.
 
@@ -235,7 +290,16 @@ This endpoint allows you to set the entire state (also will clean the old state 
 ##### Request
 - **Method:** POST
 - **Path:** `/simulator/set-state`
-
+- **URL parameter** `noGenerate`
+- 
+##### URL Parameter: `noGenerate`
+- **Description:**
+  - **Type:** Boolean
+  - **Optional:** Yes
+  - **Default:** `false`
+  - **Behavior:** Setting the noGenerate=true is useful when multiple calls to this endpoint are required and the calls
+  should be executed as fast as possible. In this case, to reflect the state changes, 
+  the user should manually call the generate-blocks endpoint
 
 ##### Request Body
 The request body should be a JSON object representing an array of object with the next format.
@@ -408,6 +472,9 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
 
 There is also an optional configuration file called `nodeOverride.toml` that can be used to alter specific configuration options 
 for the nodes that assemble the chain simulator. The override mechanism is the same as the one found on the mx-chain-go, prefs.toml file.
+In this tool, the flag option called `--node-override-config` can load more than one override toml file by specifying the paths separated 
+by the `,` character. Example: `--node-override-config ./config/override1.toml,./config/override2.toml`. The default 
+`./config/nodeOverrideDefault.toml` file is added automatically.
 
 The **_[nodeOverride.toml](./cmd/chainsimulator/config/config.toml)_** file:
 

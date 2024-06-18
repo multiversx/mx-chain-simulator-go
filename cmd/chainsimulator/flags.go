@@ -8,6 +8,9 @@ import (
 	"github.com/urfave/cli"
 )
 
+const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
+const nodeOverrideDefaultPath = "./config/" + nodeOverrideDefaultFilename
+
 var (
 	configurationFile = cli.StringFlag{
 		Name:  "config",
@@ -15,9 +18,10 @@ var (
 		Value: "./config/config.toml",
 	}
 	nodeOverrideConfigurationFile = cli.StringFlag{
-		Name:  "node-override-config",
-		Usage: "The node's override configuration file to load",
-		Value: "./config/nodeOverride.toml",
+		Name: "node-override-config",
+		Usage: "The node's override configuration file to load. Can define multiple files separated by comma. " +
+			"Example: ./config/override1.toml,./config/override2.toml and so on",
+		Value: nodeOverrideDefaultPath,
 	}
 	logLevel = cli.StringFlag{
 		Name: "log-level",
@@ -123,6 +127,10 @@ var (
 	skipConfigsDownload = cli.BoolFlag{
 		Name:  "skip-configs-download",
 		Usage: "The flag is used to specify whether to skip downloading configs",
+	}
+	fetchConfigsAndClose = cli.BoolFlag{
+		Name:  "fetch-configs-and-close",
+		Usage: "This flag is used to specify to fetch all configs and close the chain simulator after",
 	}
 )
 

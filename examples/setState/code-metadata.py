@@ -35,9 +35,6 @@ def main():
 
     provider.do_post(SET_STATE_URL, test_state)
 
-    num_blocks_to_generate = 10
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/{num_blocks_to_generate}", {})
-
     # for this address the code metadata should be empty as the address is not a valid SC address
     response = provider.do_get_generic(f'address/erd1qyqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqlqnj4d')
     account_response = response.get("account")
@@ -50,7 +47,7 @@ def main():
     account_response = response.get("account")
     code_metadata = account_response.get('codeMetadata', '')
     if code_metadata != 'BAA=':
-        assert code_metadata != 'BAA=', "code metadata is different from 'BAA='"
+        assert code_metadata == 'BAA=', "code metadata is different from 'BAA='"
 
 
 if __name__ == "__main__":
