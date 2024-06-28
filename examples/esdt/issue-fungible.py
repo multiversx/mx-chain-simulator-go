@@ -48,7 +48,7 @@ def main():
     )
 
     # set issue cost and nonce
-    tx.amount = 5000000000000000000
+    tx.amount = 50000000000000000 #0.05 EGLD
     tx.nonce = provider.get_account(address).nonce
 
     # sign transaction
