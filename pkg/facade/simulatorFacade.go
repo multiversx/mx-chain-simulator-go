@@ -17,7 +17,7 @@ import (
 
 const (
 	errMsgAccountNotFound                   = "account was not found"
-	maxNumOfBlockToGenerateUntilTxProcessed = 10
+	maxNumOfBlockToGenerateUntilTxProcessed = 20
 )
 
 type simulatorFacade struct {
