@@ -10,6 +10,7 @@ from pathlib import Path
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
 
 
 def main():
@@ -47,7 +48,7 @@ def main():
     )
 
     # set issue cost and nonce
-    tx.amount = 5000000000000000000
+    tx.amount = 50000000000000000 #0.05 EGLD
     tx.nonce = provider.get_account(address).nonce
 
     # sign transaction
@@ -61,7 +62,7 @@ def main():
     time.sleep(1)
 
     # execute 5 block ( transaction needs to be executed on source, block on source has to be finalized...)
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/5", {})
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # get transaction with status
     tx_from_network = provider.get_transaction(tx_hash, with_process_status=True)

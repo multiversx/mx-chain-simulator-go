@@ -3,29 +3,40 @@ package facade
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"strconv"
 	"strings"
 
+	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
-const errMsgAccountNotFound = "account was not found"
+const (
+	errMsgAccountNotFound                   = "account was not found"
+	maxNumOfBlockToGenerateUntilTxProcessed = 10
+)
 
 type simulatorFacade struct {
-	simulator SimulatorHandler
+	simulator          SimulatorHandler
+	transactionHandler ProxyTransactionsHandler
 }
 
 // NewSimulatorFacade will create a new instance of simulatorFacade
-func NewSimulatorFacade(simulator SimulatorHandler) (*simulatorFacade, error) {
+func NewSimulatorFacade(simulator SimulatorHandler, transactionHandler ProxyTransactionsHandler) (*simulatorFacade, error) {
 	if check.IfNil(simulator) {
 		return nil, errNilSimulatorHandler
 	}
+	if check.IfNilReflect(transactionHandler) {
+		return nil, errNilProxyTransactionsHandler
+	}
 
 	return &simulatorFacade{
-		simulator: simulator,
+		simulator:          simulator,
+		transactionHandler: transactionHandler,
 	}, nil
 }
 
@@ -114,6 +125,29 @@ func (sf *simulatorFacade) ForceUpdateValidatorStatistics() error {
 	return sf.simulator.ForceResetValidatorStatisticsCache()
 }
 
+// ForceChangeOfEpoch will force change the current epoch
+func (sf *simulatorFacade) ForceChangeOfEpoch(targetEpoch uint32) error {
+	if targetEpoch == 0 {
+		return sf.simulator.ForceChangeOfEpoch()
+	}
+
+	currentEpoch := sf.getCurrentEpoch()
+	if currentEpoch >= targetEpoch {
+		return fmt.Errorf("target epoch must be greater than current epoch, current epoch: %d target epoch: %d", currentEpoch, targetEpoch)
+	}
+
+	for currentEpoch < targetEpoch {
+		err := sf.simulator.ForceChangeOfEpoch()
+		if err != nil {
+			return err
+		}
+
+		currentEpoch = sf.getCurrentEpoch()
+	}
+
+	return nil
+}
+
 // GetObserversInfo will return information about the observers
 func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, error) {
 	restApiInterface := sf.simulator.GetRestAPIInterfaces()
@@ -136,6 +170,38 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 	}
 
 	return response, nil
+}
+
+// GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
+func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
+	txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+	if err != nil {
+		return err
+	}
+
+	count := 0
+	for txStatusInfo.Status == transaction.TxStatusPending.String() {
+		err = sf.GenerateBlocks(1)
+		if err != nil {
+			return err
+		}
+
+		txStatusInfo, err = sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+		if err != nil {
+			return err
+		}
+
+		count++
+		if count > maxNumOfBlockToGenerateUntilTxProcessed {
+			return errors.New("something went wrong, transaction is still in pending")
+		}
+	}
+
+	return nil
+}
+
+func (sf *simulatorFacade) getCurrentEpoch() uint32 {
+	return sf.simulator.GetNodeHandler(core.MetachainShardId).GetProcessComponents().EpochStartTrigger().Epoch()
 }
 
 // IsInterfaceNil returns true if there is no value under the interface
