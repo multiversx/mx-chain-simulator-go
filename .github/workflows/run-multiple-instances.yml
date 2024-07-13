@@ -31,4 +31,5 @@ jobs:
         run: |
           cd cmd/chainsimulator 
           go build
+          ./chainsimulator --fetch-configs-and-close
           python3 ../../scripts/run-multiple-instances/script.py
