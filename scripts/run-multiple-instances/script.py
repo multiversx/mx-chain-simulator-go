@@ -95,7 +95,7 @@ def get_api_response(url):
         if response.status_code == 200:
             return response.json()
         else:
-            print(f"Failed to get response: {response.status_code}")
+            print(f"Failed to get response: {response.status_code}, url:{url}")
     except Exception as e:
         print(f"Error getting API response: {e}")
     return None
