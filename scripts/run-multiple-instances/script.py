@@ -33,8 +33,6 @@ def extract_port_from_process(proc):
         # Decode the line and remove ANSI escape sequences
         line = line.decode('utf-8').strip()
         cleaned_line = ansi_escape.sub('', line)
-        print(cleaned_line)
-
         # Search for the port number
         match = port_pattern.search(cleaned_line)
         if match:
