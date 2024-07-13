@@ -61,7 +61,7 @@ def find_and_print_duplicates(arr):
 
 def start_instance(index, used_ports):
     print(f"Start process index={index}")
-    proc = subprocess.Popen(['./chainsimulator', '--server-port', 0],
+    proc = subprocess.Popen(['./chainsimulator', '--server-port', "0"],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
 
