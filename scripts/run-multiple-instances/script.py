@@ -12,7 +12,7 @@ def enqueue_output(pipe, q):
     pipe.close()
 
 
-def extract_port_from_process(proc):
+def extract_port_from_process(proc, index):
     port_pattern = re.compile(r'INFO.*chain simulator\'s is accessible through the URL localhost:(\d+)')
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
 
@@ -33,6 +33,7 @@ def extract_port_from_process(proc):
         # Decode the line and remove ANSI escape sequences
         line = line.decode('utf-8').strip()
         cleaned_line = ansi_escape.sub('', line)
+        print(f"{index} - {cleaned_line}")
         # Search for the port number
         match = port_pattern.search(cleaned_line)
         if match:
@@ -64,7 +65,7 @@ def start_instance(index, used_ports):
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
 
-    port = extract_port_from_process(proc)
+    port = extract_port_from_process(proc, index)
     used_ports.add(port)
 
     print(f"Started instance of chain simulator - index={index}, port={port}")
