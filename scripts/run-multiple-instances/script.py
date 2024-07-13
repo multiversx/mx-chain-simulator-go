@@ -141,7 +141,7 @@ def terminate_instances(processes):
 
 
 def main():
-    num_instances = 30
+    num_instances = 100
 
     print("Starting instances...")
     processes = start_instances(num_instances)
