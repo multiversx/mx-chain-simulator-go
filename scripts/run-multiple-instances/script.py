@@ -1,5 +1,6 @@
 import queue
 import subprocess
+import sys
 import threading
 import requests
 import re
@@ -33,7 +34,6 @@ def extract_port_from_process(proc, index):
         # Decode the line and remove ANSI escape sequences
         line = line.decode('utf-8').strip()
         cleaned_line = ansi_escape.sub('', line)
-        print(f"{index} - {cleaned_line}")
         # Search for the port number
         match = port_pattern.search(cleaned_line)
         if match:
@@ -97,9 +97,10 @@ def get_api_response(url):
             return response.json()
         else:
             print(f"Failed to get response: {response.status_code}, url:{url}")
+            sys.exit(1)
     except Exception as e:
         print(f"Error getting API response: {e}")
-    return None
+        sys.exit(1)
 
 
 def post_generate_blocks(port):
@@ -112,17 +113,16 @@ def post_generate_blocks(port):
             return True
         else:
             print(f"Failed to generate blocks: {response.status_code}")
+            sys.exit(1)
     except Exception as e:
         print(f"Error generating blocks: {e}")
-    return False
+        sys.exit(1)
 
 
 def check_for_duplicate_ports(processes):
     ports = {}
     duplicates = []
     for proc, port in processes:
-        # post_generate_blocks(port)
-
         api_url = f"http://localhost:{port}/simulator/observers"  # Adjust the URL pattern as needed
         response = get_api_response(api_url)
         if response:
@@ -151,6 +151,7 @@ def main():
 
     if duplicates:
         print(f"Duplicate ports found: {duplicates}")
+        sys.exit(1)
     else:
         print("No duplicate ports found.")
 
