@@ -1,4 +1,4 @@
-name: Run multiple instances
+name: Run multiple simulators
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Run multiple instances
+    name: Run instances
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.x
@@ -27,7 +27,7 @@ jobs:
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
               dep ensure
           fi
-      - name: Build
+      - name: Run multiple instances
         run: |
           cd cmd/chainsimulator 
           go build
