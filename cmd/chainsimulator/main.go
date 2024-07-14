@@ -161,17 +161,6 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	localRestApiInterface := "localhost"
 	apiConfigurator := api.NewFreePortAPIConfigurator(localRestApiInterface)
-	proxyPort := cfg.Config.Simulator.ServerPort
-	proxyURL := fmt.Sprintf("%s:%d", localRestApiInterface, proxyPort)
-	if proxyPort == 0 {
-		proxyURL = apiConfigurator.RestApiInterface(0)
-		portString := proxyURL[len(localRestApiInterface)+1:]
-		port, errConvert := strconv.Atoi(portString)
-		if errConvert != nil {
-			return fmt.Errorf("internal error while searching a free port for the proxy component: %w", errConvert)
-		}
-		proxyPort = port
-	}
 
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 
@@ -227,7 +216,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            tempDir,
 		PathToProxyConfig: proxyConfigs,
-		ServerPort:        proxyPort,
+		ServerPort:        0,
 		RestApiInterfaces: restApiInterfaces,
 		InitialWallets:    simulator.GetInitialWalletKeys().BalanceWallets,
 	})
@@ -237,6 +226,19 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	time.Sleep(time.Second)
 
+	proxyPort := cfg.Config.Simulator.ServerPort
+	proxyURL := fmt.Sprintf("%s:%d", localRestApiInterface, proxyPort)
+	if proxyPort == 0 {
+		proxyURL = apiConfigurator.RestApiInterface(0)
+		portString := proxyURL[len(localRestApiInterface)+1:]
+		port, errConvert := strconv.Atoi(portString)
+		if errConvert != nil {
+			return fmt.Errorf("internal error while searching a free port for the proxy component: %w", errConvert)
+		}
+		proxyPort = port
+	}
+
+	outputProxyConfigs.Config.GeneralSettings.ServerPort = proxyPort
 	outputProxy, err := creator.CreateProxy(creator.ArgsProxy{
 		Config:        outputProxyConfigs.Config,
 		NodeHandler:   metaNode,
