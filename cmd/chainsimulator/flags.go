@@ -51,6 +51,11 @@ var (
 		Usage: "The path to proxy configs",
 		Value: "./config/proxy/config",
 	}
+	pathWhereToSaveLogs = cli.StringFlag{
+		Name:  "path-log-save",
+		Usage: "The path where to save logs",
+		Value: "./",
+	}
 	startTime = cli.Int64Flag{
 		Name:  "start-time",
 		Usage: "The start time of the chain",
