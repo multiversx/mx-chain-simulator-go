@@ -216,7 +216,6 @@ func startChainSimulator(ctx *cli.Context) error {
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            tempDir,
 		PathToProxyConfig: proxyConfigs,
-		ServerPort:        cfg.Config.Simulator.ServerPort,
 		RestApiInterfaces: restApiInterfaces,
 		InitialWallets:    simulator.GetInitialWalletKeys().BalanceWallets,
 	})
