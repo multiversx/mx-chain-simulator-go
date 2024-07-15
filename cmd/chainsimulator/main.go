@@ -82,6 +82,7 @@ func main() {
 		blockTimeInMs,
 		skipConfigsDownload,
 		fetchConfigsAndClose,
+		pathWhereToSaveLogs,
 	}
 
 	app.Authors = []cli.Author{
@@ -299,14 +300,9 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 		return nil, nil
 	}
 
-	workingDir, err := os.Getwd()
-	if err != nil {
-		log.LogIfError(err)
-		workingDir = ""
-	}
-
+	pathLogsSave := ctx.GlobalString(pathWhereToSaveLogs.Name)
 	fileLogging, err := file.NewFileLogging(file.ArgsFileLogging{
-		WorkingDir:      workingDir,
+		WorkingDir:      pathLogsSave,
 		DefaultLogsPath: cfg.Config.Logs.LogsPath,
 		LogFilePrefix:   cfg.Config.Logs.LogFilePrefix,
 	})
