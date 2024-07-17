@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Run instances
+    name: Run chain simulator and VM query
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.x
@@ -31,5 +31,5 @@ jobs:
           cd cmd/chainsimulator 
           go build
           ./chainsimulator --fetch-configs-and-close
-          ./chainsimulator &
+          screen -dmS chainsimulator "./chainsimulator"
           ./../../scripts/run-vm-query/script.py
