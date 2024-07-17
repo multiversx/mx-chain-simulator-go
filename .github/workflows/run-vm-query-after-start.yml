@@ -32,4 +32,4 @@ jobs:
           go build
           ./chainsimulator --fetch-configs-and-close
           screen -dmS chainsimulator "./chainsimulator"
-          ./../../scripts/run-vm-query/script.py
+          ./../../scripts/run-vm-query/script.sh
