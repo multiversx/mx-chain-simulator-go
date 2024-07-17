@@ -189,7 +189,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
 			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
 		},
-		VmQueryDelayAfterStartInMs: 10000,
+		VmQueryDelayAfterStartInMs: 0,
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
