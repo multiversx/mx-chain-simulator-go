@@ -1,4 +1,20 @@
 SIMULATOR_URL=http://localhost:8085
+
+wait_simulator_to_start() {
+    endpoint="${SIMULATOR_URL}/network/config"
+    for ((i = 1; i <= 10; i++)); do
+        if curl -s -o /dev/null "$endpoint" >/dev/null 2>&1; then
+            return 0
+        fi
+        sleep "0.1"
+    done
+
+    echo "Error: Timed out waiting for endpoint '$endpoint' to become reachable."
+    return 1
+}
+
+wait_simulator_to_start
+
 ADDRESS=$(curl -s ''${SIMULATOR_URL}'/simulator/initial-wallets' | jq -r '.data.stakeWallets[0].address.bech32')
 
 

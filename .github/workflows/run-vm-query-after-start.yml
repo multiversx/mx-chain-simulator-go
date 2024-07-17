@@ -32,5 +32,4 @@ jobs:
           go build
           ./chainsimulator --fetch-configs-and-close
           screen -dmS chainsimulator "./chainsimulator"
-          sleep 0.15
           ./../../scripts/run-vm-query/script.sh
