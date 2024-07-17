@@ -31,5 +31,5 @@ jobs:
           cd cmd/chainsimulator 
           go build
           ./chainsimulator --fetch-configs-and-close
-          ./chainsimulator
+          ./chainsimulator &
           ./../../scripts/run-vm-query/script.py
