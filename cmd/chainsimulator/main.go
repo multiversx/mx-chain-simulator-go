@@ -82,6 +82,7 @@ func main() {
 		blockTimeInMs,
 		skipConfigsDownload,
 		fetchConfigsAndClose,
+		pathWhereToSaveLogs,
 	}
 
 	app.Authors = []cli.Author{
@@ -161,18 +162,6 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	localRestApiInterface := "localhost"
 	apiConfigurator := api.NewFreePortAPIConfigurator(localRestApiInterface)
-	proxyPort := cfg.Config.Simulator.ServerPort
-	proxyURL := fmt.Sprintf("%s:%d", localRestApiInterface, proxyPort)
-	if proxyPort == 0 {
-		proxyURL = apiConfigurator.RestApiInterface(0)
-		portString := proxyURL[len(localRestApiInterface)+1:]
-		port, errConvert := strconv.Atoi(portString)
-		if errConvert != nil {
-			return fmt.Errorf("internal error while searching a free port for the proxy component: %w", errConvert)
-		}
-		proxyPort = port
-	}
-
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 
 	tempDir, err := os.MkdirTemp(os.TempDir(), "")
@@ -200,6 +189,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
 			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
 		},
+		VmQueryDelayAfterStartInMs: 0,
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
@@ -227,7 +217,6 @@ func startChainSimulator(ctx *cli.Context) error {
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            tempDir,
 		PathToProxyConfig: proxyConfigs,
-		ServerPort:        proxyPort,
 		RestApiInterfaces: restApiInterfaces,
 		InitialWallets:    simulator.GetInitialWalletKeys().BalanceWallets,
 	})
@@ -235,8 +224,19 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	time.Sleep(time.Second)
+	proxyPort := cfg.Config.Simulator.ServerPort
+	proxyURL := fmt.Sprintf("%s:%d", localRestApiInterface, proxyPort)
+	if proxyPort == 0 {
+		proxyURL = apiConfigurator.RestApiInterface(0)
+		portString := proxyURL[len(localRestApiInterface)+1:]
+		port, errConvert := strconv.Atoi(portString)
+		if errConvert != nil {
+			return fmt.Errorf("internal error while searching a free port for the proxy component: %w", errConvert)
+		}
+		proxyPort = port
+	}
 
+	outputProxyConfigs.Config.GeneralSettings.ServerPort = proxyPort
 	outputProxy, err := creator.CreateProxy(creator.ArgsProxy{
 		Config:        outputProxyConfigs.Config,
 		NodeHandler:   metaNode,
@@ -300,14 +300,9 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 		return nil, nil
 	}
 
-	workingDir, err := os.Getwd()
-	if err != nil {
-		log.LogIfError(err)
-		workingDir = ""
-	}
-
+	pathLogsSave := ctx.GlobalString(pathWhereToSaveLogs.Name)
 	fileLogging, err := file.NewFileLogging(file.ArgsFileLogging{
-		WorkingDir:      workingDir,
+		WorkingDir:      pathLogsSave,
 		DefaultLogsPath: cfg.Config.Logs.LogsPath,
 		LogFilePrefix:   cfg.Config.Logs.LogFilePrefix,
 	})
