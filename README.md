@@ -100,11 +100,12 @@ This endpoint initiates the generation of blocks for each shard until the status
 
 ### `POST /simulator/force-epoch-change`
 
-This endpoint will trigger the chain to move in the next epoch. (this endpoint will generate a few blocks till next epoch is reached)
+This endpoint will trigger the chain to move in the next epoch. (this endpoint will generate a few block till next epoch is reached)
 
 ##### Request
 - **Method:** POST
 - **Path:** `/simulator/force-epoch-change`
+- **URL parameter** `targetEpoch` Specifies the epoch the chain simulator needs to reach.
 
 ##### Response
 - **Status Codes:**
