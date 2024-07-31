@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    #ports: 5672, 15672
+    container_name: rmq-container
+    image: "rabbitmq:3-management"
+    network_mode: "host"
+
+  events-notifier:
+    #ports: 22111
+    container_name: en-container
+    image: multiversx/events-notifier:latest
+    depends_on:
+      - rabbitmq
+    command: /bin/sh -c "sed -i '/Enabled will determine if websocket connector will be enabled or not/{n;s/Enabled = false/Enabled = true/}' ./config/config.toml && ./notifier --check-duplicates=false -publisher-type rabbitmq"
+    entrypoint: ""
+    network_mode: "host"
+
+  elasticsearch:
+    #ports: 9200, 9300
+    container_name: es-container
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.1
+    environment:
+      - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    network_mode: "host"
+
+  kibana:
+    #ports: 5601
+    container_name: kb-container
+    image: docker.elastic.co/kibana/kibana:7.16.1
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-container:9200
+    network_mode: "host"
+    depends_on:
+      - elasticsearch
+
+# TODO use the websockets based elastic indexer when the communication problems are solved
+#  elastic-indexer:
+#    #ports: 22112
+#    container_name: es-indexer
+#    image: multiversx/elastic-indexer:latest
+#    depends_on:
+#      - elasticsearch
+#      - kibana
+#    entrypoint: "./elasticindexer -log-level *:DEBUG"
+#    network_mode: "host"
+
+  chain-simulator:
+    #ports: 8085
+    image: multiversx/chainsimulator:latest
+    network_mode: "host"
+    environment:
+      EVENTS_NOTIFIER_URL: '127.0.0.1:22111'
+      ELASTIC_SEARCH_URL: '127.0.0.1:22112' # just a dummy string for now
+    entrypoint: "./start-with-services.sh -log-level *:DEBUG"
