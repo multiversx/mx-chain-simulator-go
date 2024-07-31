@@ -6,16 +6,27 @@ services:
     container_name: rmq-container
     image: "rabbitmq:3-management"
     network_mode: "host"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   events-notifier:
     #ports: 22111
     container_name: en-container
     image: multiversx/events-notifier:latest
     depends_on:
-      - rabbitmq
-    command: /bin/sh -c "sed -i '/Enabled will determine if websocket connector will be enabled or not/{n;s/Enabled = false/Enabled = true/}' ./config/config.toml && ./notifier --check-duplicates=false -publisher-type rabbitmq"
+      rabbitmq:
+        condition: service_healthy
+    command: /bin/sh -c "which curl && sed -i '/Enabled will determine if websocket connector will be enabled or not/{n;s/Enabled = false/Enabled = true/}' ./config/config.toml && ./notifier --check-duplicates=false -publisher-type rabbitmq"
     entrypoint: ""
     network_mode: "host"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/status/metrics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   elasticsearch:
     #ports: 9200, 9300
@@ -30,16 +41,11 @@ services:
         soft: -1
         hard: -1
     network_mode: "host"
-
-  kibana:
-    #ports: 5601
-    container_name: kb-container
-    image: docker.elastic.co/kibana/kibana:7.16.1
-    environment:
-      - ELASTICSEARCH_HOSTS=http://es-container:9200
-    network_mode: "host"
-    depends_on:
-      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 # TODO use the websockets based elastic indexer when the communication problems are solved
 #  elastic-indexer:
@@ -48,7 +54,6 @@ services:
 #    image: multiversx/elastic-indexer:latest
 #    depends_on:
 #      - elasticsearch
-#      - kibana
 #    entrypoint: "./elasticindexer -log-level *:DEBUG"
 #    network_mode: "host"
 
@@ -59,4 +64,14 @@ services:
     environment:
       EVENTS_NOTIFIER_URL: '127.0.0.1:22111'
       ELASTIC_SEARCH_URL: '127.0.0.1:22112' # just a dummy string for now
-    entrypoint: "./start-with-services.sh -log-level *:DEBUG"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      events-notifier:
+        condition: service_healthy
+    entrypoint: "./start-with-services.sh -log-level *:INFO"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:8085/simulator/observers" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
