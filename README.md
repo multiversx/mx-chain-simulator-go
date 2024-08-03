@@ -74,13 +74,13 @@ This endpoint initiates the generation of blocks for each shard until the target
 }
 ```
 
-### `POST /simulator/generate-blocks-until-transcation-processed/:txHash`
+### `POST /simulator/generate-blocks-until-transaction-processed/:txHash`
 
 This endpoint initiates the generation of blocks for each shard until the status of the provided transaction hash is processed.
 
 ##### Request
 - **Method:** POST
-- **Path:** `/simulator/generate-blocks-until-transcation-processed/:txHash`
+- **Path:** `/simulator/generate-blocks-until-transaction-processed/:txHash`
 - **Parameters:**
   - `txHash` (path parameter): The hash of the targeted transaction.
 
