@@ -10,6 +10,10 @@ def update_go_mod_file(go_mod_path, new_hash):
         with open(go_mod_path, 'r') as file:
             content = file.read()
 
+        # Print the original content for debugging
+        print("Original go.mod content:")
+        print(content)
+
         # Simplified regex to only capture the version part
         updated_content = re.sub(r'(github\.com/multiversx/mx-chain-go\s+)(v[^\s]+)', r'github.com/multiversx/mx-chain-go ' + new_hash, content)
 
