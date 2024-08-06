@@ -54,4 +54,4 @@ run_python_script ../../examples/generateBlocks epoch-reached.py
 run_python_script ../../examples/setState code-metadata.py
 
 # run deploy with issue esdt
-run_python_script ../../examples/contracts/issue-esdt-with-contract issue-with-contrac.py
+run_python_script ../../examples/contracts/issue-esdt-with-contract issue-with-contract.py
