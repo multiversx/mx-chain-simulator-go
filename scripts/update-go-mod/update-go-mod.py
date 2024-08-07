@@ -40,26 +40,29 @@ def run_go_mod_tidy():
         print(f"Failed to run go mod tidy: {e.stderr}")
         sys.exit(1)
 
+def main():
+    # Assuming the script is run from the root of mx-chain-simulator-go
+    go_mod_path = './go.mod'
+
+    if len(sys.argv) != 2:
+        print("Usage: update-go-mod.py <commit_hash>")
+        sys.exit(1)
+
+    latest_commit_hash = sys.argv[1]
+
+    print(f"go.mod path: {go_mod_path}")
+    print(f"Latest commit hash received: {latest_commit_hash}")
+
+    update_go_mod_file(go_mod_path, latest_commit_hash)
+
+    # Run go mod tidy after updating go.mod
+    run_go_mod_tidy()
+
+    print("Python Script executed successfully.")
+
 if __name__ == "__main__":
     try:
-        # Assuming the script is run from the root of mx-chain-simulator-go
-        go_mod_path = './go.mod'
-
-        print(f"go.mod path: {go_mod_path}")
-
-        if len(sys.argv) != 2:
-            print("Usage: update-go-mod.py <commit_hash>")
-            sys.exit(1)
-
-        latest_commit_hash = sys.argv[1]
-        print(f"Latest commit hash received: {latest_commit_hash}")
-
-        update_go_mod_file(go_mod_path, latest_commit_hash)
-
-        # Run go mod tidy after updating go.mod
-        run_go_mod_tidy()
-
-        print("Python Script executed successfully.")
+        main()
     except Exception as e:
-        print(f"Script execution failed: {str(e)}")
+        print(f"Main() Script execution failed: {str(e)}")
         sys.exit(1)
