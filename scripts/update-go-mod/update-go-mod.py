@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import subprocess
 
 def update_go_mod_file(go_mod_path, new_hash):
     """
