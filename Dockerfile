@@ -29,6 +29,9 @@ WORKDIR /multiversx
 COPY --from=builder "/lib/libwasmer_linux_amd64.so" "/lib/libwasmer_linux_amd64.so"
 COPY --from=builder "/lib/libvmexeccapi.so" "/lib/libvmexeccapi.so"
 
+RUN apt-get update && apt-get install -y curl
+CMD /bin/bash
+
 ENTRYPOINT ["./chainsimulator"]
 
 
