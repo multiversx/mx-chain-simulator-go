@@ -18,7 +18,7 @@ import (
 const (
 	errMsgAccountNotFound                   = "account was not found"
 	maxNumOfBlockToGenerateUntilTxProcessed = 20
-	initialBlocksToBeGenerated              = 5
+	initialBlocksToBeGenerated              = 1
 )
 
 type simulatorFacade struct {
@@ -180,30 +180,23 @@ func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash stri
 		return err
 	}
 
-	txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
-	if err != nil {
-		return err
-	}
-
-	count := 0
-	for txStatusInfo.Status == transaction.TxStatusPending.String() {
+	for i := 0; i < maxNumOfBlockToGenerateUntilTxProcessed; i++ {
 		err = sf.GenerateBlocks(1)
 		if err != nil {
 			return err
 		}
 
-		txStatusInfo, err = sf.transactionHandler.GetProcessedTransactionStatus(txHash)
-		if err != nil {
-			return err
+		txStatusInfo, errGet := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+		if errGet != nil {
+			return errGet
 		}
 
-		count++
-		if count > maxNumOfBlockToGenerateUntilTxProcessed {
-			return errors.New("something went wrong, transaction is still in pending")
+		if txStatusInfo.Status != transaction.TxStatusPending.String() {
+			return nil
 		}
 	}
 
-	return nil
+	return errors.New("something went wrong, transaction is still in pending")
 }
 
 func (sf *simulatorFacade) getCurrentEpoch() uint32 {
