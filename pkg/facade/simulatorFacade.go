@@ -8,10 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/multiversx/mx-chain-core-go/data/transaction"
-
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )

@@ -59,7 +59,7 @@ def main():
     tx_hash = provider.send_transaction(tx)
     print(f"generated tx hash: {tx_hash}")
 
-    # wait for transaction to be completed
+    # wait for the transaction to be completed
     provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # get transaction with status
