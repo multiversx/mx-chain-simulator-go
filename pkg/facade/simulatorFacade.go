@@ -5,9 +5,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"strconv"
 	"strings"
+
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
 
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
@@ -18,6 +19,7 @@ import (
 const (
 	errMsgAccountNotFound                   = "account was not found"
 	maxNumOfBlockToGenerateUntilTxProcessed = 20
+	initialBlocksToBeGenerated              = 5
 )
 
 type simulatorFacade struct {
@@ -174,6 +176,11 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 
 // GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
 func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
+	err := sf.GenerateBlocks(initialBlocksToBeGenerated)
+	if err != nil {
+		return err
+	}
+
 	txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
 	if err != nil {
 		return err
