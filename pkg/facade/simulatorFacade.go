@@ -5,12 +5,12 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"strconv"
 	"strings"
 
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
@@ -174,30 +174,23 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 
 // GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
 func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
-	txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
-	if err != nil {
-		return err
-	}
-
-	count := 0
-	for txStatusInfo.Status == transaction.TxStatusPending.String() {
-		err = sf.GenerateBlocks(1)
+	for i := 0; i < maxNumOfBlockToGenerateUntilTxProcessed; i++ {
+		err := sf.GenerateBlocks(1)
 		if err != nil {
 			return err
 		}
 
-		txStatusInfo, err = sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+		txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
 		if err != nil {
 			return err
 		}
 
-		count++
-		if count > maxNumOfBlockToGenerateUntilTxProcessed {
-			return errors.New("something went wrong, transaction is still in pending")
+		if txStatusInfo.Status != transaction.TxStatusPending.String() {
+			return nil
 		}
 	}
 
-	return nil
+	return errors.New("something went wrong, transaction is still in pending")
 }
 
 func (sf *simulatorFacade) getCurrentEpoch() uint32 {
