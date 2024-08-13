@@ -18,7 +18,6 @@ import (
 const (
 	errMsgAccountNotFound                   = "account was not found"
 	maxNumOfBlockToGenerateUntilTxProcessed = 20
-	initialBlocksToBeGenerated              = 1
 )
 
 type simulatorFacade struct {
@@ -175,20 +174,15 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 
 // GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
 func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
-	err := sf.GenerateBlocks(initialBlocksToBeGenerated)
-	if err != nil {
-		return err
-	}
-
 	for i := 0; i < maxNumOfBlockToGenerateUntilTxProcessed; i++ {
-		err = sf.GenerateBlocks(1)
+		err := sf.GenerateBlocks(1)
 		if err != nil {
 			return err
 		}
 
-		txStatusInfo, errGet := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
-		if errGet != nil {
-			return errGet
+		txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+		if err != nil {
+			return err
 		}
 
 		if txStatusInfo.Status != transaction.TxStatusPending.String() {
