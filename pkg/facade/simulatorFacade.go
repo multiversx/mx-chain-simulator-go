@@ -175,11 +175,6 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 // GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
 func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
 	for i := 0; i < maxNumOfBlockToGenerateUntilTxProcessed; i++ {
-		err := sf.GenerateBlocks(1)
-		if err != nil {
-			return err
-		}
-
 		txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
 		if err != nil {
 			return err
@@ -187,6 +182,11 @@ func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash stri
 
 		if txStatusInfo.Status != transaction.TxStatusPending.String() {
 			return nil
+		}
+
+		err = sf.GenerateBlocks(1)
+		if err != nil {
+			return err
 		}
 	}
 
