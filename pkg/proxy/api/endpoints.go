@@ -26,8 +26,11 @@ const (
 	observersInfo                           = "/simulator/observers"
 	epochChange                             = "/simulator/force-epoch-change"
 
-	queryParamNoGenerate      = "noGenerate"
-	queryParameterTargetEpoch = "targetEpoch"
+	queryParamNoGenerate   = "noGenerate"
+	queryParamTargetEpoch  = "targetEpoch"
+	queryParamMaxNumBlocks = "maxNumBlocks"
+
+	maxNumOfBlockToGenerateUntilTxProcessed = 20
 )
 
 type endpointsProcessor struct {
@@ -79,7 +82,7 @@ func (ep *endpointsProcessor) forceEpochChange(c *gin.Context) {
 }
 
 func getTargetEpochQueryParam(c *gin.Context) (int, error) {
-	epochStr := c.Request.URL.Query().Get(queryParameterTargetEpoch)
+	epochStr := c.Request.URL.Query().Get(queryParamTargetEpoch)
 	if epochStr == "" {
 		return 0, nil
 	}
@@ -139,7 +142,9 @@ func (ep *endpointsProcessor) generateBlocksUntilEpochReached(c *gin.Context) {
 
 func (ep *endpointsProcessor) generateBlocksUntilTransactionProcessed(c *gin.Context) {
 	txHashStr := c.Param("txHash")
-	err := ep.facade.GenerateBlocksUntilTransactionIsProcessed(txHashStr)
+
+	maxNumBlocks := getMaxNumBlocksToGenerate(c)
+	err := ep.facade.GenerateBlocksUntilTransactionIsProcessed(txHashStr, maxNumBlocks)
 	if err != nil {
 		shared.RespondWithInternalError(c, errors.New("cannot generate blocks"), err)
 		return
@@ -194,6 +199,20 @@ func getQueryParamNoGenerate(c *gin.Context) (bool, error) {
 	}
 
 	return strconv.ParseBool(withResultsStr)
+}
+
+func getMaxNumBlocksToGenerate(c *gin.Context) int {
+	withResultsStr := c.Request.URL.Query().Get(queryParamMaxNumBlocks)
+	if withResultsStr == "" {
+		return maxNumOfBlockToGenerateUntilTxProcessed
+	}
+
+	value, err := strconv.Atoi(withResultsStr)
+	if err != nil {
+		return maxNumOfBlockToGenerateUntilTxProcessed
+	}
+
+	return value
 }
 
 func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {
