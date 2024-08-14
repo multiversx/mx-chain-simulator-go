@@ -81,8 +81,16 @@ This endpoint initiates the generation of blocks for each shard until the status
 ##### Request
 - **Method:** POST
 - **Path:** `/simulator/generate-blocks-until-transaction-processed/:txHash`
-- **Parameters:**
+- **URL parameter** `maxNumBlocks`
   - `txHash` (path parameter): The hash of the targeted transaction.
+
+##### URL Parameter: `maxNumBlocks`
+- **Description:**
+  - **Type:** integer
+  - **Optional:** Yes
+  - **Default:** `20`
+  - **Behavior:** Setting the maxNumBlocks=`<value>` is useful when the transaction is known to be executed on more than 20 blocks.
+  Example here are the transactions that generate complicate cross-shard async calls. Most transactions should finish in ~20 proposed blocks.
 
 ##### Response
 - **Status Codes:**

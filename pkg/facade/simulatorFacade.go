@@ -12,13 +12,15 @@ import (
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	logger "github.com/multiversx/mx-chain-logger-go"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
 const (
-	errMsgAccountNotFound                   = "account was not found"
-	maxNumOfBlockToGenerateUntilTxProcessed = 20
+	errMsgAccountNotFound = "account was not found"
 )
+
+var log = logger.GetOrCreate("simulator/facade")
 
 type simulatorFacade struct {
 	simulator          SimulatorHandler
@@ -173,13 +175,9 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 }
 
 // GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
-func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
-	for i := 0; i < maxNumOfBlockToGenerateUntilTxProcessed; i++ {
-		err := sf.GenerateBlocks(1)
-		if err != nil {
-			return err
-		}
-
+func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string, maxNumOfBlocksToGenerate int) error {
+	log.Debug("GenerateBlocksUntilTransactionIsProcessed", "tx hash", txHash, "maxNumOfBlocksToGenerate", maxNumOfBlocksToGenerate)
+	for i := 0; i < maxNumOfBlocksToGenerate; i++ {
 		txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
 		if err != nil {
 			return err
@@ -187,6 +185,11 @@ func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash stri
 
 		if txStatusInfo.Status != transaction.TxStatusPending.String() {
 			return nil
+		}
+
+		err = sf.GenerateBlocks(1)
+		if err != nil {
+			return err
 		}
 	}
 
