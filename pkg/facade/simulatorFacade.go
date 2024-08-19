@@ -12,14 +12,15 @@ import (
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	logger "github.com/multiversx/mx-chain-logger-go"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
 const (
 	errMsgTargetEpochLowerThanCurrentEpoch  = "target epoch must be greater than current epoch"
-	errMsgAccountNotFound                   = "account was not found"
-	maxNumOfBlockToGenerateUntilTxProcessed = 50
-)
+	errMsgAccountNotFound                   = "account was not found")
+
+var log = logger.GetOrCreate("simulator/facade")
 
 var errPendingTransaction = errors.New("something went wrong, transaction is still in pending")
 
@@ -176,31 +177,25 @@ func (sf *simulatorFacade) GetObserversInfo() (map[uint32]*dtoc.ObserverInfo, er
 }
 
 // GenerateBlocksUntilTransactionIsProcessed generate blocks until the status of the provided transaction hash is processed
-func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string) error {
-	txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
-	if err != nil {
-		return err
-	}
+func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash string, maxNumOfBlocksToGenerate int) error {
+	log.Debug("GenerateBlocksUntilTransactionIsProcessed", "tx hash", txHash, "maxNumOfBlocksToGenerate", maxNumOfBlocksToGenerate)
+	for i := 0; i < maxNumOfBlocksToGenerate; i++ {
+		txStatusInfo, err := sf.transactionHandler.GetProcessedTransactionStatus(txHash)
+		if err != nil {
+			return err
+		}
 
-	count := 0
-	for txStatusInfo.Status == transaction.TxStatusPending.String() {
+		if txStatusInfo.Status != transaction.TxStatusPending.String() {
+			return nil
+		}
+
 		err = sf.GenerateBlocks(1)
 		if err != nil {
 			return err
 		}
-
-		txStatusInfo, err = sf.transactionHandler.GetProcessedTransactionStatus(txHash)
-		if err != nil {
-			return err
-		}
-
-		count++
-		if count > maxNumOfBlockToGenerateUntilTxProcessed {
-			return errPendingTransaction
-		}
 	}
 
-	return nil
+	return errors.New("something went wrong, transaction is still in pending")
 }
 
 func (sf *simulatorFacade) getCurrentEpoch() uint32 {

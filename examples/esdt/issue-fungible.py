@@ -1,5 +1,4 @@
 import sys
-import time
 
 from multiversx_sdk_network_providers import ProxyNetworkProvider
 from multiversx_sdk_network_providers.transactions import TransactionOnNetwork
@@ -59,9 +58,8 @@ def main():
     # send transaction
     tx_hash = provider.send_transaction(tx)
     print(f"generated tx hash: {tx_hash}")
-    time.sleep(1)
 
-    # execute 5 block ( transaction needs to be executed on source, block on source has to be finalized...)
+    # wait for the transaction to be completed
     provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # get transaction with status
