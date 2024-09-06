@@ -18,6 +18,10 @@ run-faucet-test:
 	docker rm ${IMAGE_NAME} 2> /dev/null
 
 run-examples:
+	printf '%s\n' '{ File = "enableEpochs.toml", Path = "EnableEpochs.StakeLimitsEnableEpoch", Value = 1000000 },' > temp.txt
+	sed -i '4r temp.txt' cmd/chainsimulator/config/nodeOverrideDefault.toml
+	rm temp.txt
+
 	$(MAKE) docker-build
 	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
 	cd scripts/run-examples && /bin/bash script.sh
