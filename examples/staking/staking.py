@@ -2,9 +2,8 @@ import json
 import sys
 import time
 from pathlib import Path
-
 from multiversx_sdk_core import AddressFactory, TokenComputer, TransactionComputer, Address
-from multiversx_sdk_core.transaction_factories import TransactionsFactoryConfig, SmartContractTransactionsFactory, \
+from multiversx_sdk_core.transaction_factories import TransactionsFactoryConfig, \
     TransferTransactionsFactory
 from multiversx_sdk_network_providers import ProxyNetworkProvider
 from multiversx_sdk_network_providers.transactions import TransactionOnNetwork
@@ -147,7 +146,6 @@ def get_tx_and_verify_status(provider: ProxyNetworkProvider, tx_hash: str) -> Tr
         sys.exit(f"transaction status is not correct, status received->{tx_from_network.status}")
 
     return tx_from_network
-
 
 if __name__ == "__main__":
     main()
