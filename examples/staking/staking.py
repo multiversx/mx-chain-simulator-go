@@ -3,8 +3,9 @@ import sys
 import time
 from pathlib import Path
 
+import toml
 from multiversx_sdk_core import AddressFactory, TokenComputer, TransactionComputer, Address
-from multiversx_sdk_core.transaction_factories import TransactionsFactoryConfig, SmartContractTransactionsFactory, \
+from multiversx_sdk_core.transaction_factories import TransactionsFactoryConfig, \
     TransferTransactionsFactory
 from multiversx_sdk_network_providers import ProxyNetworkProvider
 from multiversx_sdk_network_providers.transactions import TransactionOnNetwork
@@ -16,6 +17,10 @@ GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
 
 
 def main():
+    # update enable epochs file
+    path_to_toml_file = "./../../cmd/chainsimulator/config/node/config/enableEpochs.toml"
+    update_toml_file(path_to_toml_file, "EnableEpochs.StakeLimitsEnableEpoch", 1000)
+
     # create a network provider
     provider = ProxyNetworkProvider(SIMULATOR_URL)
     pem = UserPEM.from_file(Path("../wallets/wallet.pem"))
@@ -147,6 +152,21 @@ def get_tx_and_verify_status(provider: ProxyNetworkProvider, tx_hash: str) -> Tr
         sys.exit(f"transaction status is not correct, status received->{tx_from_network.status}")
 
     return tx_from_network
+
+def update_toml_file(file_path, parameter, new_value):
+    with open(file_path, 'r') as file:
+        toml_data = toml.load(file)
+
+    keys = parameter.split('.')
+
+    data = toml_data
+    for key in keys[:-1]:
+        data = data[key]
+
+    data[keys[-1]] = new_value
+
+    with open(file_path, 'w') as file:
+        toml.dump(toml_data, file)
 
 
 if __name__ == "__main__":
