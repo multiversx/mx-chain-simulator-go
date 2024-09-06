@@ -19,7 +19,7 @@ GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
 
 def main():
     # update enable epochs file
-    print("current directory", os.curdir)
+    print("current directory", os.getcwd())
     path_to_toml_file = "../../cmd/chainsimulator/config/node/config/enableEpochs.toml"
     update_toml_file(path_to_toml_file, "EnableEpochs.StakeLimitsEnableEpoch", 1000)
 
