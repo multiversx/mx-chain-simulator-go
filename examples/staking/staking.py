@@ -18,7 +18,7 @@ GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
 
 def main():
     # update enable epochs file
-    path_to_toml_file = "./../../cmd/chainsimulator/config/node/config/enableEpochs.toml"
+    path_to_toml_file = "../../cmd/chainsimulator/config/node/config/enableEpochs.toml"
     update_toml_file(path_to_toml_file, "EnableEpochs.StakeLimitsEnableEpoch", 1000)
 
     # create a network provider
