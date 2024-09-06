@@ -19,8 +19,7 @@ run-faucet-test:
 
 run-examples:
 	printf '%s\n' '{ File = "enableEpochs.toml", Path = "EnableEpochs.StakeLimitsEnableEpoch", Value = 1000000 },' > temp.txt
-	ls
-	sed -i '' '4r ./temp.txt' cmd/chainsimulator/config/nodeOverrideDefault.toml
+	sed -i '4r temp.txt' cmd/chainsimulator/config/nodeOverrideDefault.toml
 	rm temp.txt
 
 	$(MAKE) docker-build
