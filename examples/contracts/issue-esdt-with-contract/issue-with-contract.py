@@ -1,13 +1,12 @@
-import base64
 import sys
 import time
 from pathlib import Path
 
-from multiversx_sdk_core import TokenComputer, AddressFactory, Address
-from multiversx_sdk_core.transaction_factories import SmartContractTransactionsFactory, TransactionsFactoryConfig
-from multiversx_sdk_network_providers import ProxyNetworkProvider
-from multiversx_sdk_network_providers.transactions import TransactionOnNetwork
-from multiversx_sdk_wallet import UserPEM
+from multiversx_sdk import UserSecretKey
+from multiversx_sdk.core import Address
+from multiversx_sdk.core import SmartContractTransactionsFactory, TransactionsFactoryConfig
+from multiversx_sdk.network_providers import ProxyNetworkProvider
+from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
@@ -17,10 +16,11 @@ def main():
     # create a network provider
     provider = ProxyNetworkProvider(SIMULATOR_URL)
 
-    pem = UserPEM.from_file(Path("../../wallets/wallet.pem"))
+    key = UserSecretKey.generate()
+    address = key.generate_public_key().to_address("erd")
+    print(f"working with the generated address: {address.to_bech32()}")
 
     # call proxy faucet
-    address = pem.public_key.to_address("erd")
     data = {"receiver": f"{address.to_bech32()}"}
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
 
@@ -29,7 +29,7 @@ def main():
 
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
 
-    sc_factory = SmartContractTransactionsFactory(config, TokenComputer())
+    sc_factory = SmartContractTransactionsFactory(config)
 
     bytecode = Path("./contract.wasm").read_bytes()
     deploy_transaction = sc_factory.create_transaction_for_deploy(
@@ -101,14 +101,12 @@ def get_processed_status(provider, tx_hash):
 
 
 def extract_contract_address(tx: TransactionOnNetwork) -> Address:
-    factory = AddressFactory("erd")
     for event in tx.logs.events:
         if event.identifier != "SCDeploy":
             continue
 
-        return factory.create_from_hex(event.topics[0].hex())
+        return Address.from_hex(event.topics[0].hex(), "erd")
 
 
 if __name__ == "__main__":
     main()
-

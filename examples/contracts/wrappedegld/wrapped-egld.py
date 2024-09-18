@@ -1,12 +1,11 @@
 import json
 import sys
 import time
-from pathlib import Path
 
-from multiversx_sdk_core import AddressFactory, TokenComputer, TransactionComputer
-from multiversx_sdk_core.transaction_factories import TransactionsFactoryConfig, SmartContractTransactionsFactory
-from multiversx_sdk_network_providers import ProxyNetworkProvider
-from multiversx_sdk_wallet import UserPEM, UserSigner
+from multiversx_sdk import UserSecretKey
+from multiversx_sdk.core import Address
+from multiversx_sdk.core import TransactionsFactoryConfig, SmartContractTransactionsFactory
+from multiversx_sdk.network_providers import ProxyNetworkProvider
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
@@ -17,10 +16,11 @@ def main():
     # create a network provider
     provider = ProxyNetworkProvider(SIMULATOR_URL)
 
-    pem = UserPEM.from_file(Path("../../wallets/wallet.pem"))
+    key = UserSecretKey.generate()
+    address = key.generate_public_key().to_address("erd")
+    print(f"working with the generated address: {address.to_bech32()}")
 
     # call proxy faucet
-    address = pem.public_key.to_address("erd")
     data = {"receiver": f"{address.to_bech32()}"}
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
 
@@ -34,11 +34,12 @@ def main():
 
     provider.do_post(f"{SIMULATOR_URL}/simulator/set-state", json_data)
 
-    factory = AddressFactory("erd")
-    wrapp_contract_address = factory.create_from_bech32("erd1qqqqqqqqqqqqqpgqhe8t5jewej70zupmh44jurgn29psua5l2jps3ntjj3")
+    wrapp_contract_address = Address.from_bech32(
+        "erd1qqqqqqqqqqqqqpgqhe8t5jewej70zupmh44jurgn29psua5l2jps3ntjj3"
+    )
 
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
-    sc_factory = SmartContractTransactionsFactory(config, TokenComputer())
+    sc_factory = SmartContractTransactionsFactory(config)
     amount_egld = 5000000000000000000
     call_transaction = sc_factory.create_transaction_for_execute(
         sender=address,
@@ -50,10 +51,7 @@ def main():
     )
 
     call_transaction.nonce = provider.get_account(address).nonce
-    # sign transaction
-    user_signer = UserSigner(pem.secret_key)
-    tx_computer = TransactionComputer()
-    call_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(call_transaction))
+    call_transaction.signature = b"dummy"
 
     # send transaction
     tx_hash = provider.send_transaction(call_transaction)
@@ -65,7 +63,8 @@ def main():
     provider.do_post(f"{GENERATE_BLOCKS_URL}/5", {})
     amount = provider.get_fungible_token_of_account(address, WRAPPED_EGLD_TOKEN)
     if amount.balance != amount_egld:
-        sys.exit(f"amount of token from balance is no equal with the initial supply: actual-{amount.balance}, expected-{amount_egld}")
+        sys.exit(f"amount of token from balance is no equal with the initial supply: "
+                 f"actual-{amount.balance}, expected-{amount_egld}")
 
     print("transaction was executed, initial address received the wrapped egld token")
 

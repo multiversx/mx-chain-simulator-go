@@ -1,6 +1,6 @@
 from typing import Any, Dict, Sequence
 
-from multiversx_sdk_network_providers import ProxyNetworkProvider
+from multiversx_sdk.network_providers import ProxyNetworkProvider
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"

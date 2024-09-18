@@ -3,11 +3,11 @@ import sys
 import time
 from pathlib import Path
 
-from multiversx_sdk_core import TokenComputer, TransactionComputer, AddressFactory, Address, ContractQueryBuilder
-from multiversx_sdk_core.transaction_factories import SmartContractTransactionsFactory, TransactionsFactoryConfig
-from multiversx_sdk_network_providers import ProxyNetworkProvider
-from multiversx_sdk_network_providers.transactions import TransactionOnNetwork
-from multiversx_sdk_wallet import UserPEM, UserSigner
+from multiversx_sdk import UserSecretKey
+from multiversx_sdk.core import Address, ContractQueryBuilder
+from multiversx_sdk.core import SmartContractTransactionsFactory, TransactionsFactoryConfig
+from multiversx_sdk.network_providers import ProxyNetworkProvider
+from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
@@ -17,10 +17,11 @@ def main():
     # create a network provider
     provider = ProxyNetworkProvider(SIMULATOR_URL)
 
-    pem = UserPEM.from_file(Path("../../wallets/wallet.pem"))
+    key = UserSecretKey.generate()
+    address = key.generate_public_key().to_address("erd")
+    print(f"working with the generated address: {address.to_bech32()}")
 
     # call proxy faucet
-    address = pem.public_key.to_address("erd")
     data = {"receiver": f"{address.to_bech32()}"}
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
 
@@ -29,7 +30,7 @@ def main():
 
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
 
-    sc_factory = SmartContractTransactionsFactory(config, TokenComputer())
+    sc_factory = SmartContractTransactionsFactory(config)
 
     bytecode = Path("./adder.wasm").read_bytes()
     deploy_transaction = sc_factory.create_transaction_for_deploy(
@@ -45,11 +46,7 @@ def main():
 
     # set nonce
     deploy_transaction.nonce = provider.get_account(address).nonce
-
-    # sign transaction
-    user_signer = UserSigner(pem.secret_key)
-    tx_computer = TransactionComputer()
-    deploy_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(deploy_transaction))
+    deploy_transaction.signature = b"dummy"
 
     # send transaction
     tx_hash = provider.send_transaction(deploy_transaction)
@@ -78,7 +75,7 @@ def main():
     )
 
     call_transaction.nonce = provider.get_account(address).nonce
-    call_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(call_transaction))
+    call_transaction.signature = b"dummy"
 
     # send transaction
     tx_hash = provider.send_transaction(call_transaction)
@@ -107,14 +104,12 @@ def main():
 
 
 def extract_contract_address(tx: TransactionOnNetwork) -> Address:
-    factory = AddressFactory("erd")
     for event in tx.logs.events:
         if event.identifier != "SCDeploy":
             continue
 
-        return factory.create_from_hex(event.topics[0].hex())
+        return Address.from_hex(event.topics[0].hex(), "erd")
 
 
 if __name__ == "__main__":
     main()
-

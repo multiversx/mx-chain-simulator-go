@@ -1,14 +1,12 @@
 import json
 import sys
 import time
-from pathlib import Path
 
-from multiversx_sdk_core import AddressFactory, TokenComputer, TransactionComputer, Address
-from multiversx_sdk_core.transaction_factories import TransactionsFactoryConfig, SmartContractTransactionsFactory, \
-    TransferTransactionsFactory
-from multiversx_sdk_network_providers import ProxyNetworkProvider
-from multiversx_sdk_network_providers.transactions import TransactionOnNetwork
-from multiversx_sdk_wallet import UserPEM, UserSigner
+from multiversx_sdk import UserSecretKey
+from multiversx_sdk.core import Address
+from multiversx_sdk.core import TransactionsFactoryConfig, TransferTransactionsFactory
+from multiversx_sdk.network_providers import ProxyNetworkProvider
+from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
 
 SIMULATOR_URL = "http://localhost:8085"
 INITIAL_WALLETS_URL = f"{SIMULATOR_URL}/simulator/initial-wallets"
@@ -18,7 +16,18 @@ GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
 def main():
     # create a network provider
     provider = ProxyNetworkProvider(SIMULATOR_URL)
-    pem = UserPEM.from_file(Path("../wallets/wallet.pem"))
+
+    key = UserSecretKey.generate()
+    address = key.generate_public_key().to_address("erd")
+    print(f"working with the generated address: {address.to_bech32()}")
+
+    # call proxy faucet
+    data = {
+        "receiver": f"{address.to_bech32()}",
+        "value": 20000000000000000000000  # 20k eGLD
+    }
+    provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
+    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
 
     # set balance for an address
     with open("address.json", "r") as file:
@@ -30,12 +39,11 @@ def main():
     provider.do_post(f"{GENERATE_BLOCKS_URL}/20", {})
 
     # ################## create a staking provider
-    factory = AddressFactory("erd")
-    system_delegation_manager = factory.create_from_bech32(
-        "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqylllslmq6y6")
-    address = pem.public_key.to_address("erd")
+    system_delegation_manager = Address.from_bech32(
+        "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqylllslmq6y6"
+    )
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
-    tx_factory = TransferTransactionsFactory(config, TokenComputer())
+    tx_factory = TransferTransactionsFactory(config)
     amount_egld = 1250000000000000000000  # 1250 egld
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(
         sender=address,
@@ -45,9 +53,7 @@ def main():
     )
     call_transaction.gas_limit = 65000000
     call_transaction.nonce = provider.get_account(address).nonce
-    user_signer = UserSigner(pem.secret_key)
-    tx_computer = TransactionComputer()
-    call_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(call_transaction))
+    call_transaction.signature = b"dummy"
 
     # send transaction
     tx_hash = provider.send_transaction(call_transaction)
@@ -64,10 +70,12 @@ def main():
 
     # ################## merge validator in delegator
     response = provider.do_get(f"{INITIAL_WALLETS_URL}")
-    initial_address_with_stake = factory.create_from_bech32(
-        response.to_dictionary()["stakeWallets"][0]["address"]["bech32"])
+    initial_address_with_stake = Address.from_bech32(
+        response.to_dictionary()["stakeWallets"][0]["address"]["bech32"]
+    )
 
-    print(f"initial address with stake: {initial_address_with_stake.to_bech32()}, balance: {provider.get_account(initial_address_with_stake).balance}")
+    print(f"initial address with stake: {initial_address_with_stake.to_bech32()}, "
+          f"balance: {provider.get_account(initial_address_with_stake).balance}")
 
     # white list transaction
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(
@@ -79,7 +87,7 @@ def main():
 
     call_transaction.gas_limit = 65000000
     call_transaction.nonce = provider.get_account(address).nonce
-    call_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(call_transaction))
+    call_transaction.signature = b"dummy"
     tx_hash = provider.send_transaction(call_transaction)
     print(f"white list for merge tx hash: {tx_hash}")
 
@@ -98,7 +106,7 @@ def main():
 
     call_transaction.gas_limit = 510000000
     call_transaction.nonce = provider.get_account(initial_address_with_stake).nonce
-    call_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(call_transaction))
+    call_transaction.signature = b"dummy"
     tx_hash = provider.send_transaction(call_transaction)
     print(f"merge validator tx hash: {tx_hash}")
 
@@ -115,7 +123,7 @@ def main():
     )
     call_transaction.gas_limit = 510000000
     call_transaction.nonce = provider.get_account(address).nonce
-    call_transaction.signature = user_signer.sign(tx_computer.compute_bytes_for_signing(call_transaction))
+    call_transaction.signature = b"dummy"
     tx_hash = provider.send_transaction(call_transaction)
     print(f"claim rewards tx hash: {tx_hash}")
     time.sleep(0.5)
@@ -133,12 +141,11 @@ def main():
 
 
 def extract_contract_address(tx: TransactionOnNetwork) -> Address:
-    factory = AddressFactory("erd")
     for event in tx.logs.events:
         if event.identifier != "SCDeploy":
             continue
 
-        return factory.create_from_hex(event.topics[0].hex())
+        return Address.from_hex(event.topics[0].hex(), "erd")
 
 
 def get_tx_and_verify_status(provider: ProxyNetworkProvider, tx_hash: str) -> TransactionOnNetwork:
