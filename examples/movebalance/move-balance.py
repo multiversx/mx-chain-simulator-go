@@ -26,7 +26,7 @@ def main():
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
     tx_factory = TransferTransactionsFactory(config)
     amount_egld = 1000000000000000000  # 1 egld
-    receiver = Address.from_bech32(
+    receiver = Address.new_from_bech32(
         "erd13kp9r5fx4tf8da4ex37sd48pc4xhkmtteq6hcyt4y36pstte0tjqxjf3ns"
     )
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(

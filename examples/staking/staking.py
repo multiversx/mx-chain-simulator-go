@@ -41,7 +41,7 @@ def main():
     provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
 
     # ################## create a staking provider
-    system_delegation_manager = Address.from_bech32(
+    system_delegation_manager = Address.new_from_bech32(
         "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqylllslmq6y6"
     )
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
@@ -72,7 +72,7 @@ def main():
 
     # ################## merge validator in delegator
     response = provider.do_get(f"{INITIAL_WALLETS_URL}")
-    initial_address_with_stake = Address.from_bech32(
+    initial_address_with_stake = Address.new_from_bech32(
         response.to_dictionary()["stakeWallets"][0]["address"]["bech32"]
     )
 
@@ -147,7 +147,7 @@ def extract_contract_address(tx: TransactionOnNetwork) -> Address:
         if event.identifier != "SCDeploy":
             continue
 
-        return Address.from_hex(event.topics[0].hex(), "erd")
+        return Address.new_from_hex(event.topics[0].hex(), "erd")
 
 
 def get_tx_and_verify_status(provider: ProxyNetworkProvider, tx_hash: str) -> TransactionOnNetwork:

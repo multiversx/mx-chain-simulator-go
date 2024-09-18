@@ -35,7 +35,7 @@ def main():
 
     provider.do_post(f"{SIMULATOR_URL}/simulator/set-state", json_data)
 
-    wrapp_contract_address = Address.from_bech32(
+    wrapp_contract_address = Address.new_from_bech32(
         "erd1qqqqqqqqqqqqqpgqhe8t5jewej70zupmh44jurgn29psua5l2jps3ntjj3"
     )
 

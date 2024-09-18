@@ -107,7 +107,7 @@ def extract_contract_address(tx: TransactionOnNetwork) -> Address:
         if event.identifier != "SCDeploy":
             continue
 
-        return Address.from_hex(event.topics[0].hex(), "erd")
+        return Address.new_from_hex(event.topics[0].hex(), "erd")
 
 
 if __name__ == "__main__":
