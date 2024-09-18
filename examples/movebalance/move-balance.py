@@ -8,6 +8,7 @@ from multiversx_sdk.network_providers import ProxyNetworkProvider
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
 
 
 def main():
@@ -19,7 +20,7 @@ def main():
 
     # call proxy faucet
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", {"receiver": f"{address.to_bech32()}"})
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
+    provider.do_post(f"{GENERATE_BLOCKS_URL}/1", {})
 
     # cross-shard transfer
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
@@ -41,8 +42,8 @@ def main():
     print(f"move balance tx hash: {tx_hash}")
 
     time.sleep(0.5)
-
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/5", {})
+    # generate enough blocks until the transaction is completed
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # check receiver balance
     receiver_account = provider.get_account(receiver)

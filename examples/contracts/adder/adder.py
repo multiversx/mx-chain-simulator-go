@@ -10,7 +10,8 @@ from multiversx_sdk.network_providers import ProxyNetworkProvider
 from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
 
 SIMULATOR_URL = "http://localhost:8085"
-GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
+GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = f"{SIMULATOR_URL}/simulator/generate-blocks-until-epoch-reached"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
 
 
 def main():
@@ -25,8 +26,8 @@ def main():
     data = {"receiver": f"{address.to_bech32()}"}
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
 
-    # generate 20 blocks to pass an epoch and the smart contract deploys to be enabled
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/20", {})
+    # generate blocks until smart contract deploys are enabled
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
 
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
 
@@ -53,9 +54,8 @@ def main():
     print(f"deploy tx hash: {tx_hash}")
 
     time.sleep(0.5)
-
-    # execute 1 block
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/1", {})
+    # generate enough blocks until the transaction is completed
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # get transaction with status
     tx_from_network = provider.get_transaction(tx_hash, with_process_status=True)
@@ -82,9 +82,8 @@ def main():
     print(f"sc call tx hash: {tx_hash}")
 
     time.sleep(0.5)
-
-    # execute 1 block
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/1", {})
+    # generate enough blocks until the transaction is completed
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # query
     builder = ContractQueryBuilder(

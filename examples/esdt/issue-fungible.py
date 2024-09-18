@@ -6,8 +6,8 @@ from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
 from multiversx_sdk.core import TokenManagementTransactionsFactory, TransactionsFactoryConfig
 
 SIMULATOR_URL = "http://localhost:8085"
-GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
 GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
+GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = f"{SIMULATOR_URL}/simulator/generate-blocks-until-epoch-reached"
 
 
 def main():
@@ -22,8 +22,8 @@ def main():
     data = {"receiver": f"{address.to_bech32()}"}
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
 
-    # generate 20 blocks to pass an epoch and the ESDT contract to be enabled
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/20", {})
+    # generate blocks until ESDTs are enabled
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
 
     # create transaction config and factory
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)

@@ -11,6 +11,8 @@ from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
 SIMULATOR_URL = "http://localhost:8085"
 INITIAL_WALLETS_URL = f"{SIMULATOR_URL}/simulator/initial-wallets"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
+GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = f"{SIMULATOR_URL}/simulator/generate-blocks-until-epoch-reached"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
 
 
 def main():
@@ -27,7 +29,7 @@ def main():
         "value": 20000000000000000000000  # 20k eGLD
     }
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
+    provider.do_post(f"{GENERATE_BLOCKS_URL}/1", {})
 
     # set balance for an address
     with open("address.json", "r") as file:
@@ -35,8 +37,8 @@ def main():
 
     provider.do_post(f"{SIMULATOR_URL}/simulator/set-state", json_data)
 
-    # generate 20 blocks to pass an epoch and the smart contract deploys to be enabled
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/20", {})
+    # generate blocks until the staking mechanism is fully enabled
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
 
     # ################## create a staking provider
     system_delegation_manager = Address.from_bech32(
@@ -60,7 +62,7 @@ def main():
     print(f"create delegation contract tx hash: {tx_hash}")
 
     time.sleep(0.5)
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/5", {})
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # get transaction with status
     tx_from_network = get_tx_and_verify_status(provider, tx_hash)
@@ -92,7 +94,7 @@ def main():
     print(f"white list for merge tx hash: {tx_hash}")
 
     time.sleep(0.5)
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/5", {})
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     get_tx_and_verify_status(provider, tx_hash)
 
@@ -127,7 +129,7 @@ def main():
     tx_hash = provider.send_transaction(call_transaction)
     print(f"claim rewards tx hash: {tx_hash}")
     time.sleep(0.5)
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/5", {})
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # check if the owner receive more than 5 egld in rewards
     claim_reward_tx = get_tx_and_verify_status(provider, tx_hash)
