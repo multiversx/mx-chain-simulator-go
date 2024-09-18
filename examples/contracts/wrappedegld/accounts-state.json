@@ -9,7 +9,7 @@
     "codeMetadata": "BQA=",
     "developerReward": "8298062532282000000",
     "ownerAddress": "erd1ss6u80ruas2phpmr82r42xnkd6rxy40g9jl69frppl4qez9w2jpsqj8x97",
-    "keys": {
+    "pairs": {
       "454c524f4e44657364745745474c442d626434643739": "120900035f99906af3d080",
       "454c524f4e44726f6c65657364745745474c442d626434643739": "0a1145534454526f6c654c6f63616c4d696e740a1145534454526f6c654c6f63616c4275726e",
       "7772617070656445676c64546f6b656e4964": "5745474c442d626434643739"
@@ -18,7 +18,7 @@
   {
     "address": "erd1lllllllllllllllllllllllllllllllllllllllllllllllllllsckry7t",
     "balance": "0",
-    "keys": {
+    "pairs": {
       "454c524f4e44657364745745474c442d626434643739": "0000"
     }
   }

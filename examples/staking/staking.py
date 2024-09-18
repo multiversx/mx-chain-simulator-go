@@ -157,6 +157,5 @@ def get_tx_and_verify_status(provider: ProxyNetworkProvider, tx_hash: str) -> Tr
 
     return tx_from_network
 
-
 if __name__ == "__main__":
     main()

@@ -18,7 +18,6 @@ import (
 	"github.com/multiversx/mx-chain-proxy-go/observer"
 	processProxy "github.com/multiversx/mx-chain-proxy-go/process"
 	"github.com/multiversx/mx-chain-proxy-go/process/cache"
-	"github.com/multiversx/mx-chain-proxy-go/process/database"
 	processFactory "github.com/multiversx/mx-chain-proxy-go/process/factory"
 	versionsFactory "github.com/multiversx/mx-chain-proxy-go/versions/factory"
 	proxy2 "github.com/multiversx/mx-chain-simulator-go/pkg/proxy"
@@ -82,8 +81,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 	}
 	bp.StartNodesSyncStateChecks()
 
-	connector := database.NewDisabledElasticSearchConnector()
-	accntProc, err := processProxy.NewAccountProcessor(bp, pubKeyConverter, connector)
+	accntProc, err := processProxy.NewAccountProcessor(bp, pubKeyConverter)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +136,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 	valStatsProc.StartCacheUpdate()
 	nodeStatusProc.StartCacheUpdate()
 
-	blockProc, err := processProxy.NewBlockProcessor(connector, bp)
+	blockProc, err := processProxy.NewBlockProcessor(bp)
 	if err != nil {
 		return nil, err
 	}

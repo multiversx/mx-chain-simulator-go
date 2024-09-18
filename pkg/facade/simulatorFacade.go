@@ -17,10 +17,12 @@ import (
 )
 
 const (
-	errMsgAccountNotFound = "account was not found"
-)
+	errMsgTargetEpochLowerThanCurrentEpoch  = "target epoch must be greater than current epoch"
+	errMsgAccountNotFound                   = "account was not found")
 
 var log = logger.GetOrCreate("simulator/facade")
+
+var errPendingTransaction = errors.New("something went wrong, transaction is still in pending")
 
 type simulatorFacade struct {
 	simulator          SimulatorHandler
@@ -135,7 +137,7 @@ func (sf *simulatorFacade) ForceChangeOfEpoch(targetEpoch uint32) error {
 
 	currentEpoch := sf.getCurrentEpoch()
 	if currentEpoch >= targetEpoch {
-		return fmt.Errorf("target epoch must be greater than current epoch, current epoch: %d target epoch: %d", currentEpoch, targetEpoch)
+		return fmt.Errorf("%s, current epoch: %d target epoch: %d", errMsgTargetEpochLowerThanCurrentEpoch, currentEpoch, targetEpoch)
 	}
 
 	for currentEpoch < targetEpoch {
