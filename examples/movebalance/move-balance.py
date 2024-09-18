@@ -1,31 +1,34 @@
 import sys
 import time
-from pathlib import Path
 
-from multiversx_sdk_core import TokenComputer, AddressFactory
-from multiversx_sdk_core.transaction_factories import TransactionsFactoryConfig, TokenManagementTransactionsFactory, \
-    TransferTransactionsFactory
-from multiversx_sdk_network_providers import ProxyNetworkProvider
-from multiversx_sdk_wallet import UserPEM
+from multiversx_sdk import UserSecretKey
+from multiversx_sdk.core import Address
+from multiversx_sdk.core import TransactionsFactoryConfig, TransferTransactionsFactory
+from multiversx_sdk.network_providers import ProxyNetworkProvider
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
 
 
 def main():
     provider = ProxyNetworkProvider(SIMULATOR_URL)
-    pem = UserPEM.from_file(Path("../wallets/wallet.pem"))
+
+    key = UserSecretKey.generate()
+    address = key.generate_public_key().to_address("erd")
+    print(f"working with the generated address: {address.to_bech32()}")
 
     # call proxy faucet
-    address = pem.public_key.to_address("erd")
     provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", {"receiver": f"{address.to_bech32()}"})
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
+    provider.do_post(f"{GENERATE_BLOCKS_URL}/1", {})
 
     # cross-shard transfer
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
-    tx_factory = TransferTransactionsFactory(config, TokenComputer())
+    tx_factory = TransferTransactionsFactory(config)
     amount_egld = 1000000000000000000  # 1 egld
-    receiver = AddressFactory("erd").create_from_bech32("erd13kp9r5fx4tf8da4ex37sd48pc4xhkmtteq6hcyt4y36pstte0tjqxjf3ns")
+    receiver = Address.new_from_bech32(
+        "erd13kp9r5fx4tf8da4ex37sd48pc4xhkmtteq6hcyt4y36pstte0tjqxjf3ns"
+    )
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(
         sender=address,
         receiver=receiver,
@@ -39,8 +42,8 @@ def main():
     print(f"move balance tx hash: {tx_hash}")
 
     time.sleep(0.5)
-
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/5", {})
+    # generate enough blocks until the transaction is completed
+    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
 
     # check receiver balance
     receiver_account = provider.get_account(receiver)
