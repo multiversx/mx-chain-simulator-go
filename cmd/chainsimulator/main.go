@@ -238,10 +238,11 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	outputProxyConfigs.Config.GeneralSettings.ServerPort = proxyPort
 	outputProxy, err := creator.CreateProxy(creator.ArgsProxy{
-		Config:        outputProxyConfigs.Config,
-		NodeHandler:   metaNode,
-		PathToConfig:  outputProxyConfigs.PathToTempConfig,
-		PathToPemFile: outputProxyConfigs.PathToPemFile,
+		Config:         outputProxyConfigs.Config,
+		NodeHandler:    metaNode,
+		PathToConfig:   outputProxyConfigs.PathToTempConfig,
+		PathToPemFile:  outputProxyConfigs.PathToPemFile,
+		NumberOfShards: uint32(cfg.Config.Simulator.NumOfShards),
 	})
 	if err != nil {
 		return err
