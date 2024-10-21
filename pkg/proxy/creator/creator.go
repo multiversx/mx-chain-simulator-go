@@ -27,10 +27,11 @@ var log = logger.GetOrCreate("proxy")
 
 // ArgsProxy holds the arguments needed to create a new instance of proxy
 type ArgsProxy struct {
-	PathToConfig  string
-	PathToPemFile string
-	Config        *config.Config
-	NodeHandler   process.NodeHandler
+	PathToConfig   string
+	PathToPemFile  string
+	Config         *config.Config
+	NodeHandler    process.NodeHandler
+	NumberOfShards uint32
 }
 
 // ArgsOutputProxy the components that are returned by proxy creator
@@ -52,7 +53,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 
 	statusMetricsProvider := metrics.NewStatusMetrics()
 
-	nodesProviderFactory, err := observer.NewNodesProviderFactory(*args.Config, "")
+	nodesProviderFactory, err := observer.NewNodesProviderFactory(*args.Config, "", args.NumberOfShards)
 	if err != nil {
 		return nil, err
 	}
