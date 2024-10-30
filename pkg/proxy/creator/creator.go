@@ -52,7 +52,8 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 
 	statusMetricsProvider := metrics.NewStatusMetrics()
 
-	nodesProviderFactory, err := observer.NewNodesProviderFactory(*args.Config, "")
+	numShards := args.NodeHandler.GetShardCoordinator().NumberOfShards()
+	nodesProviderFactory, err := observer.NewNodesProviderFactory(*args.Config, "", numShards)
 	if err != nil {
 		return nil, err
 	}
