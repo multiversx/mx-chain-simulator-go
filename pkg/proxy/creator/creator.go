@@ -18,7 +18,6 @@ import (
 	"github.com/multiversx/mx-chain-proxy-go/observer"
 	processProxy "github.com/multiversx/mx-chain-proxy-go/process"
 	"github.com/multiversx/mx-chain-proxy-go/process/cache"
-	"github.com/multiversx/mx-chain-proxy-go/process/database"
 	processFactory "github.com/multiversx/mx-chain-proxy-go/process/factory"
 	versionsFactory "github.com/multiversx/mx-chain-proxy-go/versions/factory"
 	proxy2 "github.com/multiversx/mx-chain-simulator-go/pkg/proxy"
@@ -28,10 +27,11 @@ var log = logger.GetOrCreate("proxy")
 
 // ArgsProxy holds the arguments needed to create a new instance of proxy
 type ArgsProxy struct {
-	PathToConfig  string
-	PathToPemFile string
-	Config        *config.Config
-	NodeHandler   process.NodeHandler
+	PathToConfig   string
+	PathToPemFile  string
+	Config         *config.Config
+	NodeHandler    process.NodeHandler
+	NumberOfShards uint32
 }
 
 // ArgsOutputProxy the components that are returned by proxy creator
@@ -53,7 +53,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 
 	statusMetricsProvider := metrics.NewStatusMetrics()
 
-	nodesProviderFactory, err := observer.NewNodesProviderFactory(*args.Config, "")
+	nodesProviderFactory, err := observer.NewNodesProviderFactory(*args.Config, "", args.NumberOfShards)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +82,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 	}
 	bp.StartNodesSyncStateChecks()
 
-	connector := database.NewDisabledElasticSearchConnector()
-	accntProc, err := processProxy.NewAccountProcessor(bp, pubKeyConverter, connector)
+	accntProc, err := processProxy.NewAccountProcessor(bp, pubKeyConverter)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +137,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 	valStatsProc.StartCacheUpdate()
 	nodeStatusProc.StartCacheUpdate()
 
-	blockProc, err := processProxy.NewBlockProcessor(connector, bp)
+	blockProc, err := processProxy.NewBlockProcessor(bp)
 	if err != nil {
 		return nil, err
 	}
