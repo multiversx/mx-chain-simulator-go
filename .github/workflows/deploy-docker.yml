@@ -67,13 +67,26 @@ jobs:
           tags: type=ref,event=release
           labels: type=ref,event=release
 
-      - name: Build and push Docker image
-        id: push
+      - name: Build and push Docker image for released
+        if: ${{ github.event.release.prerelease == false }}
+        id: push_released
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-          tags: ${{ github.event.release.prerelease == false ? steps.meta_released.outputs.tags : steps.meta_prereleased.outputs.tags }}
-          labels: ${{ github.event.release.prerelease == false ? steps.meta_released.outputs.labels : steps.meta_prereleased.outputs.labels }}
+          tags: ${{ steps.meta_released.outputs.tags }}
+          labels: ${{ steps.meta_released.outputs.labels }}
+
+      - name: Build and push Docker image for prereleased
+        if: ${{ github.event.release.prerelease == true }}
+        id: push_prereleased
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+          tags: ${{ steps.meta_prereleased.outputs.tags }}
+          labels: ${{ steps.meta_prereleased.outputs.labels }}
