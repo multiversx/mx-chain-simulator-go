@@ -7,7 +7,7 @@ require (
 	github.com/multiversx/mx-chain-core-go v1.2.23
 	github.com/multiversx/mx-chain-go v1.8.5-0.20241122114033-3094bb08ac56
 	github.com/multiversx/mx-chain-logger-go v1.0.15
-	github.com/multiversx/mx-chain-proxy-go v1.1.54-0.20241021082311-5a567ac58ae6
+	github.com/multiversx/mx-chain-proxy-go v1.1.54
 	github.com/pelletier/go-toml v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli v1.22.10
