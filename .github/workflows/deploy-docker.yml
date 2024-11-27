@@ -53,10 +53,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: multiversx/chainsimulator
-          tags: |
-            type=ref,event=release
-            type=raw,value=latest
-          labels: type=ref,event=release
 
       - name: Extract metadata (tags, labels) for prereleased releases
         if: ${{ github.event.release.prerelease == true }}
@@ -64,8 +60,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: multiversx/chainsimulator
-          tags: type=ref,event=release
-          labels: type=ref,event=release
+          tags: |
+            type=raw,value=${{ github.event.release.tag_name }}
+          labels: |
+            type=raw,value=${{ github.event.release.name }}
 
       - name: Build and push Docker image for released
         if: ${{ github.event.release.prerelease == false }}
