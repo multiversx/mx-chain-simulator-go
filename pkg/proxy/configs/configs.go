@@ -50,6 +50,7 @@ func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 		return nil, err
 	}
 
+	cfg.GeneralSettings.AllowEntireTxPoolFetch = true
 	cfg.GeneralSettings.ServerPort = args.ServerPort
 	cfg.Observers = make([]*data.NodeData, 0, len(args.RestApiInterfaces))
 	for shardID, nodeAPIInterface := range args.RestApiInterfaces {
