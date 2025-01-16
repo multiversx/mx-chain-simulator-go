@@ -6,9 +6,9 @@ require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.9.1
 	github.com/multiversx/mx-chain-core-go v1.2.24
-	github.com/multiversx/mx-chain-go v1.8.8-0.20250116113821-1476698d1537
+	github.com/multiversx/mx-chain-go v1.8.8
 	github.com/multiversx/mx-chain-logger-go v1.0.15
-	github.com/multiversx/mx-chain-proxy-go v1.1.56-0.20250116114027-a37cbb2ee143
+	github.com/multiversx/mx-chain-proxy-go v1.1.57
 	github.com/pelletier/go-toml v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli v1.22.10
