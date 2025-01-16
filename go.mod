@@ -3,11 +3,12 @@ module github.com/multiversx/mx-chain-simulator-go
 go 1.20
 
 require (
+	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.9.1
-	github.com/multiversx/mx-chain-core-go v1.2.24-0.20250109151319-81a62c045af8
-	github.com/multiversx/mx-chain-go v1.8.8-0.20250114132518-0de46063c4a6
+	github.com/multiversx/mx-chain-core-go v1.2.24
+	github.com/multiversx/mx-chain-go v1.8.8-0.20250116113821-1476698d1537
 	github.com/multiversx/mx-chain-logger-go v1.0.15
-	github.com/multiversx/mx-chain-proxy-go v1.1.55-0.20250109152951-0a7ed7bbf173
+	github.com/multiversx/mx-chain-proxy-go v1.1.56-0.20250116114027-a37cbb2ee143
 	github.com/pelletier/go-toml v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli v1.22.10
@@ -118,9 +119,9 @@ require (
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
 	github.com/multiversx/mx-chain-communication-go v1.1.1 // indirect
 	github.com/multiversx/mx-chain-crypto-go v1.2.12 // indirect
-	github.com/multiversx/mx-chain-es-indexer-go v1.7.13-0.20250109151711-ceaca49de8e1 // indirect
+	github.com/multiversx/mx-chain-es-indexer-go v1.7.13 // indirect
 	github.com/multiversx/mx-chain-scenario-go v1.4.4 // indirect
-	github.com/multiversx/mx-chain-storage-go v1.0.19-0.20250109152325-cf81acfd19bd // indirect
+	github.com/multiversx/mx-chain-storage-go v1.0.19 // indirect
 	github.com/multiversx/mx-chain-vm-common-go v1.5.16 // indirect
 	github.com/multiversx/mx-chain-vm-go v1.5.37 // indirect
 	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.68 // indirect
