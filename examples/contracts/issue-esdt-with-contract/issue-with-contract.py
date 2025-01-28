@@ -2,16 +2,17 @@ import sys
 import time
 from pathlib import Path
 
-from multiversx_sdk import UserSecretKey
-from multiversx_sdk.core import Address
-from multiversx_sdk.core import SmartContractTransactionsFactory, TransactionsFactoryConfig
-from multiversx_sdk.network_providers import ProxyNetworkProvider
-from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
+from multiversx_sdk import (ProxyNetworkProvider,
+                            SmartContractTransactionsFactory,
+                            SmartContractTransactionsOutcomeParser,
+                            TransactionsFactoryConfig, UserSecretKey)
 
 SIMULATOR_URL = "http://localhost:8085"
-GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
-GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = f"{SIMULATOR_URL}/simulator/generate-blocks-until-epoch-reached"
-GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
+GENERATE_BLOCKS_URL = "/simulator/generate-blocks"
+GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = "simulator/generate-blocks-until-epoch-reached"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = "simulator/generate-blocks-until-transaction-processed"
+
+parent_directory = Path(__file__).parent
 
 
 def main():
@@ -24,16 +25,15 @@ def main():
 
     # call proxy faucet
     data = {"receiver": f"{address.to_bech32()}"}
-    provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
+    provider.do_post_generic("transaction/send-user-funds", data)
 
     # generate blocks until smart contract deploys & ESDTs are enabled
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
 
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
-
     sc_factory = SmartContractTransactionsFactory(config)
 
-    bytecode = Path("./contract.wasm").read_bytes()
+    bytecode = (parent_directory / "contract.wasm").read_bytes()
     deploy_transaction = sc_factory.create_transaction_for_deploy(
         sender=address,
         bytecode=bytecode,
@@ -51,20 +51,24 @@ def main():
 
     # send transaction
     tx_hash = provider.send_transaction(deploy_transaction)
-    print(f"deploy tx hash: {tx_hash}")
+    print(f"deploy tx hash: {tx_hash.hex()}")
 
     time.sleep(0.5)
     # generate enough blocks until the transaction is completed
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash.hex()}", {})
 
     # get transaction with status
-    tx_from_network = provider.get_transaction(tx_hash, with_process_status=True)
+    tx_from_network = provider.get_transaction(tx_hash)
 
     # verify transaction status and account balance
-    if not tx_from_network.status.is_successful():
-        sys.exit(f"transaction status is not correct, status received->{tx_from_network.status}")
+    if not tx_from_network.status.is_successful:
+        sys.exit(f"transaction status is not correct, status received->{tx_from_network.status.status}")
 
-    contract_address = extract_contract_address(tx_from_network)
+    # extract contract address
+    parser = SmartContractTransactionsOutcomeParser()
+    contracts = parser.parse_deploy(tx_from_network).contracts
+    contract_address = contracts[0].address
+
     call_transaction = sc_factory.create_transaction_for_execute(
         sender=address,
         contract=contract_address,
@@ -73,40 +77,26 @@ def main():
         arguments=[]
     )
 
-    call_transaction.amount = 10000000000000000
+    call_transaction.value = 10000000000000000
     call_transaction.nonce = provider.get_account(address).nonce
     call_transaction.signature = b"dummy"
 
     # send transaction
     tx_hash = provider.send_transaction(call_transaction)
-    print(f"sc call tx hash: {tx_hash}")
+    print(f"sc call tx hash: {tx_hash.hex()}")
 
     time.sleep(0.5)
 
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_URL}/3", {})
 
-    status = get_processed_status(provider, tx_hash)
-    if status != "pending":
+    status = provider.get_transaction_status(tx_hash)
+    if status.status != "pending":
         sys.exit(f"incorrect status of transaction: expected->pending, received->{status}")
 
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
-    status = get_processed_status(provider, tx_hash)
-    if status != "fail":
+    provider.do_post_generic(f"{GENERATE_BLOCKS_URL}/3", {})
+    status = status = provider.get_transaction_status(tx_hash)
+    if status.status != "fail":
         sys.exit(f"incorrect status of transaction: expected->fail, received->{status}")
-
-
-def get_processed_status(provider, tx_hash):
-    response = provider.do_get(f"{SIMULATOR_URL}/transaction/{tx_hash}/process-status")
-
-    return response.get("status")
-
-
-def extract_contract_address(tx: TransactionOnNetwork) -> Address:
-    for event in tx.logs.events:
-        if event.identifier != "SCDeploy":
-            continue
-
-        return Address.new_from_hex(event.topics[0].hex(), "erd")
 
 
 if __name__ == "__main__":
