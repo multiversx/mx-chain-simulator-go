@@ -1,13 +1,13 @@
 import sys
 
-from multiversx_sdk import UserSecretKey
-from multiversx_sdk.network_providers import ProxyNetworkProvider
-from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
-from multiversx_sdk.core import TokenManagementTransactionsFactory, TransactionsFactoryConfig
+from multiversx_sdk import (ProxyNetworkProvider, Token,
+                            TokenManagementTransactionsFactory,
+                            TokenManagementTransactionsOutcomeParser,
+                            TransactionsFactoryConfig, UserSecretKey)
 
 SIMULATOR_URL = "http://localhost:8085"
-GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
-GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = f"{SIMULATOR_URL}/simulator/generate-blocks-until-epoch-reached"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = "simulator/generate-blocks-until-transaction-processed"
+GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = "simulator/generate-blocks-until-epoch-reached"
 
 
 def main():
@@ -20,10 +20,10 @@ def main():
 
     # call proxy faucet
     data = {"receiver": f"{address.to_bech32()}"}
-    provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
+    provider.do_post_generic("transaction/send-user-funds", data)
 
     # generate blocks until ESDTs are enabled
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
 
     # create transaction config and factory
     config = TransactionsFactoryConfig(provider.get_network_config().chain_id)
@@ -45,44 +45,35 @@ def main():
         can_add_special_roles=False,
     )
 
-    # set issue cost and nonce
-    tx.amount = 50000000000000000  # 0.05 EGLD
+    # set nonce
     tx.nonce = provider.get_account(address).nonce
     tx.signature = b"dummy"
 
     # send transaction
     tx_hash = provider.send_transaction(tx)
-    print(f"generated tx hash: {tx_hash}")
+    print(f"generated tx hash: {tx_hash.hex()}")
 
     # wait for the transaction to be completed
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash.hex()}", {})
 
     # get transaction with status
-    tx_from_network = provider.get_transaction(tx_hash, with_process_status=True)
+    tx_from_network = provider.get_transaction(tx_hash)
 
     # verify transaction status and account balance
-    if not tx_from_network.status.is_successful():
-        sys.exit(f"transaction status is not correct, status received->{tx_from_network.status}")
+    if not tx_from_network.status.is_successful:
+        sys.exit(f"transaction status is not correct, status received->{tx_from_network.status.status}")
 
     # verify token balance
-    token_identifier_string = extract_token_identifier(tx_from_network)
-    amount = provider.get_fungible_token_of_account(address, token_identifier_string)
-    if amount.balance != initial_supply:
+    parser = TokenManagementTransactionsOutcomeParser()
+    token = parser.parse_issue_fungible(tx_from_network)[0]
+    token_identifier_string = token.token_identifier
+
+    token = provider.get_token_of_account(address, Token(token_identifier_string))
+    if token.amount != initial_supply:
         sys.exit(f"amount of token from balance is no equal with the initial supply: "
-                 f"actual-{amount.balance}, expected-{initial_supply}")
+                 f"actual-{token.amount}, expected-{initial_supply}")
 
     print("transaction was executed and tokens were created")
-
-
-def extract_token_identifier(tx: TransactionOnNetwork) -> str:
-    for event in tx.logs.events:
-        if event.identifier != "upgradeProperties":
-            continue
-
-        decoded_bytes = bytes.fromhex(event.topics[0].hex())
-        return decoded_bytes.decode('utf-8')
-
-    return ""
 
 
 if __name__ == "__main__":

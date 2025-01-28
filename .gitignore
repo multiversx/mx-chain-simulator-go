@@ -26,3 +26,7 @@ venv/
 
 # Go workspace file
 go.work
+
+# Python virtual env
+examples/venv/
+typings
