@@ -1,6 +1,6 @@
 import sys
 
-from multiversx_sdk import ProxyNetworkProvider
+from multiversx_sdk import ProxyNetworkProvider, NetworkProviderConfig
 
 SIMULATOR_URL = "http://localhost:8085"
 GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = "simulator/generate-blocks-until-epoch-reached"
@@ -8,8 +8,11 @@ NETWORK_STATUS_URL = "network/status/4294967295"
 
 
 def main():
+    # create a network provider config to increase timeout
+    config = NetworkProviderConfig(requests_options={"timeout": 10})
+
     # create a network provider
-    provider = ProxyNetworkProvider(SIMULATOR_URL)
+    provider = ProxyNetworkProvider(url=SIMULATOR_URL, config=config)
 
     target_epoch = 10
     # generate blocks until we reach the target epoch
