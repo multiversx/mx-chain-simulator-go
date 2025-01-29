@@ -1,10 +1,10 @@
 from typing import Any, Dict, Sequence
 
-from multiversx_sdk.network_providers import ProxyNetworkProvider
+from multiversx_sdk import ProxyNetworkProvider
 
 SIMULATOR_URL = "http://localhost:8085"
-SET_STATE_URL = f"{SIMULATOR_URL}/simulator/set-state-overwrite"
-ADDRESS_URL = f"{SIMULATOR_URL}/address/"
+SET_STATE_URL = "simulator/set-state-overwrite"
+ADDRESS_URL = "address/"
 
 
 def main():
@@ -32,7 +32,7 @@ def main():
             'developerReward': '0'
         }]
 
-    provider.do_post(SET_STATE_URL, test_state)
+    provider.do_post_generic(SET_STATE_URL, test_state)
 
     # for this address the code metadata should be empty as the address is not a valid SC address
     response = provider.do_get_generic(f'address/erd1qyqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqlqnj4d')
