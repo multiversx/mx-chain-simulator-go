@@ -1,19 +1,21 @@
 import json
 import sys
 import time
+from pathlib import Path
+from typing import Any
 
-from multiversx_sdk import UserSecretKey
-from multiversx_sdk.core import Address
-from multiversx_sdk.core import TransactionsFactoryConfig, TransferTransactionsFactory
-from multiversx_sdk.network_providers import ProxyNetworkProvider
-from multiversx_sdk.network_providers.transactions import TransactionOnNetwork
+from multiversx_sdk import (Address, DelegationTransactionsOutcomeParser,
+                            ProxyNetworkProvider, TransactionOnNetwork,
+                            TransactionsFactoryConfig,
+                            TransferTransactionsFactory, UserSecretKey)
 
 SIMULATOR_URL = "http://localhost:8085"
-INITIAL_WALLETS_URL = f"{SIMULATOR_URL}/simulator/initial-wallets"
-GENERATE_BLOCKS_URL = f"{SIMULATOR_URL}/simulator/generate-blocks"
-GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = f"{SIMULATOR_URL}/simulator/generate-blocks-until-epoch-reached"
-GENERATE_BLOCKS_UNTIL_TX_PROCESSED = f"{SIMULATOR_URL}/simulator/generate-blocks-until-transaction-processed"
+INITIAL_WALLETS_URL = "simulator/initial-wallets"
+GENERATE_BLOCKS_URL = "simulator/generate-blocks"
+GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = "simulator/generate-blocks-until-epoch-reached"
+GENERATE_BLOCKS_UNTIL_TX_PROCESSED = "simulator/generate-blocks-until-transaction-processed"
 
+parent_directory = Path(__file__).parent
 
 def main():
     # create a network provider
@@ -24,21 +26,21 @@ def main():
     print(f"working with the generated address: {address.to_bech32()}")
 
     # call proxy faucet
-    data = {
+    data: dict[str, Any] = {
         "receiver": f"{address.to_bech32()}",
         "value": 20000000000000000000000  # 20k eGLD
     }
-    provider.do_post(f"{SIMULATOR_URL}/transaction/send-user-funds", data)
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/1", {})
+    provider.do_post_generic("transaction/send-user-funds", data)
+    provider.do_post_generic(f"{GENERATE_BLOCKS_URL}/1", {})
 
     # set balance for an address
-    with open("address.json", "r") as file:
+    with open(parent_directory / "address.json", "r") as file:
         json_data = json.load(file)
 
-    provider.do_post(f"{SIMULATOR_URL}/simulator/set-state", json_data)
+    provider.do_post_generic("simulator/set-state", json_data)
 
     # generate blocks until the staking mechanism is fully enabled
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/1", {})
 
     # ################## create a staking provider
     system_delegation_manager = Address.new_from_bech32(
@@ -59,19 +61,22 @@ def main():
 
     # send transaction
     tx_hash = provider.send_transaction(call_transaction)
-    print(f"create delegation contract tx hash: {tx_hash}")
+    print(f"create delegation contract tx hash: {tx_hash.hex()}")
 
     time.sleep(0.5)
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash.hex()}", {})
 
     # get transaction with status
-    tx_from_network = get_tx_and_verify_status(provider, tx_hash)
+    tx_from_network = get_tx_and_verify_status(provider, tx_hash.hex())
 
-    staking_provider_address = extract_contract_address(tx_from_network)
+    # get delegation contract address
+    parser = DelegationTransactionsOutcomeParser()
+    contract = parser.parse_create_new_delegation_contract(tx_from_network)[0]
+    staking_provider_address = contract.contract_address
     print(f"staking provider address: {staking_provider_address.to_bech32()}")
 
     # ################## merge validator in delegator
-    response = provider.do_get(f"{INITIAL_WALLETS_URL}")
+    response = provider.do_get_generic(f"{INITIAL_WALLETS_URL}")
     initial_address_with_stake = Address.new_from_bech32(
         response.to_dictionary()["stakeWallets"][0]["address"]["bech32"]
     )
@@ -91,12 +96,12 @@ def main():
     call_transaction.nonce = provider.get_account(address).nonce
     call_transaction.signature = b"dummy"
     tx_hash = provider.send_transaction(call_transaction)
-    print(f"white list for merge tx hash: {tx_hash}")
+    print(f"white list for merge tx hash: {tx_hash.hex()}")
 
     time.sleep(0.5)
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash.hex()}", {})
 
-    get_tx_and_verify_status(provider, tx_hash)
+    get_tx_and_verify_status(provider, tx_hash.hex())
 
     # merge transaction
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(
@@ -110,11 +115,11 @@ def main():
     call_transaction.nonce = provider.get_account(initial_address_with_stake).nonce
     call_transaction.signature = b"dummy"
     tx_hash = provider.send_transaction(call_transaction)
-    print(f"merge validator tx hash: {tx_hash}")
+    print(f"merge validator tx hash: {tx_hash.hex()}")
 
     time.sleep(0.5)
     # generate 30 blocks to pass an epoch and some rewards will be distributed
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/30", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_URL}/60", {})
 
     # check if the owner of the delegation contract has rewards
     call_transaction = tx_factory.create_transaction_for_native_token_transfer(
@@ -127,14 +132,14 @@ def main():
     call_transaction.nonce = provider.get_account(address).nonce
     call_transaction.signature = b"dummy"
     tx_hash = provider.send_transaction(call_transaction)
-    print(f"claim rewards tx hash: {tx_hash}")
+    print(f"claim rewards tx hash: {tx_hash.hex()}")
     time.sleep(0.5)
-    provider.do_post(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash}", {})
+    provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_TX_PROCESSED}/{tx_hash.hex()}", {})
 
     # check if the owner receive more than 5 egld in rewards
-    claim_reward_tx = get_tx_and_verify_status(provider, tx_hash)
+    claim_reward_tx = get_tx_and_verify_status(provider, tx_hash.hex())
     one_egld = 1000000000000000000
-    rewards_value = claim_reward_tx.contract_results.items[0].value
+    rewards_value = claim_reward_tx.smart_contract_results[0].raw.get("value", 0)
     if rewards_value < one_egld:
         sys.exit(f"owner of the delegation contract didn't receive the expected amount of rewards: expected more than "
                  f"1 EGLD, received: {rewards_value}")
@@ -142,17 +147,9 @@ def main():
     print(f"owner has received rewards, received rewards: {rewards_value}")
 
 
-def extract_contract_address(tx: TransactionOnNetwork) -> Address:
-    for event in tx.logs.events:
-        if event.identifier != "SCDeploy":
-            continue
-
-        return Address.new_from_hex(event.topics[0].hex(), "erd")
-
-
 def get_tx_and_verify_status(provider: ProxyNetworkProvider, tx_hash: str) -> TransactionOnNetwork:
-    tx_from_network = provider.get_transaction(tx_hash, with_process_status=True)
-    if not tx_from_network.status.is_successful():
+    tx_from_network = provider.get_transaction(tx_hash)
+    if not tx_from_network.status.is_successful:
         sys.exit(f"transaction status is not correct, status received->{tx_from_network.status}")
 
     return tx_from_network

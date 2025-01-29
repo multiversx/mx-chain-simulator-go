@@ -76,6 +76,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 		observersProvider,
 		fullHistoryNodesProvider,
 		pubKeyConverter,
+		false,
 	)
 	if err != nil {
 		return nil, err
