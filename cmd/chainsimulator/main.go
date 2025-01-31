@@ -16,10 +16,14 @@ import (
 	"github.com/multiversx/mx-chain-core-go/core/closing"
 	nodeConfig "github.com/multiversx/mx-chain-go/config"
 	"github.com/multiversx/mx-chain-go/config/overridableConfig"
+	chainSimulatorIntegrationTests "github.com/multiversx/mx-chain-go/integrationTests/chainSimulator"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
+	sovereignnode "github.com/multiversx/mx-chain-go/sovereignnode/chainSimulator"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
+	"github.com/urfave/cli"
+
 	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/factory"
@@ -27,7 +31,6 @@ import (
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/creator"
-	"github.com/urfave/cli"
 )
 
 const timeToAllowProxyToStart = time.Millisecond * 10
@@ -83,6 +86,7 @@ func main() {
 		skipConfigsDownload,
 		fetchConfigsAndClose,
 		pathWhereToSaveLogs,
+		sovereign,
 	}
 
 	app.Authors = []cli.Author{
@@ -126,7 +130,8 @@ func startChainSimulator(ctx *cli.Context) error {
 	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
 	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
 	fetchConfigsAndCloseBool := ctx.GlobalBool(fetchConfigsAndClose.Name)
-	err = fetchConfigs(skipDownload, cfg, nodeConfigs, proxyConfigs)
+	isSovereign := ctx.GlobalBool(sovereign.Name)
+	err = fetchConfigs(skipDownload, cfg, nodeConfigs, proxyConfigs, isSovereign)
 	if err != nil {
 		return fmt.Errorf("%w while fetching configs", err)
 	}
@@ -143,18 +148,12 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	numValidatorsShard := ctx.GlobalInt(numValidatorsPerShard.Name)
-	if numValidatorsShard < 1 {
-		return errors.New("invalid value for the number of validators per shard")
-	}
 	numWaitingValidatorsShard := ctx.GlobalInt(numWaitingValidatorsPerShard.Name)
 	if numWaitingValidatorsShard < 0 {
 		return errors.New("invalid value for the number of waiting validators per shard")
 	}
 
 	numValidatorsMetaShard := ctx.GlobalInt(numValidatorsMeta.Name)
-	if numValidatorsMetaShard < 1 {
-		return errors.New("invalid value for the number of validators for metachain")
-	}
 	numWaitingValidatorsMetaShard := ctx.GlobalInt(numWaitingValidatorsMeta.Name)
 	if numWaitingValidatorsMetaShard < 0 {
 		return errors.New("invalid value for the number of waiting validators for metachain")
@@ -191,7 +190,17 @@ func startChainSimulator(ctx *cli.Context) error {
 		},
 		VmQueryDelayAfterStartInMs: 0,
 	}
-	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
+
+	var simulator chainSimulatorIntegrationTests.ChainSimulator
+	if !isSovereign {
+		simulator, err = chainSimulator.NewChainSimulator(argsChainSimulator)
+	} else {
+		argsSovereignChainSimulator := sovereignnode.ArgsSovereignChainSimulator{
+			SovereignConfigPath: strings.Replace(nodeConfigs, "/node", "/sovereignnode", 1),
+			ArgsChainSimulator:  &argsChainSimulator,
+		}
+		simulator, err = sovereignnode.NewSovereignChainSimulator(argsSovereignChainSimulator)
+	}
 	if err != nil {
 		return err
 	}
@@ -213,6 +222,10 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
+	if isSovereign {
+		metaNode = simulator.GetNodeHandler(core.SovereignChainShardId)
+	}
+
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            tempDir,
@@ -243,6 +256,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		PathToConfig:   outputProxyConfigs.PathToTempConfig,
 		PathToPemFile:  outputProxyConfigs.PathToPemFile,
 		NumberOfShards: uint32(cfg.Config.Simulator.NumOfShards),
+		IsSovereign:    isSovereign,
 	})
 	if err != nil {
 		return err
@@ -328,7 +342,7 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 	return fileLogging, nil
 }
 
-func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfigs string) error {
+func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfigs string, isSovereign bool) error {
 	buildInfo, ok := debug.ReadBuildInfo()
 	if !ok {
 		return errors.New("cannot read build info")
@@ -339,7 +353,7 @@ func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfig
 	}
 
 	gitFetcher := git.NewGitFetcher()
-	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher)
+	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher, isSovereign)
 	if err != nil {
 		return err
 	}
