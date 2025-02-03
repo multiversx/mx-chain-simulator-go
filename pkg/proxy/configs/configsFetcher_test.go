@@ -185,7 +185,7 @@ func TestConfigsFetcher(t *testing.T) {
 				},
 				{
 					Path:    "github.com/multiversx/mx-chain-proxy-go",
-					Version: "v1.1.58-0.20250129125903-a24b8759a1c6",
+					Version: "v1.1.58-0.20250131123034-f4bca654667d",
 				},
 			},
 		}, dir)
