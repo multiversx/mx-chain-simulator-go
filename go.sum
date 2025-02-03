@@ -410,8 +410,8 @@ github.com/multiversx/mx-chain-go v1.8.10-0.20250203113753-965f50cec0b4 h1:Y7HtT
 github.com/multiversx/mx-chain-go v1.8.10-0.20250203113753-965f50cec0b4/go.mod h1:xEK4djI15TSzTkLogXDb73olM/8sTtIe4rUzd7x4uDE=
 github.com/multiversx/mx-chain-logger-go v1.0.15 h1:HlNdK8etyJyL9NQ+6mIXyKPEBo+wRqOwi3n+m2QIHXc=
 github.com/multiversx/mx-chain-logger-go v1.0.15/go.mod h1:t3PRKaWB1M+i6gUfD27KXgzLJJC+mAQiN+FLlL1yoGQ=
-github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250129125903-a24b8759a1c6 h1:I6gxhO39UFYWP49ywTs0hzER72TH+v0KNoGKKNnXTmc=
-github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250129125903-a24b8759a1c6/go.mod h1:v23lRhUP8Xe99dwS8HfwCc0dr1NVVqeFLeyNmy0g1AQ=
+github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250131123034-f4bca654667d h1:pgy6I+fuTdsJmSpmT8MaEJ3594C6wdHYjecS3oSfmrw=
+github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250131123034-f4bca654667d/go.mod h1:rOzDkwu+IlWlCuRsLbRTniujvQMtKaiHioxcbLRwe+Y=
 github.com/multiversx/mx-chain-scenario-go v1.4.4 h1:DVE2V+FPeyD/yWoC+KEfPK3jsFzHeruelESfpTlf460=
 github.com/multiversx/mx-chain-scenario-go v1.4.4/go.mod h1:kI+TWR3oIEgUkbwkHCPo2CQ3VjIge+ezGTibiSGwMxo=
 github.com/multiversx/mx-chain-storage-go v1.0.19 h1:2R35MoSXcuNJOFmV5xEhcXqiEGZw6AYGy9R8J9KH66Q=

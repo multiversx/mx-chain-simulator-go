@@ -11,7 +11,7 @@ require (
 	github.com/multiversx/mx-chain-go v1.8.10-0.20250203113753-965f50cec0b4
 	github.com/multiversx/mx-chain-go/sovereignnode v0.0.0-20250203113753-965f50cec0b4
 	github.com/multiversx/mx-chain-logger-go v1.0.15
-	github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250129125903-a24b8759a1c6
+	github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250131123034-f4bca654667d
 	github.com/pelletier/go-toml v1.9.3
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli v1.22.16
