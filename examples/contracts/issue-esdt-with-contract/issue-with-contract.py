@@ -83,13 +83,8 @@ def main():
 
     time.sleep(0.5)
 
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
+    provider.do_post(f"{GENERATE_BLOCKS_URL}/1", {})
 
-    status = get_processed_status(provider, tx_hash)
-    if status != "pending":
-        sys.exit(f"incorrect status of transaction: expected->pending, received->{status}")
-
-    provider.do_post(f"{GENERATE_BLOCKS_URL}/3", {})
     status = get_processed_status(provider, tx_hash)
     if status != "fail":
         sys.exit(f"incorrect status of transaction: expected->fail, received->{status}")

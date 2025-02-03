@@ -4,8 +4,9 @@ import (
 	"time"
 
 	logger "github.com/multiversx/mx-chain-logger-go"
-	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/urfave/cli"
+
+	"github.com/multiversx/mx-chain-simulator-go/config"
 )
 
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
@@ -69,7 +70,7 @@ var (
 	numOfShards = cli.IntFlag{
 		Name:  "num-of-shards",
 		Usage: "The number of shards",
-		Value: 3,
+		Value: 1,
 	}
 	serverPort = cli.IntFlag{
 		Name:  "server-port",
@@ -98,7 +99,7 @@ var (
 	numValidatorsMeta = cli.IntFlag{
 		Name:  "num-validators-meta",
 		Usage: "This flag is used to specify the number of validators on metachain",
-		Value: 1,
+		Value: 0,
 	}
 	numWaitingValidatorsMeta = cli.IntFlag{
 		Name:  "num-waiting-validators-meta",
@@ -136,6 +137,10 @@ var (
 	fetchConfigsAndClose = cli.BoolFlag{
 		Name:  "fetch-configs-and-close",
 		Usage: "This flag is used to specify to fetch all configs and close the chain simulator after",
+	}
+	sovereign = cli.BoolFlag{
+		Name:  "sovereign",
+		Usage: "This flag is used to specify the chain simulator run type",
 	}
 )
 
