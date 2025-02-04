@@ -39,7 +39,7 @@ jobs:
           version: v1.57.2
 
           # Optional: working directory, useful for monorepos
-          # working-directory: somedir
+          working-directory: mx-chain-simulator-go
 
           # Optional: golangci-lint command line arguments.
           args: --timeout 10m0s --max-issues-per-linter 0 --max-same-issues 0 --print-issued-lines
