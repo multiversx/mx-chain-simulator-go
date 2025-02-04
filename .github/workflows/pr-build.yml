@@ -32,6 +32,7 @@ jobs:
 
       - name: Get dependencies
         run: |
+          cd mx-chain-simulator-go
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -40,5 +41,5 @@ jobs:
 
       - name: Build
         run: |
-          cd mx-chain-simulator-go/cmd/chainsimulator 
+          cd cmd/chainsimulator 
           go build
