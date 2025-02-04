@@ -1,5 +1,7 @@
 name: Publish Docker image
 
+disabled: true  # Disables this workflow
+
 on:
   release:
     types: [published]
