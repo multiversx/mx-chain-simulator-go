@@ -13,11 +13,25 @@ jobs:
     name: golangci linter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v3
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v5
         with:
           go-version: 1.20.7
           cache: false
-      - uses: actions/checkout@v3
+        id: go
+
+      - name: Checkout mx-chain-go
+        uses: actions/checkout@v4
+        with:
+          repository: 'multiversx/mx-chain-go'
+          ref: 'feat/chain-go-sdk'
+          path: 'mx-chain-go'
+
+      - name: Checkout mx-chain-simulator-go
+        uses: actions/checkout@v4
+        with:
+          path: 'mx-chain-simulator-go'
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
