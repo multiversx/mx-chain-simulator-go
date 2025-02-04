@@ -42,5 +42,5 @@ jobs:
           cd mx-chain-simulator-go/cmd/chainsimulator 
           go build
           ./chainsimulator --sovereign --fetch-configs-and-close
-          screen -S chainsimulator bash -c "./chainsimulator --sovereign"
+          screen -dmS chainsimulator bash -c "./chainsimulator --sovereign"
           ./../../scripts/run-vm-query/script.sh
