@@ -221,10 +221,11 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	metaNode := simulator.GetNodeHandler(core.MetachainShardId)
+	metaShardId := core.MetachainShardId
 	if isSovereign {
-		metaNode = simulator.GetNodeHandler(core.SovereignChainShardId)
+		metaShardId = core.SovereignChainShardId
 	}
+	metaNode := simulator.GetNodeHandler(metaShardId)
 
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
@@ -264,7 +265,7 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	proxyInstance := outputProxy.ProxyHandler
 
-	simulatorFacade, err := facade.NewSimulatorFacade(simulator, outputProxy.ProxyTransactionHandler)
+	simulatorFacade, err := facade.NewSimulatorFacade(simulator, outputProxy.ProxyTransactionHandler, metaShardId)
 	if err != nil {
 		return err
 	}
