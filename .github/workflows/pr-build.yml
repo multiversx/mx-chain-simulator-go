@@ -28,7 +28,6 @@ jobs:
       - name: Checkout mx-chain-simulator-go
         uses: actions/checkout@v4
         with:
-          repository: 'multiversx/mx-chain-simulator-go'
           path: 'mx-chain-simulator-go'
 
       - name: Get dependencies
@@ -38,6 +37,7 @@ jobs:
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
               dep ensure
           fi
+
       - name: Build
         run: |
           cd mx-chain-simulator-go/cmd/chainsimulator 
