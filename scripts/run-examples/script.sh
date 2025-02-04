@@ -32,6 +32,7 @@ wait_simulator_to_start() {
 
 wait_simulator_to_start
 
+# TODO MX-16498 investigate staking test
 # run staking example
 # run_python_script ../../examples/staking staking.py
 

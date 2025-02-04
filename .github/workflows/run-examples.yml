@@ -50,6 +50,7 @@ jobs:
 
       - name: Run examples
         run: |
+          sed -i '4i { File = "enableEpochs.toml", Path = "EnableEpochs.StakeLimitsEnableEpoch", Value = 1000000 },' mx-chain-simulator-go/cmd/chainsimulator/config/nodeOverrideDefault.toml
           cd mx-chain-simulator-go/cmd/chainsimulator 
           go build
           ./chainsimulator --sovereign --fetch-configs-and-close
