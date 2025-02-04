@@ -2,7 +2,7 @@ module github.com/multiversx/mx-chain-simulator-go
 
 go 1.20
 
-replace github.com/multiversx/mx-chain-go/sovereignnode => ../../mx-chain-go/cmd/sovereignnode
+replace github.com/multiversx/mx-chain-go/sovereignnode => ../mx-chain-go/cmd/sovereignnode
 
 require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
