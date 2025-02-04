@@ -41,5 +41,5 @@ jobs:
 
       - name: Build
         run: |
-          cd cmd/chainsimulator 
+          cd mx-chain-simulator-go/cmd/chainsimulator 
           go build
