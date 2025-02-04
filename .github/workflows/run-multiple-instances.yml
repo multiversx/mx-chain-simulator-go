@@ -12,24 +12,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.x
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: 1.20.7
         id: go
 
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+      - name: Checkout mx-chain-go
+        uses: actions/checkout@v4
+        with:
+          repository: 'multiversx/mx-chain-go'
+          ref: 'feat/chain-go-sdk'
+          path: 'mx-chain-go'
+
+      - name: Checkout mx-chain-simulator-go
+        uses: actions/checkout@v4
+        with:
+          path: 'mx-chain-simulator-go'
 
       - name: Get dependencies
         run: |
+          cd mx-chain-simulator-go
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
               dep ensure
           fi
+
       - name: Run multiple instances
         run: |
-          cd cmd/chainsimulator 
+          cd mx-chain-simulator-go/cmd/chainsimulator 
           go build
-          ./chainsimulator --fetch-configs-and-close
+          ./chainsimulator --sovereign --fetch-configs-and-close
           python3 ../../scripts/run-multiple-instances/script.py
