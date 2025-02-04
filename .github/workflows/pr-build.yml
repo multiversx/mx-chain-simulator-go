@@ -23,7 +23,6 @@ jobs:
         with:
           repository: 'multiversx/mx-chain-go'
           ref: 'feat/chain-go-sdk'
-          path: 'mx-chain-go'
 
       - name: Checkout mx-chain-simulator-go
         uses: actions/checkout@v4
