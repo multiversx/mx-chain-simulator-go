@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: 'multiversx/mx-chain-go'
-          ref: feat/chain-go-sdk
+          ref: 'feat/chain-go-sdk'
           path: 'mx-chain-go'
 
       - name: Check out code into the Go module directory
