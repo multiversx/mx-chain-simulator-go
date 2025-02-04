@@ -6,12 +6,15 @@ import (
 	"github.com/multiversx/mx-chain-go/consensus"
 	"github.com/multiversx/mx-chain-go/factory"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	"github.com/multiversx/mx-chain-go/process"
 	"github.com/multiversx/mx-chain-go/sharding"
 )
 
 // NodeHandlerStub -
 type NodeHandlerStub struct {
-	GetProcessComponentsCalled func() factory.ProcessComponentsHolder
+	GetProcessComponentsCalled        func() factory.ProcessComponentsHolder
+	GetRunTypeComponentsCalled        func() factory.RunTypeComponentsHolder
+	GetIncomingHeaderSubscriberCalled func() process.IncomingHeaderSubscriber
 }
 
 // GetProcessComponents -
@@ -85,6 +88,24 @@ func (n *NodeHandlerStub) RemoveAccount(_ []byte) error {
 
 // ForceChangeOfEpoch -
 func (n *NodeHandlerStub) ForceChangeOfEpoch() error {
+	return nil
+}
+
+// GetRunTypeComponents -
+func (n *NodeHandlerStub) GetRunTypeComponents() factory.RunTypeComponentsHolder {
+	if n.GetRunTypeComponentsCalled != nil {
+		return n.GetRunTypeComponentsCalled()
+	}
+
+	return nil
+}
+
+// GetIncomingHeaderSubscriber -
+func (n *NodeHandlerStub) GetIncomingHeaderSubscriber() process.IncomingHeaderSubscriber {
+	if n.GetIncomingHeaderSubscriberCalled != nil {
+		return n.GetIncomingHeaderSubscriberCalled()
+	}
+
 	return nil
 }
 
