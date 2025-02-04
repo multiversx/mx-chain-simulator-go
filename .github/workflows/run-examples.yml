@@ -45,4 +45,5 @@ jobs:
           go build
           ./chainsimulator --sovereign --fetch-configs-and-close
           screen -dmS chainsimulator bash -c "./chainsimulator --sovereign"
+          ./../../scripts/run-examples/install-python-deps.sh.sh
           ./../../scripts/run-examples/script.sh
