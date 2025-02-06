@@ -181,7 +181,7 @@ func TestConfigsFetcher(t *testing.T) {
 			Deps: []*debug.Module{
 				{
 					Path:    "github.com/multiversx/mx-chain-go",
-					Version: "v1.8.10-0.20250203113753-965f50cec0b4",
+					Version: "v1.8.10-0.20250206083958-e89ab5d17dc5",
 				},
 				{
 					Path:    "github.com/multiversx/mx-chain-proxy-go",
