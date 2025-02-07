@@ -14,11 +14,6 @@ jobs:
       contents: read
       attestations: write
     steps:
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.20.7
-        id: go
 
       - name: Checkout mx-chain-go
         uses: actions/checkout@v4
@@ -32,9 +27,11 @@ jobs:
         with:
           path: 'mx-chain-simulator-go'
 
-      - name: Run go mod tidy
-        run: go mod tidy
-        working-directory: mx-chain-simulator-go
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.20.7
+        id: go
 
       - name: Get dependencies
         run: |

@@ -32,10 +32,6 @@ jobs:
         with:
           path: 'mx-chain-simulator-go'
 
-      - name: Run go mod tidy
-        run: go mod tidy
-        working-directory: mx-chain-simulator-go
-
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
