@@ -29,6 +29,10 @@ jobs:
         with:
           path: 'mx-chain-simulator-go'
 
+      - name: Run go mod tidy
+        run: go mod tidy
+        working-directory: mx-chain-simulator-go
+
       - name: Get dependencies
         run: |
           cd mx-chain-simulator-go
