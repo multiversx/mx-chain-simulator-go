@@ -71,7 +71,7 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: ./mx-chain-simulator-go
+          context: .
           file: ./mx-chain-simulator-go/Dockerfile-sovereign
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
