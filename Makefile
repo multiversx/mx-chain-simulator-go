@@ -1,6 +1,7 @@
 CHAIN_SIMULATOR_IMAGE_NAME=chainsimulator
 CHAIN_SIMULATOR_IMAGE_TAG=latest
 DOCKER_FILE=Dockerfile
+SOVEREIGN_DOCKER_FILE=Dockerfile-sovereign
 IMAGE_NAME=simulator_image
 
 docker-build:
@@ -9,8 +10,14 @@ docker-build:
 		 -f ${DOCKER_FILE} \
 		 .
 
+docker-sovereign-build:
+	cd .. && docker build \
+		 -t ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG} \
+		 -f mx-chain-simulator-go/${SOVEREIGN_DOCKER_FILE} \
+		 .
+
 run-faucet-test:
-	$(MAKE) docker-build
+	$(MAKE) ${BUILD}
 	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
 	sleep 2s
 	cd examples/faucet && /bin/bash faucet.sh
@@ -22,7 +29,7 @@ run-examples:
 	sed -i '4r temp.txt' cmd/chainsimulator/config/nodeOverrideDefault.toml
 	rm temp.txt
 
-	$(MAKE) docker-build
+	$(MAKE) ${BUILD}
 	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
 	cd scripts/run-examples && /bin/bash script.sh
 	docker stop "${IMAGE_NAME}"

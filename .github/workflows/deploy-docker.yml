@@ -1,7 +1,5 @@
 name: Publish Docker image
 
-disabled: true  # Disables this workflow
-
 on:
   release:
     types: [published]
@@ -16,8 +14,17 @@ jobs:
       contents: read
       attestations: write
     steps:
+      - name: Checkout mx-chain-go
+        uses: actions/checkout@v4
+        with:
+          repository: 'multiversx/mx-chain-go'
+          ref: 'feat/chain-go-sdk'
+          path: 'mx-chain-go'
+
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          path: 'mx-chain-simulator-go'
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
@@ -27,6 +34,7 @@ jobs:
 
       - name: Get dependencies
         run: |
+          cd mx-chain-simulator-go
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -35,7 +43,7 @@ jobs:
 
       - name: Build and run chain simulator to fetch configs
         run: |
-          cd cmd/chainsimulator 
+          cd mx-chain-simulator-go/cmd/chainsimulator 
           go build
           ./chainsimulator --fetch-configs-and-close
 
@@ -53,14 +61,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: multiversx/chainsimulator
+          images: multiversx/sovereign-chainsimulator
 
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./mx-chain-simulator-go
+          file: ./mx-chain-simulator-go/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
           tags: ${{ steps.meta.outputs.tags }}
