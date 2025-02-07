@@ -426,7 +426,10 @@ Before proceeding, ensure you have the following prerequisites:
 ```
 ./scripts/prerequisites.sh
 ```
-
+- Update go dependencies 
+```
+go mod tidy
+```
 
 ## Install
 
