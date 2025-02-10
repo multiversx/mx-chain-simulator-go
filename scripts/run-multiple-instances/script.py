@@ -59,9 +59,9 @@ def find_and_print_duplicates(arr):
         return False
 
 
-def start_instance(index, used_ports):
+def start_instance(index, used_ports, simulator_type):
     print(f"Start process index={index}")
-    proc = subprocess.Popen(['./chainsimulator', '--sovereign', '--server-port', "0"],
+    proc = subprocess.Popen(['./chainsimulator', simulator_type, '--server-port', "0"],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
 
@@ -73,12 +73,12 @@ def start_instance(index, used_ports):
     return proc, port
 
 
-def start_instances(num_instances):
+def start_instances(num_instances, simulator_type):
     processes = []
     used_ports = set()
 
     with ThreadPoolExecutor(max_workers=num_instances) as executor:
-        futures = {executor.submit(start_instance, i, used_ports): i for i in range(num_instances)}
+        futures = {executor.submit(start_instance, i, used_ports, simulator_type): i for i in range(num_instances)}
         for future in as_completed(futures):
             proc, port = future.result()
             processes.append((proc, port))
@@ -141,10 +141,11 @@ def terminate_instances(processes):
 
 
 def main():
+    simulator_type = sys.argv[1] if len(sys.argv) > 1 else ""
     num_instances = 100
 
     print("Starting instances...")
-    processes = start_instances(num_instances)
+    processes = start_instances(num_instances, simulator_type)
 
     print("Collecting API responses and checking for duplicate ports...")
     duplicates = check_for_duplicate_ports(processes)
