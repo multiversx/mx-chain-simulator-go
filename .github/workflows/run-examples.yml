@@ -34,4 +34,9 @@ jobs:
       - name: Run examples
         run: |
           cd mx-chain-simulator-go
+          make run-examples BUILD=docker-build
+
+      - name: Run examples - sovereign
+        run: |
+          cd mx-chain-simulator-go
           make run-examples BUILD=docker-sovereign-build

@@ -3,7 +3,7 @@
         # server-port paramter specifies the port of the http server
         server-port = 8085
         # num-of-shards parameter specifies the number of shard that chain simulator will simulate
-        num-of-shards = 1
+        num-of-shards = 3
         # round-duration-in-milliseconds parameter specifies the duration of a simulated round. The timestamp between two headers will correspond to the round duration but will not reflect real-time
         round-duration-in-milliseconds = 6000
         # rounds-per-epoch specifies the number of rounds per epoch

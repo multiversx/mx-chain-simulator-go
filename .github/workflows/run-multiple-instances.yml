@@ -42,5 +42,12 @@ jobs:
         run: |
           cd mx-chain-simulator-go/cmd/chainsimulator 
           go build
+          ./chainsimulator --fetch-configs-and-close
+          python3 ../../scripts/run-multiple-instances/script.py
+
+      - name: Run multiple instances - sovereign
+        run: |
+          cd mx-chain-simulator-go/cmd/chainsimulator 
+          go build
           ./chainsimulator --sovereign --fetch-configs-and-close
           python3 ../../scripts/run-multiple-instances/script.py

@@ -70,7 +70,7 @@ var (
 	numOfShards = cli.IntFlag{
 		Name:  "num-of-shards",
 		Usage: "The number of shards",
-		Value: 1,
+		Value: 3,
 	}
 	serverPort = cli.IntFlag{
 		Name:  "server-port",
@@ -99,7 +99,7 @@ var (
 	numValidatorsMeta = cli.IntFlag{
 		Name:  "num-validators-meta",
 		Usage: "This flag is used to specify the number of validators on metachain",
-		Value: 0,
+		Value: 1,
 	}
 	numWaitingValidatorsMeta = cli.IntFlag{
 		Name:  "num-waiting-validators-meta",

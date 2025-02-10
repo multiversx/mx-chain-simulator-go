@@ -147,6 +147,8 @@ func startChainSimulator(ctx *cli.Context) error {
 		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
 	}
 
+	numOfShards := uint32(cfg.Config.Simulator.NumOfShards)
+
 	numValidatorsShard := ctx.GlobalInt(numValidatorsPerShard.Name)
 	numWaitingValidatorsShard := ctx.GlobalInt(numWaitingValidatorsPerShard.Name)
 	if numWaitingValidatorsShard < 0 {
@@ -157,6 +159,11 @@ func startChainSimulator(ctx *cli.Context) error {
 	numWaitingValidatorsMetaShard := ctx.GlobalInt(numWaitingValidatorsMeta.Name)
 	if numWaitingValidatorsMetaShard < 0 {
 		return errors.New("invalid value for the number of waiting validators for metachain")
+	}
+	if isSovereign {
+		numOfShards = 1
+		numValidatorsMetaShard = 0
+		numWaitingValidatorsMetaShard = 0
 	}
 
 	localRestApiInterface := "localhost"
@@ -173,7 +180,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		BypassTxSignatureCheck:   bypassTxsSignature,
 		TempDir:                  tempDir,
 		PathToInitialConfig:      nodeConfigs,
-		NumOfShards:              uint32(cfg.Config.Simulator.NumOfShards),
+		NumOfShards:              numOfShards,
 		GenesisTimestamp:         startTimeUnix,
 		RoundDurationInMillis:    roundDurationInMillis,
 		RoundsPerEpoch:           rounds,
@@ -256,7 +263,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		NodeHandler:    metaNode,
 		PathToConfig:   outputProxyConfigs.PathToTempConfig,
 		PathToPemFile:  outputProxyConfigs.PathToPemFile,
-		NumberOfShards: uint32(cfg.Config.Simulator.NumOfShards),
+		NumberOfShards: numOfShards,
 		IsSovereign:    isSovereign,
 	})
 	if err != nil {
