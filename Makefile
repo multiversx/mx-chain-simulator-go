@@ -5,7 +5,7 @@ SOVEREIGN_DOCKER_FILE=Dockerfile-sovereign
 IMAGE_NAME=simulator_image
 
 docker-build:
-	docker build \
+	cd .. && docker build \
 		 -t ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG} \
 		 -f mx-chain-simulator-go/${DOCKER_FILE} \
 		 .
