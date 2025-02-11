@@ -61,7 +61,11 @@ def find_and_print_duplicates(arr):
 
 def start_instance(index, used_ports, simulator_type):
     print(f"Start process index={index}")
-    proc = subprocess.Popen(['./chainsimulator', simulator_type, '--server-port', "0"],
+
+    args = ['./chainsimulator', '--server-port', "0"]
+    if simulator_type:
+        args.append(simulator_type)
+    proc = subprocess.Popen(args,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
 
@@ -141,7 +145,7 @@ def terminate_instances(processes):
 
 
 def main():
-    simulator_type = sys.argv[1] if len(sys.argv) > 1 else ""
+    simulator_type = sys.argv[1] if len(sys.argv) > 1 else None
     num_instances = 100
 
     print("Starting instances...")

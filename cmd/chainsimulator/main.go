@@ -150,6 +150,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	numOfShards := uint32(cfg.Config.Simulator.NumOfShards)
 
 	numValidatorsShard := ctx.GlobalInt(numValidatorsPerShard.Name)
+	if numValidatorsShard < 1 {
+		return errors.New("invalid value for the number of validators per shard")
+	}
 	numWaitingValidatorsShard := ctx.GlobalInt(numWaitingValidatorsPerShard.Name)
 	if numWaitingValidatorsShard < 0 {
 		return errors.New("invalid value for the number of waiting validators per shard")
@@ -240,6 +243,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		PathToProxyConfig: proxyConfigs,
 		RestApiInterfaces: restApiInterfaces,
 		InitialWallets:    simulator.GetInitialWalletKeys().BalanceWallets,
+		IsSovereign:       isSovereign,
 	})
 	if err != nil {
 		return err
