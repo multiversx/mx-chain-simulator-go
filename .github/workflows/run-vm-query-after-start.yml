@@ -41,14 +41,14 @@ jobs:
         run: |
           cd mx-chain-simulator-go/cmd/chainsimulator 
           go build
-          ./chainsimulator --fetch-configs-and-close
-          screen -dmS chainsimulator bash -c "./chainsimulator"
-          ./../../scripts/run-vm-query/script.sh
-
-      - name: Run VM query after start - sovereign
-        run: |
-          cd mx-chain-simulator-go/cmd/chainsimulator 
-          go build
           ./chainsimulator --sovereign --fetch-configs-and-close
+
+        # sovereign mode
           screen -dmS chainsimulator bash -c "./chainsimulator --sovereign"
           ./../../scripts/run-vm-query/script.sh
+          screen -X -S chainsimulator quit
+               
+        # normal mode
+          screen -dmS chainsimulator bash -c "./chainsimulator"
+          ./../../scripts/run-vm-query/script.sh
+          screen -X -S chainsimulator quit
