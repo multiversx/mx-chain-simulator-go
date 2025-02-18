@@ -19,6 +19,7 @@ import (
 	chainSimulatorIntegrationTests "github.com/multiversx/mx-chain-go/integrationTests/chainSimulator"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
+	"github.com/multiversx/mx-chain-go/node/chainSimulator/process"
 	sovereignChainSimulator "github.com/multiversx/mx-chain-go/sovereignnode/chainSimulator"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
@@ -159,6 +160,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	numValidatorsMetaShard := ctx.GlobalInt(numValidatorsMeta.Name)
+	if numValidatorsMetaShard < 1 && !isSovereign {
+		return errors.New("invalid value for the number of validators for metachain")
+	}
 	numWaitingValidatorsMetaShard := ctx.GlobalInt(numWaitingValidatorsMeta.Name)
 	if numWaitingValidatorsMetaShard < 0 {
 		return errors.New("invalid value for the number of waiting validators for metachain")
@@ -201,16 +205,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		VmQueryDelayAfterStartInMs: 0,
 	}
 
-	var simulator chainSimulatorIntegrationTests.ChainSimulator
-	if !isSovereign {
-		simulator, err = chainSimulator.NewChainSimulator(argsChainSimulator)
-	} else {
-		argsSovereignChainSimulator := sovereignChainSimulator.ArgsSovereignChainSimulator{
-			SovereignConfigPath: strings.Replace(nodeConfigs, "/node", "/sovereignnode", 1),
-			ArgsChainSimulator:  &argsChainSimulator,
-		}
-		simulator, err = sovereignChainSimulator.NewSovereignChainSimulator(argsSovereignChainSimulator)
-	}
+	simulator, err := createChainSimulator(argsChainSimulator, isSovereign)
 	if err != nil {
 		return err
 	}
@@ -231,12 +226,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	metaShardId := core.MetachainShardId
-	if isSovereign {
-		metaShardId = core.SovereignChainShardId
-	}
-	metaNode := simulator.GetNodeHandler(metaShardId)
-
+	metaNode, metaShardId := getMetaInfo(simulator, isSovereign)
 	restApiInterfaces := simulator.GetRestAPIInterfaces()
 	outputProxyConfigs, err := configs.CreateProxyConfigs(configs.ArgsProxyConfigs{
 		TemDir:            tempDir,
@@ -352,6 +342,26 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 	}
 
 	return fileLogging, nil
+}
+
+func createChainSimulator(argsChainSimulator chainSimulator.ArgsChainSimulator, isSovereign bool) (chainSimulatorIntegrationTests.ChainSimulator, error) {
+	if !isSovereign {
+		return chainSimulator.NewChainSimulator(argsChainSimulator)
+	} else {
+		argsSovereignChainSimulator := sovereignChainSimulator.ArgsSovereignChainSimulator{
+			SovereignConfigPath: strings.Replace(argsChainSimulator.PathToInitialConfig, "/node", "/sovereignnode", 1),
+			ArgsChainSimulator:  &argsChainSimulator,
+		}
+		return sovereignChainSimulator.NewSovereignChainSimulator(argsSovereignChainSimulator)
+	}
+}
+
+func getMetaInfo(simulator chainSimulatorIntegrationTests.ChainSimulator, isSovereign bool) (process.NodeHandler, uint32) {
+	metaShardId := core.MetachainShardId
+	if isSovereign {
+		metaShardId = core.SovereignChainShardId
+	}
+	return simulator.GetNodeHandler(metaShardId), metaShardId
 }
 
 func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfigs string, isSovereign bool) error {

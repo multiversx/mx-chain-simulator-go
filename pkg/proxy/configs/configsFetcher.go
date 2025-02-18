@@ -83,6 +83,7 @@ func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSave
 		return err
 	}
 
+	// TODO MX-16540 refactor to use RunType components
 	if f.isSovereign && app == appNode {
 		pathToRepoConfigs = path.Join(pathToRepo, "cmd", "sovereignnode", "config")
 		err = copyFolderWithAllFiles(pathToRepoConfigs, strings.Replace(pathWhereToSaveConfig, "/node", "/sovereignnode", 1))

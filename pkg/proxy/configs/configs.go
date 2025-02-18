@@ -59,6 +59,7 @@ func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 			Address:  httpPrefix + nodeAPIInterface,
 			IsSynced: true,
 		})
+		// TODO MX-16540 refactor to use RunType components
 		if args.IsSovereign {
 			cfg.Observers = append(cfg.Observers, &data.NodeData{
 				ShardId:  core.MetachainShardId,

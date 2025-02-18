@@ -422,9 +422,11 @@ Before proceeding, ensure you have the following prerequisites:
 
 - Go programming environment set up.
 - Git installed.
+
+## Additional prerequisites for Sovereign
 - Run the prerequisites script
 ```
-./scripts/prerequisites.sh
+./scripts/prerequisites-sovereign.sh
 ```
 - Update go dependencies 
 ```
@@ -459,7 +461,7 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         # server-port paramter specifies the port of the http server that the proxy component will respond on
         server-port = 8085
         # num-of-shards parameter specifies the number of shard that chain simulator will simulate
-        num-of-shards = 1
+        num-of-shards = 3 # 1 shard for sovereign
         # round-duration-in-milliseconds parameter specifies the duration of a simulated round. The timestamp between two headers will correspond to the round duration but will not reflect real-time
         round-duration-in-milliseconds = 6000
         # rounds-per-epoch specifies the number of rounds per epoch
@@ -519,8 +521,12 @@ The URL for the proxy is printed in the logs in a line that looks like:
 INFO [2024-04-18 10:48:47.231]   chain simulator's is accessible through the URL localhost:38099 
 ```
 
-
 ### Build docker image
+```
+DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
+```
+
+### Build Sovereign docker image
 ```
 make docker-sovereign-build
 ```
