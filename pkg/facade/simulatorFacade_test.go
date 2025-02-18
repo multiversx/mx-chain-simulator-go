@@ -272,7 +272,7 @@ func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_CannotGetTxSt
 		},
 	})
 
-	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash", 20)
 	require.Equal(t, expectedErr, err)
 }
 
@@ -296,7 +296,7 @@ func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_CannotGenerat
 		},
 	})
 
-	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash", 20)
 	require.Equal(t, expectedErr, err)
 }
 
@@ -317,7 +317,7 @@ func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_ErrPendingTra
 		},
 	})
 
-	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash", 20)
 	require.Equal(t, errPendingTransaction, err)
 }
 
@@ -345,7 +345,7 @@ func TestSimulatorFacade_GenerateBlocksUntilTransactionIsProcessed_ShouldWork(t 
 		},
 	})
 
-	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash")
+	err := facade.GenerateBlocksUntilTransactionIsProcessed("txHash", 20)
 	require.Nil(t, err)
 }
 

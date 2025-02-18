@@ -1,4 +1,4 @@
-FROM golang:1.23.6 as builder
+FROM golang:1.23.6 AS builder
 
 
 WORKDIR /multiversx
@@ -10,11 +10,17 @@ WORKDIR /multiversx/cmd/chainsimulator
 
 RUN go build -o chainsimulator
 
-RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chain-vm-v | sort -n | tail -n -1| awk -F '/' '{print$3}'| sed 's/ /@/g')/wasmer/libwasmer_linux_amd64.so /lib/libwasmer_linux_amd64.so
-RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chain-vm-go | sort -n | tail -n -1| awk -F '/' '{print$3}'| sed 's/ /@/g')/wasmer2/libvmexeccapi.so /lib/libvmexeccapi.so
+RUN mkdir -p /lib_amd64 /lib_arm64
+
+RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chain-vm-v | sort -n | tail -n -1 | awk -F '/' '{print$3}' | sed 's/ /@/g')/wasmer/libwasmer_linux_amd64.so /lib_amd64/
+RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chain-vm-go | sort -n | tail -n -1 | awk -F '/' '{print$3}' | sed 's/ /@/g')/wasmer2/libvmexeccapi.so /lib_amd64/
+
+RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chain-vm-v | sort -n | tail -n -1 | awk -F '/' '{print$3}' | sed 's/ /@/g')/wasmer/libwasmer_linux_arm64_shim.so /lib_arm64/
+RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chain-vm-go | sort -n | tail -n -1 | awk -F '/' '{print$3}' | sed 's/ /@/g')/wasmer2/libvmexeccapi_arm.so /lib_arm64/
 
 
 FROM ubuntu:22.04
+ARG TARGETARCH
 
 RUN apt-get update \
     && apt-get -y install git \
@@ -26,8 +32,11 @@ EXPOSE 8085
 
 WORKDIR /multiversx
 
-COPY --from=builder "/lib/libwasmer_linux_amd64.so" "/lib/libwasmer_linux_amd64.so"
-COPY --from=builder "/lib/libvmexeccapi.so" "/lib/libvmexeccapi.so"
+# Copy architecture-specific files
+COPY --from=builder "/lib_${TARGETARCH}/*" "/lib/"
+
+RUN apt-get update && apt-get install -y curl
+CMD ["/bin/bash"]
 
 ENTRYPOINT ["./chainsimulator"]
 

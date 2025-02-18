@@ -6,12 +6,18 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/btcsuite/websocket"
 	"github.com/gin-gonic/gin"
+	"github.com/multiversx/mx-chain-core-go/marshal"
+	"github.com/multiversx/mx-chain-go/api/logs"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
+	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-proxy-go/api/shared"
 	"github.com/multiversx/mx-chain-proxy-go/data"
 	dtosc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
+
+var log = logger.GetOrCreate("pkg/proxy/api")
 
 const (
 	generateBlocksEndpoint                  = "/simulator/generate-blocks/:num"
@@ -26,8 +32,11 @@ const (
 	observersInfo                           = "/simulator/observers"
 	epochChange                             = "/simulator/force-epoch-change"
 
-	queryParamNoGenerate      = "noGenerate"
-	queryParameterTargetEpoch = "targetEpoch"
+	queryParamNoGenerate   = "noGenerate"
+	queryParamTargetEpoch  = "targetEpoch"
+	queryParamMaxNumBlocks = "maxNumBlocks"
+
+	maxNumOfBlockToGenerateUntilTxProcessed = 20
 )
 
 type endpointsProcessor struct {
@@ -60,7 +69,35 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws.GET(observersInfo, ep.getObserversInfo)
 	ws.POST(epochChange, ep.forceEpochChange)
 
+	serializerForLogs := &marshal.GogoProtoMarshalizer{}
+	registerLoggerWsRoute(ws, serializerForLogs)
+
 	return nil
+}
+
+// registerLoggerWsRoute will register the log route
+func registerLoggerWsRoute(ws *gin.Engine, serializer marshal.Marshalizer) {
+	upgrader := websocket.Upgrader{}
+
+	ws.GET("/log", func(c *gin.Context) {
+		upgrader.CheckOrigin = func(r *http.Request) bool {
+			return true
+		}
+
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
+		ls, err := logs.NewLogSender(serializer, conn, log)
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
+		ls.StartSendingBlocking()
+	})
 }
 
 func (ep *endpointsProcessor) forceEpochChange(c *gin.Context) {
@@ -79,7 +116,7 @@ func (ep *endpointsProcessor) forceEpochChange(c *gin.Context) {
 }
 
 func getTargetEpochQueryParam(c *gin.Context) (int, error) {
-	epochStr := c.Request.URL.Query().Get(queryParameterTargetEpoch)
+	epochStr := c.Request.URL.Query().Get(queryParamTargetEpoch)
 	if epochStr == "" {
 		return 0, nil
 	}
@@ -139,7 +176,9 @@ func (ep *endpointsProcessor) generateBlocksUntilEpochReached(c *gin.Context) {
 
 func (ep *endpointsProcessor) generateBlocksUntilTransactionProcessed(c *gin.Context) {
 	txHashStr := c.Param("txHash")
-	err := ep.facade.GenerateBlocksUntilTransactionIsProcessed(txHashStr)
+
+	maxNumBlocks := getMaxNumBlocksToGenerate(c)
+	err := ep.facade.GenerateBlocksUntilTransactionIsProcessed(txHashStr, maxNumBlocks)
 	if err != nil {
 		shared.RespondWithInternalError(c, errors.New("cannot generate blocks"), err)
 		return
@@ -194,6 +233,20 @@ func getQueryParamNoGenerate(c *gin.Context) (bool, error) {
 	}
 
 	return strconv.ParseBool(withResultsStr)
+}
+
+func getMaxNumBlocksToGenerate(c *gin.Context) int {
+	withResultsStr := c.Request.URL.Query().Get(queryParamMaxNumBlocks)
+	if withResultsStr == "" {
+		return maxNumOfBlockToGenerateUntilTxProcessed
+	}
+
+	value, err := strconv.Atoi(withResultsStr)
+	if err != nil {
+		return maxNumOfBlockToGenerateUntilTxProcessed
+	}
+
+	return value
 }
 
 func (ep *endpointsProcessor) setStateMultiple(c *gin.Context) {

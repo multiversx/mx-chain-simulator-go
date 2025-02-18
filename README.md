@@ -74,15 +74,23 @@ This endpoint initiates the generation of blocks for each shard until the target
 }
 ```
 
-### `POST /simulator/generate-blocks-until-transcation-processed/:txHash`
+### `POST /simulator/generate-blocks-until-transaction-processed/:txHash`
 
 This endpoint initiates the generation of blocks for each shard until the status of the provided transaction hash is processed.
 
 ##### Request
 - **Method:** POST
-- **Path:** `/simulator/generate-blocks-until-transcation-processed/:txHash`
-- **Parameters:**
+- **Path:** `/simulator/generate-blocks-until-transaction-processed/:txHash`
+- **URL parameter** `maxNumBlocks`
   - `txHash` (path parameter): The hash of the targeted transaction.
+
+##### URL Parameter: `maxNumBlocks`
+- **Description:**
+  - **Type:** integer
+  - **Optional:** Yes
+  - **Default:** `20`
+  - **Behavior:** Setting the maxNumBlocks=`<value>` is useful when the transaction is known to be executed on more than 20 blocks.
+  Example here are the transactions that generate complicate cross-shard async calls. Most transactions should finish in ~20 proposed blocks.
 
 ##### Response
 - **Status Codes:**
@@ -100,11 +108,12 @@ This endpoint initiates the generation of blocks for each shard until the status
 
 ### `POST /simulator/force-epoch-change`
 
-This endpoint will trigger the chain to move in the next epoch. (this endpoint will generate a few blocks till next epoch is reached)
+This endpoint will trigger the chain to move in the next epoch. (this endpoint will generate a few block till next epoch is reached)
 
 ##### Request
 - **Method:** POST
 - **Path:** `/simulator/force-epoch-change`
+- **URL parameter** `targetEpoch` Specifies the epoch the chain simulator needs to reach.
 
 ##### Response
 - **Status Codes:**

@@ -52,3 +52,9 @@ run_python_script ../../examples/generateBlocks epoch-reached.py
 
 # run set state examples
 run_python_script ../../examples/setState code-metadata.py
+
+# run deploy with issue esdt
+run_python_script ../../examples/contracts/issue-esdt-with-contract issue-with-contract.py
+
+# run deploy SC with custom crypto primitives in VM
+run_python_script ../../examples/contracts/basic-features-crypto basic-features-crypto.py
