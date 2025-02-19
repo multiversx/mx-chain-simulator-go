@@ -69,7 +69,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./mx-chain-simulator-go/Dockerfile-sovereign
+          # We need to make sure that if we ever have to merge this branch in main, this needs to be changed
+          file: ./mx-chain-simulator-go/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
           tags: ${{ steps.meta.outputs.tags }}

@@ -526,14 +526,14 @@ INFO [2024-04-18 10:48:47.231]   chain simulator's is accessible through the URL
 DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
 ```
 
-### Build Sovereign docker image
-```
-make docker-sovereign-build
-```
-
 ### Run with docker
 ```
 docker run -p 8085:8085 chainsimulator:latest --log-level *:DEBUG
+```
+
+### Run with Sovereign docker
+```
+docker run -p 8085:8085 chainsimulator:latest --sovereign --log-level *:DEBUG
 ```
 
 ### Enable `HostDriver`
