@@ -44,8 +44,8 @@ jobs:
           go build
           ./chainsimulator --sovereign --fetch-configs-and-close
 
-        # sovereign mode
+          # sovereign mode
           python3 ../../scripts/run-multiple-instances/script.py --sovereign
-               
-        # normal mode
+
+          # normal mode
           python3 ../../scripts/run-multiple-instances/script.py

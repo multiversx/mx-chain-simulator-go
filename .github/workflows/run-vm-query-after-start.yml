@@ -43,12 +43,12 @@ jobs:
           go build
           ./chainsimulator --sovereign --fetch-configs-and-close
 
-        # sovereign mode
+          # sovereign mode
           screen -dmS chainsimulator bash -c "./chainsimulator --sovereign"
           ./../../scripts/run-vm-query/script.sh
           screen -X -S chainsimulator quit
-               
-        # normal mode
+
+          # normal mode
           screen -dmS chainsimulator bash -c "./chainsimulator"
           ./../../scripts/run-vm-query/script.sh
           screen -X -S chainsimulator quit
