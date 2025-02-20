@@ -6,7 +6,7 @@ require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.10.0
 	github.com/multiversx/mx-chain-core-go v1.2.25-0.20250218161123-121084ae9840
-	github.com/multiversx/mx-chain-go v1.8.12-0.20250218175754-85937688d522
+	github.com/multiversx/mx-chain-go v1.8.12-0.20250220135236-6cd58db027b1
 	github.com/multiversx/mx-chain-logger-go v1.0.16-0.20250218161408-6a0c19d0da48
 	github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250218180111-f31dc7e237ff
 	github.com/pelletier/go-toml v1.9.3
@@ -125,9 +125,9 @@ require (
 	github.com/multiversx/mx-chain-storage-go v1.0.20-0.20250218162234-85e60acebb43 // indirect
 	github.com/multiversx/mx-chain-vm-common-go v1.5.17-0.20250218162215-88938774627c // indirect
 	github.com/multiversx/mx-chain-vm-go v1.5.38-0.20250218163500-604d44bde745 // indirect
-	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.69-0.20250218162811-01b9e94e011d // indirect
-	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.70-0.20250218162950-40cf4739515c // indirect
-	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.99-0.20250218163144-3830385fe37b // indirect
+	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.69-0.20250220133402-01591d72f671 // indirect
+	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.70-0.20250220133720-4abbb3b36387 // indirect
+	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.99-0.20250220134915-8fe9989311f4 // indirect
 	github.com/multiversx/mx-components-big-int v1.0.1-0.20250218162530-b4e4d7442408 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/onsi/ginkgo/v2 v2.22.0 // indirect
