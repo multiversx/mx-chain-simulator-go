@@ -18,7 +18,7 @@ def main():
     # generate blocks until we reach the target epoch
     provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/{target_epoch}", {})
 
-    network_status = provider.get_network_status() # will default to metachain
+    network_status = provider.get_network_status()  # will default to metachain
 
     epoch_number = network_status.raw.get("erd_epoch_number", 0)
     if epoch_number < target_epoch:
