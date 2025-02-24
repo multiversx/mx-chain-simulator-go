@@ -34,4 +34,9 @@ jobs:
       - name: Run examples - sovereign
         run: |
           cd mx-chain-simulator-go
+          make run-examples
+
+      - name: Run examples - sovereign
+        run: |
+          cd mx-chain-simulator-go
           make run-examples SIMULATOR_TYPE=--sovereign=false
