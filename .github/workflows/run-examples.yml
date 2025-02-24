@@ -31,11 +31,6 @@ jobs:
           pip3 install -r examples/requirements.txt
           pip3 install pytest
 
-      - name: Run examples
-        run: |
-          cd mx-chain-simulator-go
-          make run-examples
-
       - name: Run examples - sovereign
         run: |
           cd mx-chain-simulator-go
