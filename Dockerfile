@@ -24,6 +24,8 @@ RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/mx-chain-simulator-go
 FROM ubuntu:22.04
 ARG TARGETARCH
 
+RUN apt-get update && apt-get install -y git curl
+
 COPY --from=builder /multiversx/mx-chain-simulator-go/cmd/chainsimulator /multiversx/mx-chain-simulator-go
 
 EXPOSE 8085
@@ -33,7 +35,6 @@ WORKDIR /multiversx/mx-chain-simulator-go
 # Copy architecture-specific files
 COPY --from=builder "/lib_${TARGETARCH}/*" "/lib/"
 
-RUN apt-get update && apt-get install -y curl
 CMD ["/bin/bash"]
 
 ENTRYPOINT ["./chainsimulator"]
