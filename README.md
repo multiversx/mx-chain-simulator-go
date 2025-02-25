@@ -523,7 +523,7 @@ INFO [2024-04-18 10:48:47.231]   chain simulator's is accessible through the URL
 
 ### Build docker image
 ```
-DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
+make docker-build
 ```
 
 ### Run with docker
