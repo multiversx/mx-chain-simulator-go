@@ -23,8 +23,7 @@ FROM ubuntu:22.04
 ARG TARGETARCH
 
 
-# RUN apt-get update && apt-get install -y git curl
-RUN apt-get install -y git curl
+RUN apt-get update && apt-get install -y git curl
 
 COPY --from=builder /multiversx/cmd/chainsimulator /multiversx
 
