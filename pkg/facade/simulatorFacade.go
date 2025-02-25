@@ -8,17 +8,18 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/data/transaction"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	logger "github.com/multiversx/mx-chain-logger-go"
+
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
 const (
-	errMsgTargetEpochLowerThanCurrentEpoch  = "target epoch must be greater than current epoch"
-	errMsgAccountNotFound                   = "account was not found")
+	errMsgTargetEpochLowerThanCurrentEpoch = "target epoch must be greater than current epoch"
+	errMsgAccountNotFound                  = "account was not found"
+)
 
 var log = logger.GetOrCreate("simulator/facade")
 
@@ -27,10 +28,11 @@ var errPendingTransaction = errors.New("something went wrong, transaction is sti
 type simulatorFacade struct {
 	simulator          SimulatorHandler
 	transactionHandler ProxyTransactionsHandler
+	shardID            uint32
 }
 
 // NewSimulatorFacade will create a new instance of simulatorFacade
-func NewSimulatorFacade(simulator SimulatorHandler, transactionHandler ProxyTransactionsHandler) (*simulatorFacade, error) {
+func NewSimulatorFacade(simulator SimulatorHandler, transactionHandler ProxyTransactionsHandler, shardID uint32) (*simulatorFacade, error) {
 	if check.IfNil(simulator) {
 		return nil, errNilSimulatorHandler
 	}
@@ -41,6 +43,7 @@ func NewSimulatorFacade(simulator SimulatorHandler, transactionHandler ProxyTran
 	return &simulatorFacade{
 		simulator:          simulator,
 		transactionHandler: transactionHandler,
+		shardID:            shardID,
 	}, nil
 }
 
@@ -199,7 +202,7 @@ func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash stri
 }
 
 func (sf *simulatorFacade) getCurrentEpoch() uint32 {
-	return sf.simulator.GetNodeHandler(core.MetachainShardId).GetProcessComponents().EpochStartTrigger().Epoch()
+	return sf.simulator.GetNodeHandler(sf.shardID).GetProcessComponents().EpochStartTrigger().Epoch()
 }
 
 // IsInterfaceNil returns true if there is no value under the interface

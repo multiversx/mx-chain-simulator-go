@@ -2,13 +2,16 @@ module github.com/multiversx/mx-chain-simulator-go
 
 go 1.20
 
+replace github.com/multiversx/mx-chain-go/sovereignnode => ../mx-chain-go/cmd/sovereignnode
+
 require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.10.0
-	github.com/multiversx/mx-chain-core-go v1.2.24
-	github.com/multiversx/mx-chain-go v1.8.11
+	github.com/multiversx/mx-chain-core-go v1.2.25-0.20250206111825-25fbb1b4851c
+	github.com/multiversx/mx-chain-go v1.8.12-0.20250220074747-7b618ffe4673
+	github.com/multiversx/mx-chain-go/sovereignnode v1.8.12-0.20250220074747-7b618ffe4673
 	github.com/multiversx/mx-chain-logger-go v1.0.15
-	github.com/multiversx/mx-chain-proxy-go v1.1.57
+	github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250214101907-bdc187471f3c
 	github.com/pelletier/go-toml v1.9.3
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli v1.22.16
@@ -121,15 +124,16 @@ require (
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
 	github.com/multiversx/mx-chain-communication-go v1.1.1 // indirect
 	github.com/multiversx/mx-chain-crypto-go v1.2.12 // indirect
-	github.com/multiversx/mx-chain-es-indexer-go v1.7.16 // indirect
+	github.com/multiversx/mx-chain-es-indexer-go v1.7.17-0.20250217145507-ddd47d85cfcd // indirect
 	github.com/multiversx/mx-chain-scenario-go v1.4.4 // indirect
 	github.com/multiversx/mx-chain-storage-go v1.0.19 // indirect
-	github.com/multiversx/mx-chain-vm-common-go v1.5.16 // indirect
+	github.com/multiversx/mx-chain-vm-common-go v1.5.17-0.20241119132002-2fa80c5ec516 // indirect
 	github.com/multiversx/mx-chain-vm-go v1.5.37 // indirect
 	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.68 // indirect
 	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.69 // indirect
 	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.98 // indirect
 	github.com/multiversx/mx-components-big-int v1.0.0 // indirect
+	github.com/multiversx/mx-sdk-abi-go v0.3.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.11.0 // indirect
 	github.com/onsi/gomega v1.27.10 // indirect
 	github.com/opencontainers/runtime-spec v1.0.2 // indirect
@@ -182,6 +186,8 @@ require (
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gonum.org/v1/gonum v0.11.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
+	google.golang.org/grpc v1.60.1 // indirect
 	google.golang.org/protobuf v1.36.3 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
