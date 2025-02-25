@@ -33,6 +33,7 @@ WORKDIR /multiversx/mx-chain-simulator-go
 # Copy architecture-specific files
 COPY --from=builder "/lib_${TARGETARCH}/*" "/lib/"
 
+RUN apt-get update && apt-get install -y curl
 CMD ["/bin/bash"]
 
 ENTRYPOINT ["./chainsimulator"]
