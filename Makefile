@@ -11,11 +11,11 @@ docker-build:
 
 run-faucet-test:
 	$(MAKE) docker-build
-	sudo docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
+	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
 	sleep 2s
 	cd examples/faucet && /bin/bash faucet.sh
-	sudo docker stop "${IMAGE_NAME}"
-	sudo docker rm ${IMAGE_NAME} 2> /dev/null
+	docker stop "${IMAGE_NAME}"
+	docker rm ${IMAGE_NAME} 2> /dev/null
 
 run-examples:
 	printf '%s\n' '{ File = "enableEpochs.toml", Path = "EnableEpochs.StakeLimitsEnableEpoch", Value = 1000000 },' > temp.txt
@@ -23,10 +23,10 @@ run-examples:
 	rm temp.txt
 
 	$(MAKE) docker-build
-	sudo docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
+	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
 	cd scripts/run-examples && /bin/bash script.sh
-	sudo docker stop "${IMAGE_NAME}"
-	sudo docker rm ${IMAGE_NAME}
+	docker stop "${IMAGE_NAME}"
+	docker rm ${IMAGE_NAME}
 
 lint-install:
 ifeq (,$(wildcard test -f bin/golangci-lint))
