@@ -4,7 +4,7 @@ DOCKER_FILE=Dockerfile
 IMAGE_NAME=simulator_image
 
 docker-build:
-	sudo docker build \
+	docker build \
 		 -t ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG} \
 		 -f ${DOCKER_FILE} \
 		 .
