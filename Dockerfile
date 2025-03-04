@@ -24,6 +24,7 @@ RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/mx-chain-simulator-go
 FROM ubuntu:22.04
 ARG TARGETARCH
 
+
 RUN apt-get update && apt-get install -y git curl
 
 COPY --from=builder /multiversx/mx-chain-simulator-go/cmd/chainsimulator /multiversx/mx-chain-simulator-go
