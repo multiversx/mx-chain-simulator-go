@@ -3,6 +3,14 @@ CHAIN_SIMULATOR_IMAGE_TAG=latest
 DOCKER_FILE=Dockerfile
 IMAGE_NAME=simulator_image
 
+sovereign-build:
+	./scripts/prerequisites-sovereign.sh
+
+	cd ../mx-chain-simulator-go && \
+	go mod tidy && \
+	cd cmd/chainsimulator && \
+	go build
+
 docker-build:
 	cd .. && docker build \
 		 -t ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG} \
