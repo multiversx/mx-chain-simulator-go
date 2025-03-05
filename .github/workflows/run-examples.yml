@@ -12,13 +12,31 @@ jobs:
     name: Examples
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: Checkout mx-chain-go
+        uses: actions/checkout@v4
+        with:
+          repository: 'multiversx/mx-chain-go'
+          ref: 'feat/chain-go-sdk'
+          path: 'mx-chain-go'
+
+      - name: Checkout mx-chain-simulator-go
+        uses: actions/checkout@v4
+        with:
+          path: 'mx-chain-simulator-go'
+
       - name: Install dependencies
         run: |
+          cd mx-chain-simulator-go
           python3 -m pip install --upgrade pip
           pip3 install -r examples/requirements.txt
           pip3 install pytest
+
       - name: Run examples
         run: |
+          cd mx-chain-simulator-go
           make run-examples
+
+      - name: Run examples - sovereign
+        run: |
+          cd mx-chain-simulator-go
+          make run-examples SIMULATOR_TYPE=--sovereign

@@ -7,8 +7,9 @@ import (
 	"runtime/debug"
 	"testing"
 
-	"github.com/multiversx/mx-chain-simulator-go/testscommon"
 	"github.com/stretchr/testify/require"
+
+	"github.com/multiversx/mx-chain-simulator-go/testscommon"
 )
 
 const (
@@ -25,7 +26,7 @@ func TestConfigsFetcher(t *testing.T) {
 				require.Fail(t, "should have not been called")
 				return nil
 			},
-		})
+		}, false)
 
 		err := cf.FetchProxyConfigs(&debug.BuildInfo{
 			Deps: []*debug.Module{
@@ -43,7 +44,7 @@ func TestConfigsFetcher(t *testing.T) {
 			CloneCalled: func(r, d string) error {
 				return expectedErr
 			},
-		})
+		}, false)
 
 		err := cf.FetchProxyConfigs(&debug.BuildInfo{
 			Deps: []*debug.Module{
@@ -61,7 +62,7 @@ func TestConfigsFetcher(t *testing.T) {
 			CheckoutCalled: func(repoDir string, commitHashOrBranch string) error {
 				return expectedErr
 			},
-		})
+		}, false)
 
 		err := cf.FetchProxyConfigs(&debug.BuildInfo{
 			Deps: []*debug.Module{
@@ -79,7 +80,7 @@ func TestConfigsFetcher(t *testing.T) {
 			CloneCalled: func(r, d string) error {
 				return nil
 			},
-		})
+		}, false)
 
 		err := cf.FetchProxyConfigs(&debug.BuildInfo{
 			Deps: []*debug.Module{
@@ -104,7 +105,7 @@ func TestConfigsFetcher(t *testing.T) {
 
 				return nil
 			},
-		})
+		}, false)
 
 		err := cf.FetchProxyConfigs(&debug.BuildInfo{
 			Deps: []*debug.Module{
@@ -126,7 +127,7 @@ func TestConfigsFetcher(t *testing.T) {
 				require.Fail(t, "should have not been called")
 				return nil
 			},
-		})
+		}, false)
 
 		err := cf.FetchNodeConfigs(&debug.BuildInfo{
 			Deps: []*debug.Module{
@@ -147,7 +148,7 @@ func TestConfigsFetcher(t *testing.T) {
 
 				return nil
 			},
-		})
+		}, false)
 
 		err := cf.FetchNodeConfigs(&debug.BuildInfo{
 			Deps: []*debug.Module{
@@ -158,6 +159,33 @@ func TestConfigsFetcher(t *testing.T) {
 				{
 					Path:    "github.com/multiversx/mx-chain-proxy-go",
 					Version: "v1.1.41",
+				},
+			},
+		}, dir)
+		require.Nil(t, err)
+	})
+	t.Run("FetchNodeConfigs for sovereign should work", func(t *testing.T) {
+		dir := path.Join(t.TempDir(), "shouldWorkTest")
+		cf, _ := NewConfigsFetcher(mxNodeRepo, mxProxyRepo, &testscommon.GitFetcherStub{
+			CloneCalled: func(r, d string) error {
+				err := os.MkdirAll(path.Join(os.TempDir(), "repo/cmd/node/config"), os.ModePerm)
+				require.NoError(t, err)
+				err = os.MkdirAll(path.Join(os.TempDir(), "repo/cmd/sovereignnode/config"), os.ModePerm)
+				require.NoError(t, err)
+
+				return nil
+			},
+		}, true)
+
+		err := cf.FetchNodeConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-go",
+					Version: "v1.8.10-0.20250206083958-e89ab5d17dc5",
+				},
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.58-0.20250131123034-f4bca654667d",
 				},
 			},
 		}, dir)

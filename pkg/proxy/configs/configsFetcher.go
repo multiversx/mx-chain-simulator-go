@@ -20,14 +20,16 @@ type fetcher struct {
 	gitFetcher      GitHandler
 	mxChainNodeRepo string
 	mxChainProxy    string
+	isSovereign     bool
 }
 
 // NewConfigsFetcher will create a new instance of fetcher
-func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler) (*fetcher, error) {
+func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler, isSovereign bool) (*fetcher, error) {
 	return &fetcher{
 		mxChainNodeRepo: mxChainNodeRepo,
 		mxChainProxy:    mxChainProxy,
 		gitFetcher:      git,
+		isSovereign:     isSovereign,
 	}, nil
 }
 
@@ -79,6 +81,15 @@ func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSave
 	err = copyFolderWithAllFiles(pathToRepoConfigs, pathWhereToSaveConfig)
 	if err != nil {
 		return err
+	}
+
+	// TODO MX-16540 refactor to use RunType components
+	if f.isSovereign && app == appNode {
+		pathToRepoConfigs = path.Join(pathToRepo, "cmd", "sovereignnode", "config")
+		err = copyFolderWithAllFiles(pathToRepoConfigs, strings.Replace(pathWhereToSaveConfig, "/node", "/sovereignnode", 1))
+		if err != nil {
+			return err
+		}
 	}
 
 	return os.RemoveAll(pathToRepo)
