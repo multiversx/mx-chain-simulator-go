@@ -4,8 +4,9 @@ import (
 	"time"
 
 	logger "github.com/multiversx/mx-chain-logger-go"
-	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/urfave/cli"
+
+	"github.com/multiversx/mx-chain-simulator-go/config"
 )
 
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
@@ -136,6 +137,10 @@ var (
 	fetchConfigsAndClose = cli.BoolFlag{
 		Name:  "fetch-configs-and-close",
 		Usage: "This flag is used to specify to fetch all configs and close the chain simulator after",
+	}
+	sovereign = cli.BoolFlag{
+		Name:  "sovereign",
+		Usage: "This flag is used to specify the chain simulator run type",
 	}
 )
 

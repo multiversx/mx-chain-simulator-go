@@ -13,11 +13,25 @@ jobs:
     name: golangci linter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v3
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v5
         with:
           go-version: 1.20.7
           cache: false
-      - uses: actions/checkout@v3
+        id: go
+
+      - name: Checkout mx-chain-go
+        uses: actions/checkout@v4
+        with:
+          repository: 'multiversx/mx-chain-go'
+          ref: 'feat/chain-go-sdk'
+          path: 'mx-chain-go'
+
+      - name: Checkout mx-chain-simulator-go
+        uses: actions/checkout@v4
+        with:
+          path: 'mx-chain-simulator-go'
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -25,7 +39,7 @@ jobs:
           version: v1.57.2
 
           # Optional: working directory, useful for monorepos
-          # working-directory: somedir
+          working-directory: mx-chain-simulator-go
 
           # Optional: golangci-lint command line arguments.
           args: --timeout 10m0s --max-issues-per-linter 0 --max-same-issues 0 --print-issued-lines

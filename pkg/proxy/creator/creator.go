@@ -14,12 +14,15 @@ import (
 	"github.com/multiversx/mx-chain-proxy-go/common"
 	"github.com/multiversx/mx-chain-proxy-go/config"
 	"github.com/multiversx/mx-chain-proxy-go/data"
+	"github.com/multiversx/mx-chain-proxy-go/factory"
+	"github.com/multiversx/mx-chain-proxy-go/factory/runType"
 	"github.com/multiversx/mx-chain-proxy-go/metrics"
 	"github.com/multiversx/mx-chain-proxy-go/observer"
 	processProxy "github.com/multiversx/mx-chain-proxy-go/process"
 	"github.com/multiversx/mx-chain-proxy-go/process/cache"
 	processFactory "github.com/multiversx/mx-chain-proxy-go/process/factory"
 	versionsFactory "github.com/multiversx/mx-chain-proxy-go/versions/factory"
+
 	proxy2 "github.com/multiversx/mx-chain-simulator-go/pkg/proxy"
 )
 
@@ -32,6 +35,7 @@ type ArgsProxy struct {
 	Config         *config.Config
 	NodeHandler    process.NodeHandler
 	NumberOfShards uint32
+	IsSovereign    bool
 }
 
 // ArgsOutputProxy the components that are returned by proxy creator
@@ -94,12 +98,23 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 		return nil, err
 	}
 
+	var runTypeComponents factory.RunTypeComponentsHandler
+	if args.IsSovereign {
+		runTypeComponents, err = createManagedRunTypeComponents(runType.NewSovereignRunTypeComponentsFactory())
+	} else {
+		runTypeComponents, err = createManagedRunTypeComponents(runType.NewRunTypeComponentsFactory())
+	}
+	if err != nil {
+		return nil, err
+	}
+
 	txProc, err := processFactory.CreateTransactionProcessor(
 		bp,
 		pubKeyConverter,
 		args.NodeHandler.GetCoreComponents().Hasher(),
 		args.NodeHandler.GetCoreComponents().InternalMarshalizer(),
 		args.Config.GeneralSettings.AllowEntireTxPoolFetch,
+		runTypeComponents,
 	)
 	if err != nil {
 		return nil, err
@@ -216,6 +231,20 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 		ProxyHandler:            proxyInstance,
 		ProxyTransactionHandler: txProc,
 	}, nil
+}
+
+func createManagedRunTypeComponents(factory runType.RunTypeComponentsCreator) (factory.RunTypeComponentsHandler, error) {
+	managedRunTypeComponents, err := runType.NewManagedRunTypeComponents(factory)
+	if err != nil {
+		return nil, err
+	}
+
+	err = managedRunTypeComponents.Create()
+	if err != nil {
+		return nil, err
+	}
+
+	return managedRunTypeComponents, nil
 }
 
 // Start will start the proxy

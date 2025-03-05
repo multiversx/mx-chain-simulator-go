@@ -24,6 +24,7 @@ type ArgsProxyConfigs struct {
 	ServerPort        int
 	RestApiInterfaces map[uint32]string
 	InitialWallets    map[uint32]*dtos.WalletKey
+	IsSovereign       bool
 }
 
 // ArgsOutputConfig holds the output arguments for proxy configs
@@ -58,6 +59,14 @@ func CreateProxyConfigs(args ArgsProxyConfigs) (*ArgsOutputConfig, error) {
 			Address:  httpPrefix + nodeAPIInterface,
 			IsSynced: true,
 		})
+		// TODO MX-16540 refactor to use RunType components
+		if args.IsSovereign {
+			cfg.Observers = append(cfg.Observers, &data.NodeData{
+				ShardId:  core.MetachainShardId,
+				Address:  httpPrefix + nodeAPIInterface,
+				IsSynced: true,
+			})
+		}
 	}
 
 	pemFile := path.Join(newConfigsPath, walletPem)
