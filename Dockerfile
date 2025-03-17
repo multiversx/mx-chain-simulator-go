@@ -2,7 +2,7 @@ FROM golang:1.20.7 AS builder
 
 
 WORKDIR /multiversx
-COPY mx-chain-go ./mx-chain-go
+COPY mx-chain-sovereign-go ./mx-chain-sovereign-go
 COPY mx-chain-simulator-go ./mx-chain-simulator-go
 
 WORKDIR /multiversx/mx-chain-simulator-go
