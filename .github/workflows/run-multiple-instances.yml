@@ -20,9 +20,8 @@ jobs:
       - name: Checkout mx-chain-go
         uses: actions/checkout@v4
         with:
-          repository: 'multiversx/mx-chain-go'
-          ref: 'feat/chain-go-sdk'
-          path: 'mx-chain-go'
+          repository: 'multiversx/mx-chain-sovereign-go'
+          path: 'mx-chain-sovereign-go'
 
       - name: Checkout mx-chain-simulator-go
         uses: actions/checkout@v4
