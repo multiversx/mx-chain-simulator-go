@@ -3,8 +3,9 @@ module github.com/multiversx/mx-chain-simulator-go
 go 1.20
 
 replace (
-	github.com/multiversx/mx-chain-go => ../mx-chain-sovereign-go
-	github.com/multiversx/mx-chain-go/sovereignnode => ../mx-chain-sovereign-go/cmd/sovereignnode
+	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.0.0-sov
+	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250318110114-42de0b849f13
+	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.0.0-sov
 )
 
 require (
@@ -12,7 +13,6 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/multiversx/mx-chain-core-go v1.2.25-0.20250206111825-25fbb1b4851c
 	github.com/multiversx/mx-chain-go v1.8.12-0.20250220074747-7b618ffe4673
-	github.com/multiversx/mx-chain-go/sovereignnode v1.8.12-0.20250220074747-7b618ffe4673
 	github.com/multiversx/mx-chain-logger-go v1.0.15
 	github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250214101907-bdc187471f3c
 	github.com/pelletier/go-toml v1.9.3
