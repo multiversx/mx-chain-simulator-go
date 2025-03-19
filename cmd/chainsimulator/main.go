@@ -35,6 +35,7 @@ import (
 
 const timeToAllowProxyToStart = time.Millisecond * 10
 const overrideConfigFilesSeparator = ","
+const goModUrl = "../../go.mod"
 
 var (
 	log          = logger.GetOrCreate("chainsimulator")
@@ -370,7 +371,7 @@ func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfig
 	}
 
 	gitFetcher := git.NewGitFetcher()
-	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher, isSovereign)
+	configsFetcher, err := configs.NewConfigsFetcher(cfg.Config.Simulator.MxChainRepo, cfg.Config.Simulator.MxProxyRepo, gitFetcher, isSovereign, goModUrl)
 	if err != nil {
 		return err
 	}

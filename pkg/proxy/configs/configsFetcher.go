@@ -21,15 +21,17 @@ type fetcher struct {
 	mxChainNodeRepo string
 	mxChainProxy    string
 	isSovereign     bool
+	goModUrl        string
 }
 
 // NewConfigsFetcher will create a new instance of fetcher
-func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler, isSovereign bool) (*fetcher, error) {
+func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler, isSovereign bool, goModUrl string) (*fetcher, error) {
 	return &fetcher{
 		mxChainNodeRepo: mxChainNodeRepo,
 		mxChainProxy:    mxChainProxy,
 		gitFetcher:      git,
 		isSovereign:     isSovereign,
+		goModUrl:        goModUrl,
 	}, nil
 }
 
@@ -43,7 +45,7 @@ func (f *fetcher) FetchProxyConfigs(pathWhereToPutConfigs string) error {
 		return nil
 	}
 
-	mxProxyTag, err := extractTag(f.mxChainProxy)
+	mxProxyTag, err := f.extractTag(f.mxChainProxy)
 	if err != nil {
 		return err
 	}
@@ -62,7 +64,7 @@ func (f *fetcher) FetchNodeConfigs(pathWhereToPutConfigs string) error {
 		return nil
 	}
 
-	mxNodeTag, err := extractTag(f.mxChainNodeRepo)
+	mxNodeTag, err := f.extractTag(f.mxChainNodeRepo)
 	if err != nil {
 		return err
 	}
@@ -102,10 +104,10 @@ func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSave
 }
 
 // extract commit hash from go.mod file
-func extractTag(repoURL string) (string, error) {
+func (f *fetcher) extractTag(repoURL string) (string, error) {
 	modulePath := strings.TrimPrefix(repoURL, "https://")
 
-	data, err := os.ReadFile("../../go.mod")
+	data, err := os.ReadFile(f.goModUrl)
 	if err != nil {
 		return "", err
 	}
