@@ -20,16 +20,8 @@ jobs:
           cache: false
         id: go
 
-      - name: Checkout mx-chain-go
-        uses: actions/checkout@v4
-        with:
-          repository: 'multiversx/mx-chain-sovereign-go'
-          path: 'mx-chain-sovereign-go'
-
       - name: Checkout mx-chain-simulator-go
         uses: actions/checkout@v4
-        with:
-          path: 'mx-chain-simulator-go'
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
@@ -38,7 +30,7 @@ jobs:
           version: v1.57.2
 
           # Optional: working directory, useful for monorepos
-          working-directory: mx-chain-simulator-go
+          # working-directory:
 
           # Optional: golangci-lint command line arguments.
           args: --timeout 10m0s --max-issues-per-linter 0 --max-same-issues 0 --print-issued-lines

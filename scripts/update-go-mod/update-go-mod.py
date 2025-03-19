@@ -13,7 +13,7 @@ def update_go_mod_file(go_mod_path, new_hash):
         # Print the original content for debugging
         print("Original go.mod content:")
         print(content)
-        updated_content = re.sub(r'(github\.com/multiversx/mx-chain-go\s+)[^\s]+', f'github.com/multiversx/mx-chain-go {new_hash}', content)
+        updated_content = re.sub(r'(github\.com/multiversx/mx-chain-sovereing-go\s+)[^\s]+', f'github.com/multiversx/mx-chain-sovereign-go {new_hash}', content)
 
         # Print updated content for verification
         print("Updated go.mod content:")

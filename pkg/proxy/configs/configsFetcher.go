@@ -1,9 +1,9 @@
 package configs
 
 import (
+	"fmt"
 	"os"
 	"path"
-	"runtime/debug"
 	"strings"
 
 	logger "github.com/multiversx/mx-chain-logger-go"
@@ -34,7 +34,7 @@ func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler, isS
 }
 
 // FetchProxyConfigs will try to fetch the proxy configs
-func (f *fetcher) FetchProxyConfigs(info *debug.BuildInfo, pathWhereToPutConfigs string) error {
+func (f *fetcher) FetchProxyConfigs(pathWhereToPutConfigs string) error {
 	exists, err := folderExists(pathWhereToPutConfigs)
 	if err != nil {
 		return err
@@ -43,14 +43,17 @@ func (f *fetcher) FetchProxyConfigs(info *debug.BuildInfo, pathWhereToPutConfigs
 		return nil
 	}
 
-	mxProxyTag := extractTag(info, f.mxChainProxy)
+	mxProxyTag, err := extractTag(f.mxChainProxy)
+	if err != nil {
+		return err
+	}
 	log.Info("fetching proxy configs...", "repo", f.mxChainProxy, "version", mxProxyTag)
 
 	return f.fetchConfigFolder(f.mxChainProxy, mxProxyTag, pathWhereToPutConfigs, appProxy)
 }
 
 // FetchNodeConfigs will try to fetch the node configs
-func (f *fetcher) FetchNodeConfigs(info *debug.BuildInfo, pathWhereToPutConfigs string) error {
+func (f *fetcher) FetchNodeConfigs(pathWhereToPutConfigs string) error {
 	exists, err := folderExists(pathWhereToPutConfigs)
 	if err != nil {
 		return err
@@ -59,7 +62,10 @@ func (f *fetcher) FetchNodeConfigs(info *debug.BuildInfo, pathWhereToPutConfigs 
 		return nil
 	}
 
-	mxNodeTag := extractTag(info, f.mxChainNodeRepo)
+	mxNodeTag, err := extractTag(f.mxChainNodeRepo)
+	if err != nil {
+		return err
+	}
 	log.Info("fetching node configs...", "repo", f.mxChainNodeRepo, "version", mxNodeTag)
 
 	return f.fetchConfigFolder(f.mxChainNodeRepo, mxNodeTag, pathWhereToPutConfigs, appNode)
@@ -95,18 +101,28 @@ func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSave
 	return os.RemoveAll(pathToRepo)
 }
 
-func extractTag(info *debug.BuildInfo, repo string) string {
-	for _, dep := range info.Deps {
-		if strings.Contains(repo, dep.Path) {
-			return extractVersionOrCommit(dep.Version)
+// extract commit hash from go.mod file
+func extractTag(repoURL string) (string, error) {
+	modulePath := strings.TrimPrefix(repoURL, "https://")
+
+	data, err := os.ReadFile("../../go.mod")
+	if err != nil {
+		return "", err
+	}
+
+	lines := strings.Split(string(data), "\n")
+	for _, line := range lines {
+		if strings.Contains(line, modulePath) {
+			parts := strings.Fields(line)
+			return extractVersionOrCommit(parts[len(parts)-1]), nil
 		}
 	}
 
-	return ""
+	return "", fmt.Errorf("module %s not found in go.mod", modulePath)
 }
 
 func extractVersionOrCommit(versionStr string) string {
-	if strings.Contains(versionStr, "-") {
+	if !strings.Contains(versionStr, "-sov") {
 		parts := strings.Split(versionStr, "-")
 		return parts[len(parts)-1]
 	}

@@ -16,17 +16,8 @@ jobs:
       contents: read
       attestations: write
     steps:
-
-      - name: Checkout mx-chain-go
-        uses: actions/checkout@v4
-        with:
-          repository: 'multiversx/mx-chain-sovereign-go'
-          path: 'mx-chain-sovereign-go'
-
       - name: Check out the repo
         uses: actions/checkout@v4
-        with:
-          path: 'mx-chain-simulator-go'
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
@@ -36,7 +27,6 @@ jobs:
 
       - name: Get dependencies
         run: |
-          cd mx-chain-simulator-go
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -45,7 +35,7 @@ jobs:
 
       - name: Build and run chain simulator to fetch configs
         run: |
-          cd mx-chain-simulator-go/cmd/chainsimulator 
+          cd cmd/chainsimulator 
           go build
           ./chainsimulator --fetch-configs-and-close
 
@@ -74,7 +64,7 @@ jobs:
         with:
           context: .
           # We need to make sure that if we ever have to merge this branch in main, this needs to be changed
-          file: ./mx-chain-simulator-go/Dockerfile
+          file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
