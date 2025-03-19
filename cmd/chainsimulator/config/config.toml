@@ -3,9 +3,9 @@
         # server-port paramter specifies the port of the http server
         server-port = 8085
         # num-of-shards parameter specifies the number of shard that chain simulator will simulate
-        num-of-shards = 1
+        num-of-shards = 3 # 1 for sovereign
         # round-duration-in-milliseconds parameter specifies the duration of a simulated round. The timestamp between two headers will correspond to the round duration but will not reflect real-time
-        round-duration-in-milliseconds = 1000
+        round-duration-in-milliseconds = 6000
         # rounds-per-epoch specifies the number of rounds per epoch
         rounds-per-epoch = 20
         # initial-round when the chain simulator will start
@@ -27,4 +27,4 @@
         # auto-generate-blocks specifies if the chain simulator should auto generate blocks
         auto-generate-blocks = false
         # block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
-        block-time-in-milliseconds = 1000
+        block-time-in-milliseconds = 6000
