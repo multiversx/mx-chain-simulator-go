@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"syscall"
@@ -365,6 +366,10 @@ func getMetaInfo(simulator chainSimulatorIntegrationTests.ChainSimulator, isSove
 }
 
 func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfigs string, isSovereign bool) error {
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		return errors.New("cannot read build info")
+	}
 	if skipDownload {
 		log.Warn(`flag "skip-configs-download" has been provided, if the configs are missing, then simulator will not start`)
 		return nil
@@ -376,12 +381,12 @@ func fetchConfigs(skipDownload bool, cfg config.Config, nodeConfigs, proxyConfig
 		return err
 	}
 
-	err = configsFetcher.FetchNodeConfigs(nodeConfigs)
+	err = configsFetcher.FetchNodeConfigs(buildInfo, nodeConfigs)
 	if err != nil {
 		return err
 	}
 
-	return configsFetcher.FetchProxyConfigs(proxyConfigs)
+	return configsFetcher.FetchProxyConfigs(buildInfo, proxyConfigs)
 }
 
 func loadMainConfig(filepath string) (config.Config, error) {
