@@ -97,7 +97,7 @@ func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSave
 
 func extractTag(info *debug.BuildInfo, repo string) string {
 	for _, dep := range info.Deps {
-		actualPath := dep.Path
+		actualPath := dep.Path // This would be useful on main chain branch as well
 		if dep.Replace != nil {
 			actualPath = dep.Replace.Path
 		}
