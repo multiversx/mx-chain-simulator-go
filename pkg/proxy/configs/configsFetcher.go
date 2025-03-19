@@ -21,17 +21,15 @@ type fetcher struct {
 	mxChainNodeRepo string
 	mxChainProxy    string
 	isSovereign     bool
-	goModUrl        string
 }
 
 // NewConfigsFetcher will create a new instance of fetcher
-func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler, isSovereign bool, goModUrl string) (*fetcher, error) {
+func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler, isSovereign bool) (*fetcher, error) {
 	return &fetcher{
 		mxChainNodeRepo: mxChainNodeRepo,
 		mxChainProxy:    mxChainProxy,
 		gitFetcher:      git,
 		isSovereign:     isSovereign,
-		goModUrl:        goModUrl,
 	}, nil
 }
 

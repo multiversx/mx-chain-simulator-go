@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path"
+	"runtime/debug"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,6 @@ import (
 const (
 	mxNodeRepo  = "https://github.com/multiversx/mx-chain-go"
 	mxProxyRepo = "https://github.com/multiversx/mx-chain-proxy-go"
-	goModUrl    = "../../../go.mod"
 )
 
 var expectedErr = errors.New("expected error")
@@ -26,9 +26,16 @@ func TestConfigsFetcher(t *testing.T) {
 				require.Fail(t, "should have not been called")
 				return nil
 			},
-		}, false, goModUrl)
+		}, false)
 
-		err := cf.FetchProxyConfigs(t.TempDir()) // directory already exists
+		err := cf.FetchProxyConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.41",
+				},
+			},
+		}, t.TempDir()) // directory already exists
 		require.Nil(t, err)
 	})
 	t.Run("FetchProxyConfigs Clone error should error", func(t *testing.T) {
@@ -37,9 +44,16 @@ func TestConfigsFetcher(t *testing.T) {
 			CloneCalled: func(r, d string) error {
 				return expectedErr
 			},
-		}, false, goModUrl)
+		}, false)
 
-		err := cf.FetchProxyConfigs(dir)
+		err := cf.FetchProxyConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.41",
+				},
+			},
+		}, dir)
 		require.Equal(t, expectedErr, err)
 	})
 	t.Run("FetchProxyConfigs Checkout error should error", func(t *testing.T) {
@@ -48,9 +62,16 @@ func TestConfigsFetcher(t *testing.T) {
 			CheckoutCalled: func(repoDir string, commitHashOrBranch string) error {
 				return expectedErr
 			},
-		}, false, goModUrl)
+		}, false)
 
-		err := cf.FetchProxyConfigs(dir)
+		err := cf.FetchProxyConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.41",
+				},
+			},
+		}, dir)
 		require.Equal(t, expectedErr, err)
 	})
 	t.Run("FetchProxyConfigs errors while copying should error", func(t *testing.T) {
@@ -59,9 +80,20 @@ func TestConfigsFetcher(t *testing.T) {
 			CloneCalled: func(r, d string) error {
 				return nil
 			},
-		}, false, goModUrl)
+		}, false)
 
-		err := cf.FetchProxyConfigs(dir)
+		err := cf.FetchProxyConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-go",
+					Version: "v1.6.4-0.20231113110318-c71f3fc323f4",
+				},
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.41",
+				},
+			},
+		}, dir)
 		require.Error(t, err)
 	})
 	t.Run("FetchProxyConfigs should work", func(t *testing.T) {
@@ -73,9 +105,20 @@ func TestConfigsFetcher(t *testing.T) {
 
 				return nil
 			},
-		}, false, goModUrl)
+		}, false)
 
-		err := cf.FetchProxyConfigs(dir)
+		err := cf.FetchProxyConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-go",
+					Version: "v1.6.4-0.20231113110318-c71f3fc323f4",
+				},
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.41",
+				},
+			},
+		}, dir)
 		require.Nil(t, err)
 	})
 	t.Run("FetchNodeConfigs dir already exists should early exit", func(t *testing.T) {
@@ -84,9 +127,16 @@ func TestConfigsFetcher(t *testing.T) {
 				require.Fail(t, "should have not been called")
 				return nil
 			},
-		}, false, goModUrl)
+		}, false)
 
-		err := cf.FetchNodeConfigs(t.TempDir()) // directory already exists
+		err := cf.FetchNodeConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-go",
+					Version: "v1.6.4-0.20231113110318-c71f3fc323f4",
+				},
+			},
+		}, t.TempDir()) // directory already exists
 		require.Nil(t, err)
 	})
 	t.Run("FetchNodeConfigs should work", func(t *testing.T) {
@@ -98,9 +148,20 @@ func TestConfigsFetcher(t *testing.T) {
 
 				return nil
 			},
-		}, false, goModUrl)
+		}, false)
 
-		err := cf.FetchNodeConfigs(dir)
+		err := cf.FetchNodeConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-go",
+					Version: "v1.6.4-0.20231113110318-c71f3fc323f4",
+				},
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.41",
+				},
+			},
+		}, dir)
 		require.Nil(t, err)
 	})
 	t.Run("FetchNodeConfigs for sovereign should work", func(t *testing.T) {
@@ -114,9 +175,28 @@ func TestConfigsFetcher(t *testing.T) {
 
 				return nil
 			},
-		}, true, goModUrl)
+		}, true)
 
-		err := cf.FetchNodeConfigs(dir)
+		err := cf.FetchNodeConfigs(&debug.BuildInfo{
+			Deps: []*debug.Module{
+				{
+					Path:    "github.com/multiversx/mx-chain-go",
+					Version: "v1.8.10-0.20250206083958-e89ab5d17dc5",
+					Replace: &debug.Module{
+						Path:    "github.com/multiversx/mx-chain-sovereign-go",
+						Version: "v1.8.12-0.20250318110114-42de0b849f13",
+					},
+				},
+				{
+					Path:    "github.com/multiversx/mx-chain-proxy-go",
+					Version: "v1.1.58-0.20250131123034-f4bca654667d",
+					Replace: &debug.Module{
+						Path:    "github.com/multiversx/mx-chain-proxy-sovereign-go",
+						Version: "v1.0.0-sov",
+					},
+				},
+			},
+		}, dir)
 		require.Nil(t, err)
 	})
 }
