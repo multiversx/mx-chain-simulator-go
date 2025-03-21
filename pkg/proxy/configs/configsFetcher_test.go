@@ -182,10 +182,18 @@ func TestConfigsFetcher(t *testing.T) {
 				{
 					Path:    "github.com/multiversx/mx-chain-go",
 					Version: "v1.8.10-0.20250206083958-e89ab5d17dc5",
+					Replace: &debug.Module{
+						Path:    "github.com/multiversx/mx-chain-sovereign-go",
+						Version: "v1.8.12-0.20250318110114-42de0b849f13",
+					},
 				},
 				{
 					Path:    "github.com/multiversx/mx-chain-proxy-go",
 					Version: "v1.1.58-0.20250131123034-f4bca654667d",
+					Replace: &debug.Module{
+						Path:    "github.com/multiversx/mx-chain-proxy-sovereign-go",
+						Version: "v1.0.0-sov",
+					},
 				},
 			},
 		}, dir)

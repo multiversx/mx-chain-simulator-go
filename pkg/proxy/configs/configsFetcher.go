@@ -97,7 +97,11 @@ func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSave
 
 func extractTag(info *debug.BuildInfo, repo string) string {
 	for _, dep := range info.Deps {
-		if strings.Contains(repo, dep.Path) {
+		actualPath := dep.Path // This would be useful on main chain branch as well
+		if dep.Replace != nil {
+			actualPath = dep.Replace.Path
+		}
+		if strings.Contains(repo, actualPath) {
 			return extractVersionOrCommit(dep.Version)
 		}
 	}
@@ -106,7 +110,7 @@ func extractTag(info *debug.BuildInfo, repo string) string {
 }
 
 func extractVersionOrCommit(versionStr string) string {
-	if strings.Contains(versionStr, "-") {
+	if !strings.Contains(versionStr, "-sov") {
 		parts := strings.Split(versionStr, "-")
 		return parts[len(parts)-1]
 	}

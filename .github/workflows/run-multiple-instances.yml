@@ -17,21 +17,11 @@ jobs:
           go-version: 1.20.7
         id: go
 
-      - name: Checkout mx-chain-go
-        uses: actions/checkout@v4
-        with:
-          repository: 'multiversx/mx-chain-go'
-          ref: 'feat/chain-go-sdk'
-          path: 'mx-chain-go'
-
       - name: Checkout mx-chain-simulator-go
         uses: actions/checkout@v4
-        with:
-          path: 'mx-chain-simulator-go'
 
       - name: Get dependencies
         run: |
-          cd mx-chain-simulator-go
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -40,7 +30,7 @@ jobs:
 
       - name: Run multiple instances
         run: |
-          cd mx-chain-simulator-go/cmd/chainsimulator 
+          cd cmd/chainsimulator 
           go build
           ./chainsimulator --sovereign --fetch-configs-and-close
 

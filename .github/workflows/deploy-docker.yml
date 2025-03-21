@@ -4,31 +4,20 @@ on:
   release:
     types: [published]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        platform: [linux/amd64, linux/arm64]
+
     permissions:
       packages: write
       contents: read
       attestations: write
     steps:
-
-      - name: Checkout mx-chain-go
-        uses: actions/checkout@v4
-        with:
-          repository: 'multiversx/mx-chain-go'
-          ref: 'feat/chain-go-sdk'
-          path: 'mx-chain-go'
-
       - name: Check out the repo
         uses: actions/checkout@v4
-        with:
-          path: 'mx-chain-simulator-go'
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
@@ -38,7 +27,6 @@ jobs:
 
       - name: Get dependencies
         run: |
-          cd mx-chain-simulator-go
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -47,20 +35,18 @@ jobs:
 
       - name: Build and run chain simulator to fetch configs
         run: |
-          cd mx-chain-simulator-go/cmd/chainsimulator 
+          cd cmd/chainsimulator 
           go build
           ./chainsimulator --fetch-configs-and-close
 
-      # TODO: remove this when https://github.com/actions/runner-images/issues/11471 is fully resolved
       - name: Set up QEMU for ARM64
-        if: matrix.platform == 'linux/arm64'
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -78,9 +64,9 @@ jobs:
         with:
           context: .
           # We need to make sure that if we ever have to merge this branch in main, this needs to be changed
-          file: ./mx-chain-simulator-go/Dockerfile
-          platforms: ${{ matrix.platform }}
-          push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
