@@ -112,8 +112,9 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while loading the config file", err)
 	}
 
+	isSovereign := ctx.GlobalBool(sovereign.Name)
 	overrideConfigsHandler := config.NewOverrideConfigsHandler()
-	overrideFiles := determineOverrideConfigFiles(ctx)
+	overrideFiles := determineOverrideConfigFiles(ctx, isSovereign)
 	log.Info("using the override config files", "files", overrideFiles)
 	overrideCfg, err := overrideConfigsHandler.ReadAll(overrideFiles...)
 	if err != nil {
@@ -131,7 +132,6 @@ func startChainSimulator(ctx *cli.Context) error {
 	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
 	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
 	fetchConfigsAndCloseBool := ctx.GlobalBool(fetchConfigsAndClose.Name)
-	isSovereign := ctx.GlobalBool(sovereign.Name)
 	err = fetchConfigs(skipDownload, cfg, nodeConfigs, proxyConfigs, isSovereign)
 	if err != nil {
 		return fmt.Errorf("%w while fetching configs", err)
@@ -395,16 +395,27 @@ func loadMainConfig(filepath string) (config.Config, error) {
 	return cfg, err
 }
 
-func determineOverrideConfigFiles(ctx *cli.Context) []string {
+func determineOverrideConfigFiles(ctx *cli.Context, isSovereign bool) []string {
 	overrideFiles := strings.Split(ctx.GlobalString(nodeOverrideConfigurationFile.Name), overrideConfigFilesSeparator)
+
+	if isSovereign {
+		overrideFiles = orderAndAppendDefaultOverrideFileIfNeeded(overrideFiles, nodeOverrideSovereignDefaultFilename)
+	}
+	return orderAndAppendDefaultOverrideFileIfNeeded(overrideFiles, nodeOverrideDefaultFilename)
+}
+
+// this function will put the default node override file first
+func orderAndAppendDefaultOverrideFileIfNeeded(overrideFiles []string, nodeOverrideDefaultFilename string) []string {
+	files := make([]string, 0)
 
 	for _, filename := range overrideFiles {
 		if strings.Contains(filename, nodeOverrideDefaultFilename) {
-			return overrideFiles
+			continue
 		}
+		files = append(files, filename)
 	}
 
-	return append([]string{nodeOverrideDefaultPath}, overrideFiles...)
+	return append([]string{"./config/" + nodeOverrideDefaultFilename}, files...)
 }
 
 func removeANSIColorsForLoggerIfNeeded(disableAnsi bool) error {

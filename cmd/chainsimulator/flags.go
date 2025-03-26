@@ -10,7 +10,8 @@ import (
 )
 
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
-const nodeOverrideDefaultPath = "./config/" + nodeOverrideDefaultFilename
+const nodeOverrideSovereignDefaultFilename = "nodeOverrideSovereignDefault.toml"
+const nodeOverridePath = "./config/nodeOverride.toml"
 
 var (
 	configurationFile = cli.StringFlag{
@@ -22,7 +23,7 @@ var (
 		Name: "node-override-config",
 		Usage: "The node's override configuration file to load. Can define multiple files separated by comma. " +
 			"Example: ./config/override1.toml,./config/override2.toml and so on",
-		Value: nodeOverrideDefaultPath,
+		Value: nodeOverridePath,
 	}
 	logLevel = cli.StringFlag{
 		Name: "log-level",
