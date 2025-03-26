@@ -9,9 +9,10 @@ import (
 	"github.com/multiversx/mx-chain-simulator-go/config"
 )
 
+const configFolderPath = "./config/"
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
 const nodeOverrideSovereignDefaultFilename = "nodeOverrideSovereignDefault.toml"
-const nodeOverridePath = "./config/nodeOverride.toml"
+const nodeOverridePath = configFolderPath + "nodeOverride.toml"
 
 var (
 	configurationFile = cli.StringFlag{

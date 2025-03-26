@@ -419,7 +419,7 @@ func orderAndAppendDefaultOverrideFileIfNeeded(overrideFiles []string, nodeOverr
 		files = append(files, filename)
 	}
 
-	return append([]string{"./config/" + nodeOverrideDefaultFilename}, files...)
+	return append([]string{configFolderPath + nodeOverrideDefaultFilename}, files...)
 }
 
 func removeANSIColorsForLoggerIfNeeded(disableAnsi bool) error {
