@@ -395,6 +395,10 @@ func loadMainConfig(filepath string) (config.Config, error) {
 	return cfg, err
 }
 
+// This function will determine override config files and set the correct order
+// 1. default node override
+// 2. default sovereign node override (if flag is set)
+// 3. other node override files
 func determineOverrideConfigFiles(ctx *cli.Context, isSovereign bool) []string {
 	overrideFiles := strings.Split(ctx.GlobalString(nodeOverrideConfigurationFile.Name), overrideConfigFilesSeparator)
 
