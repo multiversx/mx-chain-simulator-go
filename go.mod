@@ -4,7 +4,7 @@ go 1.20
 
 replace (
 	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.0.0-sov
-	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250318110114-42de0b849f13
+	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250326080423-a765c1a45338
 	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.0.0-sov
 )
 
