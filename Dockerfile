@@ -21,10 +21,7 @@ RUN cp /go/pkg/mod/github.com/multiversx/$(cat /multiversx/go.sum | grep mx-chai
 
 FROM ubuntu:22.04
 ARG TARGETARCH
-
-RUN apt-get update \
-    && apt-get -y install git \
-    && apt-get clean
+RUN apt-get update && apt-get install -y git curl
 
 COPY --from=builder /multiversx/cmd/chainsimulator /multiversx
 
@@ -35,7 +32,6 @@ WORKDIR /multiversx
 # Copy architecture-specific files
 COPY --from=builder "/lib_${TARGETARCH}/*" "/lib/"
 
-RUN apt-get update && apt-get install -y curl
 CMD ["/bin/bash"]
 
 ENTRYPOINT ["./chainsimulator"]
