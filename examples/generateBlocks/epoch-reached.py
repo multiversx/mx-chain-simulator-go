@@ -9,7 +9,7 @@ NETWORK_STATUS_URL = "network/status/4294967295"
 
 def main():
     # create a network provider config to increase timeout
-    config = NetworkProviderConfig(requests_options={"timeout": 10})
+    config = NetworkProviderConfig(requests_options={"timeout": 20})
 
     # create a network provider
     provider = ProxyNetworkProvider(url=SIMULATOR_URL, config=config)
@@ -18,7 +18,7 @@ def main():
     # generate blocks until we reach the target epoch
     provider.do_post_generic(f"{GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL}/{target_epoch}", {})
 
-    network_status = provider.get_network_status()  # will default to metachain
+    network_status = provider.get_network_status() # will default to metachain
 
     epoch_number = network_status.raw.get("erd_epoch_number", 0)
     if epoch_number < target_epoch:

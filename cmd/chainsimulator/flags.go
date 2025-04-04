@@ -4,12 +4,15 @@ import (
 	"time"
 
 	logger "github.com/multiversx/mx-chain-logger-go"
-	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/urfave/cli"
+
+	"github.com/multiversx/mx-chain-simulator-go/config"
 )
 
+const configFolderPath = "./config/"
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
-const nodeOverrideDefaultPath = "./config/" + nodeOverrideDefaultFilename
+const nodeOverrideSovereignDefaultFilename = "nodeOverrideSovereignDefault.toml"
+const nodeOverridePath = configFolderPath + "nodeOverride.toml"
 
 var (
 	configurationFile = cli.StringFlag{
@@ -21,7 +24,7 @@ var (
 		Name: "node-override-config",
 		Usage: "The node's override configuration file to load. Can define multiple files separated by comma. " +
 			"Example: ./config/override1.toml,./config/override2.toml and so on",
-		Value: nodeOverrideDefaultPath,
+		Value: nodeOverridePath,
 	}
 	logLevel = cli.StringFlag{
 		Name: "log-level",
@@ -136,6 +139,10 @@ var (
 	fetchConfigsAndClose = cli.BoolFlag{
 		Name:  "fetch-configs-and-close",
 		Usage: "This flag is used to specify to fetch all configs and close the chain simulator after",
+	}
+	sovereign = cli.BoolFlag{
+		Name:  "sovereign",
+		Usage: "This flag is used to specify the chain simulator run type",
 	}
 )
 

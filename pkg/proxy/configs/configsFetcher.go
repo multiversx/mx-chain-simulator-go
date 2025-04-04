@@ -20,14 +20,16 @@ type fetcher struct {
 	gitFetcher      GitHandler
 	mxChainNodeRepo string
 	mxChainProxy    string
+	isSovereign     bool
 }
 
 // NewConfigsFetcher will create a new instance of fetcher
-func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler) (*fetcher, error) {
+func NewConfigsFetcher(mxChainNodeRepo, mxChainProxy string, git GitHandler, isSovereign bool) (*fetcher, error) {
 	return &fetcher{
 		mxChainNodeRepo: mxChainNodeRepo,
 		mxChainProxy:    mxChainProxy,
 		gitFetcher:      git,
+		isSovereign:     isSovereign,
 	}, nil
 }
 
@@ -81,12 +83,25 @@ func (f *fetcher) fetchConfigFolder(repo string, version string, pathWhereToSave
 		return err
 	}
 
+	// TODO MX-16540 refactor to use RunType components
+	if f.isSovereign && app == appNode {
+		pathToRepoConfigs = path.Join(pathToRepo, "cmd", "sovereignnode", "config")
+		err = copyFolderWithAllFiles(pathToRepoConfigs, strings.Replace(pathWhereToSaveConfig, "/node", "/sovereignnode", 1))
+		if err != nil {
+			return err
+		}
+	}
+
 	return os.RemoveAll(pathToRepo)
 }
 
 func extractTag(info *debug.BuildInfo, repo string) string {
 	for _, dep := range info.Deps {
-		if strings.Contains(repo, dep.Path) {
+		actualPath := dep.Path // This would be useful on main chain branch as well
+		if dep.Replace != nil {
+			actualPath = dep.Replace.Path
+		}
+		if strings.Contains(repo, actualPath) {
 			return extractVersionOrCommit(dep.Version)
 		}
 	}
@@ -95,7 +110,7 @@ func extractTag(info *debug.BuildInfo, repo string) string {
 }
 
 func extractVersionOrCommit(versionStr string) string {
-	if strings.Contains(versionStr, "-") {
+	if !strings.Contains(versionStr, "-sov") {
 		parts := strings.Split(versionStr, "-")
 		return parts[len(parts)-1]
 	}
