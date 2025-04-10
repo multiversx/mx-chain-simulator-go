@@ -416,8 +416,8 @@ github.com/multiversx/mx-chain-crypto-go v1.2.13-0.20250218161752-9482d9a22234 h
 github.com/multiversx/mx-chain-crypto-go v1.2.13-0.20250218161752-9482d9a22234/go.mod h1:QZAw2bZcOxGQRgYACTrmP8pfTa3NyxENIL+00G6nM5E=
 github.com/multiversx/mx-chain-es-indexer-go v1.7.17-0.20250218165903-7923d170f8f0 h1:+wyJShRImKPCvu5vanlnijHluQOgkh70ZTLnp5yQW1s=
 github.com/multiversx/mx-chain-es-indexer-go v1.7.17-0.20250218165903-7923d170f8f0/go.mod h1:3O1SPXBD/69tPsDyBLfkGQmKzAp1kfLXcDgyenTIvSQ=
-github.com/multiversx/mx-chain-go v1.8.13-0.20250324111325-8a584a8d9f25 h1:7xWvfzEDCTMJmuAW8ZNI4Ba8cYjPYYThWUicoVmBAwM=
-github.com/multiversx/mx-chain-go v1.8.13-0.20250324111325-8a584a8d9f25/go.mod h1:okQzvlZRSx7C2sowVw3AI0Je2pc/7bXK0pHYOuU3hbc=
+github.com/multiversx/mx-chain-go v1.8.13-0.20250410083249-01c8681103a1 h1:8DyWI8DYaTbzJaXonmuZcyjBYVHMelkBDib2mtQrHvE=
+github.com/multiversx/mx-chain-go v1.8.13-0.20250410083249-01c8681103a1/go.mod h1:okQzvlZRSx7C2sowVw3AI0Je2pc/7bXK0pHYOuU3hbc=
 github.com/multiversx/mx-chain-logger-go v1.0.16-0.20250218161408-6a0c19d0da48 h1:Of8RfTBNqJMvfWrDEpAkCAmNjYciM/Hul+yECQMBSHY=
 github.com/multiversx/mx-chain-logger-go v1.0.16-0.20250218161408-6a0c19d0da48/go.mod h1:PZMaAr6nhEWgOV04JKBwFNrws0gvHzHW0WaeqnBlGlc=
 github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250218180111-f31dc7e237ff h1:btx8hWHOO2cMWOA5f1imPrptVQ84Vng885YndbgAAyI=
