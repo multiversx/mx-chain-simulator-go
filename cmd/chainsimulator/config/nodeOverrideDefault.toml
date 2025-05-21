@@ -8,5 +8,6 @@ OverridableConfigTomlValues = [
     # the folowing 3 lines will disable the web antiflooding (useful to send a large transaction batch to the chain simulator)
     { File = "config.toml", Path = "WebServerAntiflood.WebServerAntifloodEnabled", Value = false},
     { File = "config.toml", Path = "WebServerAntiflood.SimultaneousRequests", Value = 100000},
-    { File = "config.toml", Path = "WebServerAntiflood.SameSourceRequests", Value = 1000000}
+    { File = "config.toml", Path = "WebServerAntiflood.SameSourceRequests", Value = 1000000},
+    { File = "enableEpochs.toml", Path = "EnableEpochs.StakingV2EnableEpoch", Value = 0}
 ]
