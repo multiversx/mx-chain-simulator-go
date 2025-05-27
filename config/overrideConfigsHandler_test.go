@@ -10,8 +10,6 @@ import (
 func TestNewOverrideConfigsHandler(t *testing.T) {
 	t.Parallel()
 
-	// test
-
 	handler := NewOverrideConfigsHandler()
 	assert.NotNil(t, handler)
 }
