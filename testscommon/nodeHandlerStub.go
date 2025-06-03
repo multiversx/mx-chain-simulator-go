@@ -27,7 +27,6 @@ func (n *NodeHandlerStub) GetBasePeers() map[uint32]core.PeerID {
 
 // SetBasePeers -
 func (n *NodeHandlerStub) SetBasePeers(_ map[uint32]core.PeerID) {
-	return
 }
 
 // GetProcessComponents -
