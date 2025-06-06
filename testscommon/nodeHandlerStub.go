@@ -1,6 +1,7 @@
 package testscommon
 
 import (
+	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/data"
 	"github.com/multiversx/mx-chain-go/api/shared"
 	"github.com/multiversx/mx-chain-go/consensus"
@@ -15,6 +16,20 @@ type NodeHandlerStub struct {
 	GetProcessComponentsCalled        func() factory.ProcessComponentsHolder
 	GetRunTypeComponentsCalled        func() factory.RunTypeComponentsHolder
 	GetIncomingHeaderSubscriberCalled func() process.IncomingHeaderSubscriber
+}
+
+// GetNetworkComponents -
+func (n *NodeHandlerStub) GetNetworkComponents() factory.NetworkComponentsHolder {
+	return nil
+}
+
+// GetBasePeers -
+func (n *NodeHandlerStub) GetBasePeers() map[uint32]core.PeerID {
+	return nil
+}
+
+// SetBasePeers -
+func (n *NodeHandlerStub) SetBasePeers(_ map[uint32]core.PeerID) {
 }
 
 // GetProcessComponents -
