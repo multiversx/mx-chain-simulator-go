@@ -1,21 +1,23 @@
 module github.com/multiversx/mx-chain-simulator-go
 
-go 1.23
+go 1.23.0
 
 replace (
-	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.0.0-sov
-	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250326080423-a765c1a45338
+	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.2.25-0.20250521135959-7db9d641a703
+	github.com/multiversx/mx-chain-es-indexer-go => github.com/multiversx/mx-chain-es-indexer-sovereign-go v1.7.17-0.20250521130800-2613933f0b30
+	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250606115620-76ccb2b6c05f
 	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.0.0-sov
+	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250521130706-591665a418d7
 )
 
 require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.10.0
-github.com/multiversx/mx-chain-core-go v1.3.2-0.20250520074139-18b645ad397a
+	github.com/multiversx/mx-chain-core-go v1.3.2-0.20250520074139-18b645ad397a
 	github.com/multiversx/mx-chain-go v1.9.7-0.20250605091440-23c5647868e9
 	github.com/multiversx/mx-chain-logger-go v1.0.16-0.20250520074859-b2faf3c90273
 	github.com/multiversx/mx-chain-proxy-go v1.2.2-0.20250603125545-8f1ce162ad17
-	github.com/pelletier/go-toml v1.9.3
+	github.com/pelletier/go-toml v1.9.5
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli v1.22.16
 )
@@ -26,8 +28,8 @@ require (
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
-	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
-	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
+	github.com/btcsuite/btcd/btcutil v1.1.6 // indirect
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -60,7 +62,7 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/google/gops v0.3.18 // indirect
@@ -128,6 +130,7 @@ require (
 	github.com/multiversx/mx-chain-crypto-go v1.2.13-0.20250520075055-8ab2a164945d // indirect
 	github.com/multiversx/mx-chain-es-indexer-go v1.8.2-0.20250520083544-09915e4d9bae // indirect
 	github.com/multiversx/mx-chain-scenario-go v1.5.1-0.20250520075713-734e46b4c66d // indirect
+	github.com/multiversx/mx-chain-sovereign-bridge-go v0.0.0-20250415123521-f8e74872db10 // indirect
 	github.com/multiversx/mx-chain-storage-go v1.0.20-0.20250520075958-65fd4c7bcaae // indirect
 	github.com/multiversx/mx-chain-vm-common-go v1.5.17-0.20250520075408-c94bee9ee163 // indirect
 	github.com/multiversx/mx-chain-vm-go v1.5.41-0.20250520080530-2838146363b4 // indirect
@@ -135,6 +138,7 @@ require (
 	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.70-0.20250520081414-edf8b75e054d // indirect
 	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.99-0.20250520081749-516b5ae0e49c // indirect
 	github.com/multiversx/mx-components-big-int v1.0.1-0.20250218162530-b4e4d7442408 // indirect
+	github.com/multiversx/mx-sdk-abi-go v0.3.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/onsi/ginkgo/v2 v2.22.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
@@ -195,18 +199,18 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/crypto v0.32.0 // indirect
+	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/exp v0.0.0-20250128182459-e0ece0dbea4c // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/net v0.40.0 // indirect
+	golang.org/x/sync v0.14.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
 	gonum.org/v1/gonum v0.15.1 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
-	google.golang.org/grpc v1.60.1 // indirect
-	google.golang.org/protobuf v1.36.4 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a // indirect
+	google.golang.org/grpc v1.72.1 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.3.0 // indirect
