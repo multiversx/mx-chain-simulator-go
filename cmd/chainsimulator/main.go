@@ -190,6 +190,13 @@ func startChainSimulator(ctx *cli.Context) error {
 			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
 		},
 		VmQueryDelayAfterStartInMs: 0,
+		FetchStateConfig: chainSimulator.FetchStateFromProvidedChainConfig{
+			Enabled:    cfg.Config.FetchState.Enabled,
+			FetchNonce: true,
+			FetchRound: true,
+			FetchEpoch: true,
+			GatewayURL: cfg.Config.FetchState.GatewayUrl,
+		},
 	}
 	simulator, err := chainSimulator.NewChainSimulator(argsChainSimulator)
 	if err != nil {
