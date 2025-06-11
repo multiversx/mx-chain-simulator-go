@@ -30,5 +30,5 @@
         block-time-in-milliseconds = 6000
 
     [config.fetch-state]
-        enabled = true
+        enabled = false
         gateway-url = "https://gateway.multiversx.com"
