@@ -4,7 +4,7 @@ go 1.20
 
 replace (
 	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.2.25-0.20250408132734-79aa4c1dd15e
-	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250714114028-856d250b11a8
+	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250714123017-79604972c03b
 	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.0.0-sov
 )
 
@@ -12,7 +12,7 @@ require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.10.0
 	github.com/multiversx/mx-chain-core-go v1.2.25-0.20250206111825-25fbb1b4851c
-	github.com/multiversx/mx-chain-go v1.8.12-0.20250220074747-7b618ffe4673
+	github.com/multiversx/mx-chain-go v0.0.0-00010101000000-000000000000
 	github.com/multiversx/mx-chain-logger-go v1.0.15
 	github.com/multiversx/mx-chain-proxy-go v1.1.58-0.20250214101907-bdc187471f3c
 	github.com/pelletier/go-toml v1.9.3
@@ -127,7 +127,7 @@ require (
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
 	github.com/multiversx/mx-chain-communication-go v1.1.1 // indirect
 	github.com/multiversx/mx-chain-crypto-go v1.2.12 // indirect
-	github.com/multiversx/mx-chain-es-indexer-go v1.7.17-0.20250217145507-ddd47d85cfcd // indirect
+	github.com/multiversx/mx-chain-es-indexer-go v1.7.15-0.20250212123658-7268376e3d61 // indirect
 	github.com/multiversx/mx-chain-scenario-go v1.4.4 // indirect
 	github.com/multiversx/mx-chain-storage-go v1.0.19 // indirect
 	github.com/multiversx/mx-chain-vm-common-go v1.5.17-0.20241119132002-2fa80c5ec516 // indirect
@@ -137,8 +137,7 @@ require (
 	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.98 // indirect
 	github.com/multiversx/mx-components-big-int v1.0.0 // indirect
 	github.com/multiversx/mx-sdk-abi-go v0.3.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.11.0 // indirect
-	github.com/onsi/gomega v1.27.10 // indirect
+	github.com/onsi/ginkgo/v2 v2.9.7 // indirect
 	github.com/opencontainers/runtime-spec v1.0.2 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
@@ -156,7 +155,6 @@ require (
 	github.com/quic-go/quic-go v0.33.0 // indirect
 	github.com/quic-go/webtransport-go v0.5.3 // indirect
 	github.com/raulk/go-watchdog v1.3.0 // indirect
-	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
