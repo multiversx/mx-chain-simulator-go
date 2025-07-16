@@ -3,19 +3,19 @@ module github.com/multiversx/mx-chain-simulator-go
 go 1.23.0
 
 replace (
-	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.2.25-0.20250521135959-7db9d641a703
-	github.com/multiversx/mx-chain-es-indexer-go => github.com/multiversx/mx-chain-es-indexer-sovereign-go v1.7.17-0.20250610105538-c2d0e40a2887
-	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250610095905-b4969e22b1bc
-	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.1.58-0.20250610110607-dcf427f30fed
-	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250610105414-e0ea5a20c81d
+	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.2.25-0.20250715130233-f0b1f811a63c
+	github.com/multiversx/mx-chain-es-indexer-go => github.com/multiversx/mx-chain-es-indexer-sovereign-go v1.7.17-0.20250715151725-0c18a314d0ea
+	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250716095214-7c3d66d076d7
+	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.1.58-0.20250716093926-7dbe0199061e
+	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250715144941-88820f3a7c28
 )
 
 require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.10.0
-	github.com/multiversx/mx-chain-core-go v1.3.2-0.20250520074139-18b645ad397a
+	github.com/multiversx/mx-chain-core-go v1.4.0
 	github.com/multiversx/mx-chain-go v1.9.7-0.20250605091440-23c5647868e9
-	github.com/multiversx/mx-chain-logger-go v1.0.16-0.20250520074859-b2faf3c90273
+	github.com/multiversx/mx-chain-logger-go v1.1.0
 	github.com/multiversx/mx-chain-proxy-go v1.2.2-0.20250603125545-8f1ce162ad17
 	github.com/pelletier/go-toml v1.9.5
 	github.com/stretchr/testify v1.10.0
@@ -126,18 +126,18 @@ require (
 	github.com/multiformats/go-multistream v0.6.0 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
-	github.com/multiversx/mx-chain-communication-go v1.2.1-0.20250520083403-3f2bad6d5476 // indirect
-	github.com/multiversx/mx-chain-crypto-go v1.2.13-0.20250520075055-8ab2a164945d // indirect
-	github.com/multiversx/mx-chain-es-indexer-go v1.8.2-0.20250520083544-09915e4d9bae // indirect
-	github.com/multiversx/mx-chain-scenario-go v1.5.1-0.20250520075713-734e46b4c66d // indirect
-	github.com/multiversx/mx-chain-sovereign-bridge-go v0.0.0-20250415123521-f8e74872db10 // indirect
-	github.com/multiversx/mx-chain-storage-go v1.0.20-0.20250520075958-65fd4c7bcaae // indirect
-	github.com/multiversx/mx-chain-vm-common-go v1.5.17-0.20250520075408-c94bee9ee163 // indirect
-	github.com/multiversx/mx-chain-vm-go v1.5.41-0.20250520080530-2838146363b4 // indirect
-	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.69-0.20250520080927-410c413d962f // indirect
-	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.70-0.20250520081414-edf8b75e054d // indirect
-	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.99-0.20250520081749-516b5ae0e49c // indirect
-	github.com/multiversx/mx-components-big-int v1.0.1-0.20250218162530-b4e4d7442408 // indirect
+	github.com/multiversx/mx-chain-communication-go v1.3.0 // indirect
+	github.com/multiversx/mx-chain-crypto-go v1.3.0 // indirect
+	github.com/multiversx/mx-chain-es-indexer-go v1.9.1 // indirect
+	github.com/multiversx/mx-chain-scenario-go v1.6.0 // indirect
+	github.com/multiversx/mx-chain-sovereign-bridge-go v0.0.0-20250610105734-30b3338debcf // indirect
+	github.com/multiversx/mx-chain-storage-go v1.1.0 // indirect
+	github.com/multiversx/mx-chain-vm-common-go v1.6.0 // indirect
+	github.com/multiversx/mx-chain-vm-go v1.5.43 // indirect
+	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.69 // indirect
+	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.70 // indirect
+	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.99 // indirect
+	github.com/multiversx/mx-components-big-int v1.1.0 // indirect
 	github.com/multiversx/mx-sdk-abi-go v0.3.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/onsi/ginkgo/v2 v2.22.0 // indirect
