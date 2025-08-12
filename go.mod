@@ -2,8 +2,6 @@ module github.com/multiversx/mx-chain-simulator-go
 
 go 1.23
 
-toolchain go1.23.10
-
 require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.10.0
