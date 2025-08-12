@@ -32,6 +32,7 @@ import (
 
 const timeToAllowProxyToStart = time.Millisecond * 10
 const overrideConfigFilesSeparator = ","
+const tempDirPattern = "mx-chainsimulator-*"
 
 var (
 	log          = logger.GetOrCreate("chainsimulator")
@@ -164,7 +165,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	apiConfigurator := api.NewFreePortAPIConfigurator(localRestApiInterface)
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 
-	tempDir, err := os.MkdirTemp(os.TempDir(), "")
+	tempDir, err := os.MkdirTemp(os.TempDir(), tempDirPattern)
 	if err != nil {
 		return err
 	}
