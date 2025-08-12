@@ -28,3 +28,7 @@
         auto-generate-blocks = false
         # block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
         block-time-in-milliseconds = 6000
+
+    [config.fetch-state]
+        enabled = false
+        gateway-url = "https://gateway.multiversx.com"

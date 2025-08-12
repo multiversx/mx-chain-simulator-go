@@ -23,6 +23,10 @@ type Config struct {
 			LogsPath             string `toml:"logs-path"`
 		} `toml:"logs"`
 		BlocksGenerator BlocksGeneratorConfig `toml:"blocks-generator"`
+		FetchState      struct {
+			Enabled    bool   `toml:"enabled"`
+			GatewayUrl string `toml:"gateway-url"`
+		} `toml:"fetch-state"`
 	} `toml:"config"`
 }
 
