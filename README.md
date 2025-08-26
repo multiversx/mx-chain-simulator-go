@@ -430,7 +430,7 @@ Using the `cmd/chainsimulator` package as root, execute the following commands:
 - install go dependencies: `go install`
 - build executable: `go build -o chainsimulator`
 
-Note: go version 1.20.* should be used to build the executable. Using version 1.21.* leads to build failures currently.
+Note: go version 1.23.* should be used to build the executable.
 
 
 ## Launching the chainsimulator
