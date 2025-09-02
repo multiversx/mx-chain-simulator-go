@@ -12,13 +12,18 @@ jobs:
     name: Examples
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: Checkout mx-chain-simulator-go
+        uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
           pip3 install -r examples/requirements.txt
           pip3 install pytest
+
       - name: Run examples
         run: |
           make run-examples
+
+      - name: Run examples - sovereign
+        run: |
+          make run-examples SIMULATOR_TYPE=--sovereign

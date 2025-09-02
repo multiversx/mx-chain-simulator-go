@@ -2,7 +2,7 @@
 
 ## Overview
 
-`mx-chain-simulator-go` is a binary that provides all the [mx-chain-proxy-go](https://github.com/multiversx/mx-chain-proxy-go) endpoints 
+`mx-chain-simulator-go` is a binary that provides all the [mx-chain-proxy-sovereign-go](https://github.com/multiversx/mx-chain-proxy-sovereign-go) endpoints 
 and includes additional endpoints for specific operations. 
 
 This simulator is designed to replicate the behavior of a local testnet. Unlike a traditional testnet,
@@ -14,14 +14,14 @@ Blocks are promptly generated through a dedicated endpoint whenever users initia
 
 ## Features
 
-- Implements all `mx-chain-proxy-go` endpoints.
+- Implements all `mx-chain-proxy-sovereign-go` endpoints.
 - Extra endpoints for specific operations.
 - Simulates the behavior of a local testnet without a consensus group.
 
 
 ## API Documentation
 
-`mx-chain-simulator-go` includes all the [proxy endpoints](https://github.com/multiversx/mx-chain-proxy-go#rest-api-endpoints)
+`mx-chain-simulator-go` includes all the [proxy endpoints](https://github.com/multiversx/mx-chain-proxy-sovereign-go#rest-api-endpoints)
 
 
 ### Additionally, the simulator offers custom endpoints:
@@ -423,7 +423,6 @@ Before proceeding, ensure you have the following prerequisites:
 - Go programming environment set up.
 - Git installed.
 
-
 ## Install
 
 Using the `cmd/chainsimulator` package as root, execute the following commands:
@@ -431,7 +430,7 @@ Using the `cmd/chainsimulator` package as root, execute the following commands:
 - install go dependencies: `go install`
 - build executable: `go build -o chainsimulator`
 
-Note: go version 1.20.* should be used to build the executable. Using version 1.21.* leads to build failures currently.
+Note: go version 1.23.* should be used to build the executable.
 
 
 ## Launching the chainsimulator
@@ -452,9 +451,9 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         # server-port paramter specifies the port of the http server that the proxy component will respond on
         server-port = 8085
         # num-of-shards parameter specifies the number of shard that chain simulator will simulate
-        num-of-shards = 3
+        num-of-shards = 1
         # round-duration-in-milliseconds parameter specifies the duration of a simulated round. The timestamp between two headers will correspond to the round duration but will not reflect real-time
-        round-duration-in-milliseconds = 6000
+        round-duration-in-milliseconds = 1000
         # rounds-per-epoch specifies the number of rounds per epoch
         rounds-per-epoch = 20
         # initial-round specifies with what round the chain simulator will start
@@ -464,9 +463,9 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         # initial-epoch specifies with what epoch the chain simulator will start
         initial-epoch = 0
         # mx-chain-go-repo will be used to fetch the node configs folder
-        mx-chain-go-repo = "https://github.com/multiversx/mx-chain-go"
+        mx-chain-go-repo = "https://github.com/multiversx/mx-chain-sovereign-go"
         # mx-chain-proxy-go-repo will be used to fetch the proxy configs folder
-        mx-chain-proxy-go-repo = "https://github.com/multiversx/mx-chain-proxy-go"
+        mx-chain-proxy-go-repo = "https://github.com/multiversx/mx-chain-proxy-sovereign-go"
     [config.logs]
         log-file-life-span-in-mb = 1024 # 1GB
         log-file-life-span-in-sec = 432000 # 5 days
@@ -476,7 +475,7 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         # auto-generate-blocks specifies if the chain simulator should auto generate blocks
         auto-generate-blocks = false
         # block-time-in-milliseconds specifies the time between blocks generation in case auto-generate-blocks is enabled
-        block-time-in-milliseconds = 6000
+        block-time-in-milliseconds = 1000
 ```
 
 There is also an optional configuration file called `nodeOverride.toml` that can be used to alter specific configuration options 
@@ -512,7 +511,6 @@ The URL for the proxy is printed in the logs in a line that looks like:
 INFO [2024-04-18 10:48:47.231]   chain simulator's is accessible through the URL localhost:38099 
 ```
 
-
 ### Build docker image
 ```
 DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
@@ -521,6 +519,11 @@ DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
 ### Run with docker
 ```
 docker run -p 8085:8085 chainsimulator:latest --log-level *:DEBUG
+```
+
+### Run with Sovereign docker
+```
+docker run -p 8085:8085 chainsimulator:latest --sovereign --log-level *:DEBUG
 ```
 
 ### Enable `HostDriver`
