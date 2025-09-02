@@ -428,8 +428,8 @@ github.com/multiversx/mx-chain-scenario-go v1.6.0 h1:cwDFuS1pSc4YXnfiKKDTEb+QDY4
 github.com/multiversx/mx-chain-scenario-go v1.6.0/go.mod h1:GrSYu1SnMvsIm9djUz1X13224HcvdY6Nb5KHNT3xZPA=
 github.com/multiversx/mx-chain-sovereign-bridge-go v0.0.0-20250610105734-30b3338debcf h1:fv+vBuv7fhyDaxkY2q0scq0WWAPBCt9bgvNjStbNl4w=
 github.com/multiversx/mx-chain-sovereign-bridge-go v0.0.0-20250610105734-30b3338debcf/go.mod h1:1B4Be7y8OVK8cn3h/7nX5Q15QoGlqUEaL3UZJuhv16o=
-github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250902073427-39d148ccab39 h1:mE1O18QAIW3XmayBvUX930sNHCZJLEUIvEJJr+q+GKI=
-github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250902073427-39d148ccab39/go.mod h1:pIoNx1xLp51n2E3OXfEZBalrBwH9LkfDxxxhe2iaq7M=
+github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250902111041-98f93022d01b h1:25QW+t3V3HLy+plNKVYFJGJhppLt29kAI5T1pd2OA/o=
+github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250902111041-98f93022d01b/go.mod h1:pIoNx1xLp51n2E3OXfEZBalrBwH9LkfDxxxhe2iaq7M=
 github.com/multiversx/mx-chain-storage-go v1.1.0 h1:M1Y9DqMrJ62s7Zw31+cyuqsnPIvlG4jLBJl5WzeZLe8=
 github.com/multiversx/mx-chain-storage-go v1.1.0/go.mod h1:o6Jm7cjfPmcc6XpyihYWrd6sx3sgqwurrunw3ZrfyxI=
 github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250715144941-88820f3a7c28 h1:TcDsgc3ZP4l/hAgBetvu7sq5o58QWbJmohbtfVHpUb8=
