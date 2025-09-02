@@ -5,7 +5,7 @@ go 1.23.0
 replace (
 	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.2.25-0.20250826110830-4f6320d31d06
 	github.com/multiversx/mx-chain-es-indexer-go => github.com/multiversx/mx-chain-es-indexer-sovereign-go v1.7.17-0.20250715151725-0c18a314d0ea
-	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250901081228-048939ad0045
+	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250902073427-39d148ccab39
 	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.1.58-0.20250716093926-7dbe0199061e
 	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250715144941-88820f3a7c28
 )
