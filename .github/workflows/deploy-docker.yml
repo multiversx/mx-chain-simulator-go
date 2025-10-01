@@ -22,7 +22,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
         with:
-          go-version: 1.20.7
+          go-version: 1.23.6
         id: go
 
       - name: Get dependencies
@@ -52,20 +52,44 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata (tags, labels) for released releases
+        if: ${{ github.event.release.prerelease == false }}
+        id: meta_released
         uses: docker/metadata-action@v5
         with:
           images: multiversx/chainsimulator
 
-      - name: Build and push Docker image
-        id: push
+      - name: Extract metadata (tags, labels) for prereleased releases
+        if: ${{ github.event.release.prerelease == true }}
+        id: meta_prereleased
+        uses: docker/metadata-action@v5
+        with:
+          images: multiversx/chainsimulator
+          tags: |
+            type=raw,value=${{ github.event.release.tag_name }}
+          labels: |
+            type=raw,value=${{ github.event.release.name }}
+
+      - name: Build and push Docker image for released
+        if: ${{ github.event.release.prerelease == false }}
+        id: push_released
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+          tags: ${{ steps.meta_released.outputs.tags }}
+          labels: ${{ steps.meta_released.outputs.labels }}
 
+      - name: Build and push Docker image for prereleased
+        if: ${{ github.event.release.prerelease == true }}
+        id: push_prereleased
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+          tags: ${{ steps.meta_prereleased.outputs.tags }}
+          labels: ${{ steps.meta_prereleased.outputs.labels }}
