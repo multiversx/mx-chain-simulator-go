@@ -66,6 +66,11 @@ var (
 		Usage: "The number of rounds per epoch",
 		Value: 20,
 	}
+	supernovaRoundsPerEpoch = cli.IntFlag{
+		Name:  "supernova-rounds-per-epoch",
+		Usage: "The number of rounds per epoch after supernova",
+		Value: 200,
+	}
 	numOfShards = cli.IntFlag{
 		Name:  "num-of-shards",
 		Usage: "The number of shards",
@@ -80,6 +85,11 @@ var (
 		Name:  "round-duration",
 		Usage: "The round duration in milliseconds",
 		Value: 6000,
+	}
+	supernovaRoundDurationInMs = cli.IntFlag{
+		Name:  "supernova-round-duration",
+		Usage: "The round duration in milliseconds after supernova",
+		Value: 600,
 	}
 	bypassTransactionsSignature = cli.BoolTFlag{
 		Name:  "bypass-txs-signature",
@@ -144,6 +154,10 @@ func applyFlags(ctx *cli.Context, cfg *config.Config) {
 		cfg.Config.Simulator.RoundsPerEpoch = ctx.GlobalInt(roundsPerEpoch.Name)
 	}
 
+	if ctx.IsSet(supernovaRoundsPerEpoch.Name) {
+		cfg.Config.Simulator.SupernovaRoundsPerEpoch = ctx.GlobalInt(supernovaRoundsPerEpoch.Name)
+	}
+
 	if ctx.IsSet(numOfShards.Name) {
 		cfg.Config.Simulator.NumOfShards = ctx.GlobalInt(numOfShards.Name)
 	}
@@ -154,6 +168,10 @@ func applyFlags(ctx *cli.Context, cfg *config.Config) {
 
 	if ctx.IsSet(roundDurationInMs.Name) {
 		cfg.Config.Simulator.RoundDurationInMs = ctx.GlobalInt(roundDurationInMs.Name)
+	}
+
+	if ctx.IsSet(supernovaRoundDurationInMs.Name) {
+		cfg.Config.Simulator.SupernovaRoundDurationInMs = ctx.GlobalInt(supernovaRoundDurationInMs.Name)
 	}
 
 	if ctx.IsSet(initialRound.Name) {

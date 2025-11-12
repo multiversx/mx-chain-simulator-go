@@ -68,9 +68,11 @@ func main() {
 		pathToProxyConfigs,
 		startTime,
 		roundsPerEpoch,
+		supernovaRoundsPerEpoch,
 		numOfShards,
 		serverPort,
 		roundDurationInMs,
+		supernovaRoundDurationInMs,
 		bypassTransactionsSignature,
 		numValidatorsPerShard,
 		numWaitingValidatorsPerShard,
@@ -138,9 +140,14 @@ func startChainSimulator(ctx *cli.Context) error {
 	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
 	log.Warn("signature", "bypass", bypassTxsSignature)
 	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
+	supernovaRoundDurationInMillis := uint64(cfg.Config.Simulator.SupernovaRoundDurationInMs)
 	rounds := core.OptionalUint64{
 		HasValue: true,
 		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
+	}
+	supernovaRounds := core.OptionalUint64{
+		HasValue: true,
+		Value:    uint64(cfg.Config.Simulator.SupernovaRoundsPerEpoch),
 	}
 
 	numValidatorsShard := ctx.GlobalInt(numValidatorsPerShard.Name)
@@ -172,21 +179,23 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
-		BypassTxSignatureCheck:   bypassTxsSignature,
-		TempDir:                  tempDir,
-		PathToInitialConfig:      nodeConfigs,
-		NumOfShards:              uint32(cfg.Config.Simulator.NumOfShards),
-		GenesisTimestamp:         startTimeUnix,
-		RoundDurationInMillis:    roundDurationInMillis,
-		RoundsPerEpoch:           rounds,
-		ApiInterface:             apiConfigurator,
-		MinNodesPerShard:         uint32(numValidatorsShard),
-		NumNodesWaitingListShard: uint32(numWaitingValidatorsShard),
-		MetaChainMinNodes:        uint32(numValidatorsMetaShard),
-		NumNodesWaitingListMeta:  uint32(numWaitingValidatorsMetaShard),
-		InitialRound:             cfg.Config.Simulator.InitialRound,
-		InitialNonce:             cfg.Config.Simulator.InitialNonce,
-		InitialEpoch:             cfg.Config.Simulator.InitialEpoch,
+		BypassTxSignatureCheck:         bypassTxsSignature,
+		TempDir:                        tempDir,
+		PathToInitialConfig:            nodeConfigs,
+		NumOfShards:                    uint32(cfg.Config.Simulator.NumOfShards),
+		GenesisTimestamp:               startTimeUnix,
+		RoundDurationInMillis:          roundDurationInMillis,
+		SupernovaRoundDurationInMillis: supernovaRoundDurationInMillis,
+		RoundsPerEpoch:                 rounds,
+		SupernovaRoundsPerEpoch:        supernovaRounds,
+		ApiInterface:                   apiConfigurator,
+		MinNodesPerShard:               uint32(numValidatorsShard),
+		NumNodesWaitingListShard:       uint32(numWaitingValidatorsShard),
+		MetaChainMinNodes:              uint32(numValidatorsMetaShard),
+		NumNodesWaitingListMeta:        uint32(numWaitingValidatorsMetaShard),
+		InitialRound:                   cfg.Config.Simulator.InitialRound,
+		InitialNonce:                   cfg.Config.Simulator.InitialNonce,
+		InitialEpoch:                   cfg.Config.Simulator.InitialEpoch,
 		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
 			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
 		},
