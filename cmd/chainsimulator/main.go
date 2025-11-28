@@ -3,14 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"runtime/pprof"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/core/closing"
@@ -170,6 +173,35 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	pathLogsSave := ctx.GlobalString(pathWhereToSaveLogs.Name)
+	timestampMilisecond := time.Unix(startTimeUnix, 0).UnixNano() / 1000000
+	cpuprofile1 := fmt.Sprintf("%s/cpu-%d.pprof", pathLogsSave, timestampMilisecond)
+	f, err := os.Create(cpuprofile1)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "could not create CPU profile: %v\n", err)
+		panic(err)
+	}
+	if err := pprof.StartCPUProfile(f); err != nil {
+		fmt.Fprintf(os.Stderr, "could not start CPU profile: %v\n", err)
+		panic(err)
+	}
+
+	log.Info("starting CPU profile")
+
+	// Start a background goroutine to periodically sync the pprof file
+	// This ensures we have data even if the process is killed abruptly
+	// Ensure pprof is stopped and file is synced/closed even on early exits
+	defer func() {
+		log.Info("stopping CPU profile (defer)")
+		pprof.StopCPUProfile()
+		if err := f.Sync(); err != nil {
+			log.Error("error syncing CPU profile file (defer)", "err", err)
+		}
+		if err := f.Close(); err != nil {
+			log.Error("error closing CPU profile file (defer)", "err", err)
+		}
+	}()
+
 	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
 		BypassTxSignatureCheck:   bypassTxsSignature,
@@ -261,7 +293,28 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	err = endpointsProc.ExtendProxyServer(proxyInstance.GetHttpServer())
+	// Create a channel for programmatic shutdown
+	shutdownChan := make(chan struct{})
+
+	// Add a shutdown endpoint before extending the proxy server
+	httpServer := proxyInstance.GetHttpServer()
+	ginEngine, ok := httpServer.Handler.(*gin.Engine)
+	if !ok {
+		return fmt.Errorf("cannot cast httpServer.Handler to gin.Engine")
+	}
+
+	ginEngine.POST("/simulator/shutdown", func(c *gin.Context) {
+		log.Info("shutdown requested via HTTP endpoint")
+		c.JSON(http.StatusOK, gin.H{"message": "shutdown initiated"})
+
+		// Trigger shutdown in a goroutine to allow the response to be sent
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			close(shutdownChan)
+		}()
+	})
+
+	err = endpointsProc.ExtendProxyServer(httpServer)
 	if err != nil {
 		return err
 	}
@@ -273,9 +326,29 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
-	<-interrupt
 
-	log.Info("close")
+	// Wait for either signal or programmatic shutdown
+	select {
+	case sig := <-interrupt:
+		log.Info("close", "signal", sig)
+	case <-shutdownChan:
+		log.Info("close", "trigger", "HTTP shutdown endpoint")
+	}
+
+	// Stop CPU profiling FIRST and flush to disk
+	log.Info("stopping CPU profile")
+	pprof.StopCPUProfile()
+
+	// CRITICAL: Sync forces buffered data to be written to disk
+	if err := f.Sync(); err != nil {
+		log.Error("error syncing CPU profile file", "err", err)
+	}
+
+	if err := f.Close(); err != nil {
+		log.Error("error closing CPU profile file", "err", err)
+	} else {
+		log.Info("CPU profile file closed successfully")
+	}
 
 	generator.Close()
 
