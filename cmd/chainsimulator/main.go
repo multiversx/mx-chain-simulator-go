@@ -87,6 +87,7 @@ func main() {
 		skipConfigsDownload,
 		fetchConfigsAndClose,
 		pathWhereToSaveLogs,
+		profileMode,
 	}
 
 	app.Authors = []cli.Author{
@@ -173,34 +174,22 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	pathLogsSave := ctx.GlobalString(pathWhereToSaveLogs.Name)
-	timestampMilisecond := time.Unix(startTimeUnix, 0).UnixNano() / 1000000
-	cpuprofile1 := fmt.Sprintf("%s/cpu-%d.pprof", pathLogsSave, timestampMilisecond)
-	f, err := os.Create(cpuprofile1)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "could not create CPU profile: %v\n", err)
-		panic(err)
-	}
-	if err := pprof.StartCPUProfile(f); err != nil {
-		fmt.Fprintf(os.Stderr, "could not start CPU profile: %v\n", err)
-		panic(err)
-	}
-
-	log.Info("starting CPU profile")
-
-	// Start a background goroutine to periodically sync the pprof file
-	// This ensures we have data even if the process is killed abruptly
-	// Ensure pprof is stopped and file is synced/closed even on early exits
-	defer func() {
-		log.Info("stopping CPU profile (defer)")
-		pprof.StopCPUProfile()
-		if err := f.Sync(); err != nil {
-			log.Error("error syncing CPU profile file (defer)", "err", err)
+	// CPU profiling setup - only if profile-mode flag is set
+	var profileFile *os.File
+	enableProfiling := ctx.GlobalBool(profileMode.Name)
+	if enableProfiling {
+		pathLogsSave := ctx.GlobalString(pathWhereToSaveLogs.Name)
+		profileFile, err = startCPUProfiling(pathLogsSave, startTimeUnix)
+		if err != nil {
+			return fmt.Errorf("%w while starting CPU profiling", err)
 		}
-		if err := f.Close(); err != nil {
-			log.Error("error closing CPU profile file (defer)", "err", err)
-		}
-	}()
+
+		// Ensure pprof is stopped and file is synced/closed even on early exits
+		defer func() {
+			log.Info("stopping CPU profile (defer)")
+			stopCPUProfiling(profileFile)
+		}()
+	}
 
 	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
@@ -335,19 +324,9 @@ func startChainSimulator(ctx *cli.Context) error {
 		log.Info("close", "trigger", "HTTP shutdown endpoint")
 	}
 
-	// Stop CPU profiling FIRST and flush to disk
-	log.Info("stopping CPU profile")
-	pprof.StopCPUProfile()
-
-	// CRITICAL: Sync forces buffered data to be written to disk
-	if err := f.Sync(); err != nil {
-		log.Error("error syncing CPU profile file", "err", err)
-	}
-
-	if err := f.Close(); err != nil {
-		log.Error("error closing CPU profile file", "err", err)
-	} else {
-		log.Info("CPU profile file closed successfully")
+	// Stop CPU profiling FIRST and flush to disk (only if profiling is enabled)
+	if enableProfiling {
+		stopCPUProfiling(profileFile)
 	}
 
 	generator.Close()
@@ -361,6 +340,43 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func startCPUProfiling(pathLogsSave string, startTimeUnix int64) (*os.File, error) {
+	timestampMilisecond := time.Unix(startTimeUnix, 0).UnixNano() / 1000000
+	cpuProfilePath := fmt.Sprintf("%s/cpu-%d.pprof", pathLogsSave, timestampMilisecond)
+
+	profileFile, err := os.Create(cpuProfilePath)
+	if err != nil {
+		return nil, fmt.Errorf("could not create CPU profile: %w", err)
+	}
+
+	if err := pprof.StartCPUProfile(profileFile); err != nil {
+		_ = profileFile.Close()
+		return nil, fmt.Errorf("could not start CPU profile: %w", err)
+	}
+
+	log.Info("CPU profiling started", "path", cpuProfilePath)
+	return profileFile, nil
+}
+
+func stopCPUProfiling(profileFile *os.File) {
+	if profileFile == nil {
+		return
+	}
+
+	log.Info("stopping CPU profile")
+	pprof.StopCPUProfile()
+
+	if err := profileFile.Sync(); err != nil {
+		log.Error("error syncing CPU profile file", "err", err)
+	}
+
+	if err := profileFile.Close(); err != nil {
+		log.Error("error closing CPU profile file", "err", err)
+	} else {
+		log.Info("CPU profile file closed successfully")
+	}
 }
 
 func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, error) {
