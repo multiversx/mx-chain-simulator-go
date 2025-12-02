@@ -137,8 +137,8 @@ var (
 		Name:  "fetch-configs-and-close",
 		Usage: "This flag is used to specify to fetch all configs and close the chain simulator after",
 	}
-	profileMode = cli.BoolFlag{
-		Name:  "profile-mode",
+	enableProfiling = cli.BoolFlag{
+		Name:  "enable-profiling",
 		Usage: "Boolean option for enabling CPU profiling. If set, CPU profile will be saved to a file.",
 	}
 )

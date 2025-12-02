@@ -87,7 +87,7 @@ func main() {
 		skipConfigsDownload,
 		fetchConfigsAndClose,
 		pathWhereToSaveLogs,
-		profileMode,
+		enableProfiling,
 	}
 
 	app.Authors = []cli.Author{
@@ -174,10 +174,10 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	// CPU profiling setup - only if profile-mode flag is set
+	// CPU profiling setup - only if enable-profiling flag is set
 	var profileFile *os.File
-	enableProfiling := ctx.GlobalBool(profileMode.Name)
-	if enableProfiling {
+	profilingEnabled := ctx.GlobalBool(enableProfiling.Name)
+	if profilingEnabled {
 		pathLogsSave := ctx.GlobalString(pathWhereToSaveLogs.Name)
 		profileFile, err = startCPUProfiling(pathLogsSave, startTimeUnix)
 		if err != nil {
@@ -325,7 +325,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	// Stop CPU profiling FIRST and flush to disk (only if profiling is enabled)
-	if enableProfiling {
+	if profilingEnabled {
 		stopCPUProfiling(profileFile)
 	}
 
