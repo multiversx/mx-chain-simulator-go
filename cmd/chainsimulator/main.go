@@ -188,6 +188,8 @@ func startChainSimulator(ctx *cli.Context) error {
 		InitialNonce:             cfg.Config.Simulator.InitialNonce,
 		InitialEpoch:             cfg.Config.Simulator.InitialEpoch,
 		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
+			unBondPeriodRounds := rounds.Value * uint64(cfg.SystemSCConfig.StakingSystemSCConfig.UnBondPeriodInEpochs)
+			cfg.SystemSCConfig.StakingSystemSCConfig.UnBondPeriod = unBondPeriodRounds
 			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
 		},
 		VmQueryDelayAfterStartInMs: 0,
