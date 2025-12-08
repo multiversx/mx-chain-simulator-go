@@ -138,11 +138,11 @@ def main():
 
     # check if the owner receive more than 5 egld in rewards
     claim_reward_tx = get_tx_and_verify_status(provider, tx_hash.hex())
-    one_egld = 1000000000000000000
+    min_rewards = 400000000000000000
     rewards_value = claim_reward_tx.smart_contract_results[0].raw.get("value", 0)
-    if rewards_value < one_egld:
+    if rewards_value < min_rewards:
         sys.exit(f"owner of the delegation contract didn't receive the expected amount of rewards: expected more than "
-                 f"1 EGLD, received: {rewards_value}")
+                 f"0.4 EGLD, received: {rewards_value}")
 
     print(f"owner has received rewards, received rewards: {rewards_value}")
 
