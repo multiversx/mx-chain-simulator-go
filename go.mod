@@ -7,7 +7,7 @@ replace (
 	github.com/multiversx/mx-chain-es-indexer-go => github.com/multiversx/mx-chain-es-indexer-sovereign-go v1.7.17-0.20251204150600-313fb01dbd2d
 	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20251204144528-1f20abdd1395
 	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.1.58-0.20250716093926-7dbe0199061e
-	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20251204093248-02f0626df7d5
+	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250915142157-e75c211f22ea
 )
 
 require (
