@@ -217,6 +217,13 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	log.Info("simulators were initialized")
 
+	for shardID := uint32(0); shardID < uint32(cfg.Config.Simulator.NumOfShards); shardID++ {
+		err = simulator.GetNodeHandler(shardID).SetKeyValueForAddress(core.SystemAccountAddress, make(map[string]string))
+		if err != nil {
+			return err
+		}
+	}
+
 	err = simulator.GenerateBlocks(1)
 	if err != nil {
 		return err
