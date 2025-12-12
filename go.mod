@@ -3,11 +3,11 @@ module github.com/multiversx/mx-chain-simulator-go
 go 1.23.0
 
 replace (
-	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.2.25-0.20250826110830-4f6320d31d06
-	github.com/multiversx/mx-chain-es-indexer-go => github.com/multiversx/mx-chain-es-indexer-sovereign-go v1.7.17-0.20250715151725-0c18a314d0ea
-	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20250902111041-98f93022d01b
+	github.com/multiversx/mx-chain-core-go => github.com/multiversx/mx-chain-core-sovereign-go v1.2.25-0.20250909112243-f8ad1a2c5594
+	github.com/multiversx/mx-chain-es-indexer-go => github.com/multiversx/mx-chain-es-indexer-sovereign-go v1.7.17-0.20251208083904-141b61a79af7
+	github.com/multiversx/mx-chain-go => github.com/multiversx/mx-chain-sovereign-go v1.8.12-0.20251208084034-1a88a3f17172
 	github.com/multiversx/mx-chain-proxy-go => github.com/multiversx/mx-chain-proxy-sovereign-go v1.1.58-0.20250716093926-7dbe0199061e
-	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250715144941-88820f3a7c28
+	github.com/multiversx/mx-chain-vm-common-go => github.com/multiversx/mx-chain-vm-common-sovereign-go v1.5.17-0.20250915142157-e75c211f22ea
 )
 
 require (
@@ -130,7 +130,7 @@ require (
 	github.com/multiversx/mx-chain-crypto-go v1.3.0 // indirect
 	github.com/multiversx/mx-chain-es-indexer-go v1.9.1 // indirect
 	github.com/multiversx/mx-chain-scenario-go v1.6.0 // indirect
-	github.com/multiversx/mx-chain-sovereign-bridge-go v0.0.0-20250610105734-30b3338debcf // indirect
+	github.com/multiversx/mx-chain-sovereign-bridge-go v0.0.0-20250910122606-9cd08a686551 // indirect
 	github.com/multiversx/mx-chain-storage-go v1.1.0 // indirect
 	github.com/multiversx/mx-chain-vm-common-go v1.6.0 // indirect
 	github.com/multiversx/mx-chain-vm-go v1.5.43 // indirect
