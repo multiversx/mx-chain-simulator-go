@@ -4,14 +4,13 @@ on:
   release:
     types: [published]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        platform: [linux/amd64, linux/arm64]
+
     permissions:
       packages: write
       contents: read
@@ -23,7 +22,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
         with:
-          go-version: 1.20.7
+          go-version: 1.23.6
         id: go
 
       - name: Get dependencies
@@ -40,35 +39,58 @@ jobs:
           go build
           ./chainsimulator --fetch-configs-and-close
 
-      # TODO: remove this when https://github.com/actions/runner-images/issues/11471 is fully resolved
       - name: Set up QEMU for ARM64
-        if: matrix.platform == 'linux/arm64'
         uses: docker/setup-qemu-action@v3
-    
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata (tags, labels) for released releases
+        if: ${{ github.event.release.prerelease == false }}
+        id: meta_released
         uses: docker/metadata-action@v5
         with:
           images: multiversx/chainsimulator
 
-      - name: Build and push Docker image
-        id: push
+      - name: Extract metadata (tags, labels) for prereleased releases
+        if: ${{ github.event.release.prerelease == true }}
+        id: meta_prereleased
+        uses: docker/metadata-action@v5
+        with:
+          images: multiversx/sovereign-chainsimulator
+          tags: |
+            type=raw,value=${{ github.event.release.tag_name }}
+          labels: |
+            type=raw,value=${{ github.event.release.name }}
+
+      - name: Build and push Docker image for released
+        if: ${{ github.event.release.prerelease == false }}
+        id: push_released
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          # We need to make sure that if we ever have to merge this branch in main, this needs to be changed
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta_released.outputs.tags }}
+          labels: ${{ steps.meta_released.outputs.labels }}
+
+      - name: Build and push Docker image for prereleased
+        if: ${{ github.event.release.prerelease == true }}
+        id: push_prereleased
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
+          tags: ${{ steps.meta_prereleased.outputs.tags }}
+          labels: ${{ steps.meta_prereleased.outputs.labels }}

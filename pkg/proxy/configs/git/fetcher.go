@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -15,12 +16,10 @@ func NewGitFetcher() *gitFetcher {
 // Clone will clone the provided git repository in the provided destination dir
 func (gf *gitFetcher) Clone(repoURL, destDir string) error {
 	cmd := exec.Command("git", "clone", repoURL, destDir)
-	res, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%s-%s", string(res), err.Error())
-	}
-
-	return nil
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	return cmd.Run()
 }
 
 // Checkout will checkout or commit hash from the provided repository directory

@@ -11,7 +11,7 @@ docker-build:
 
 run-faucet-test:
 	$(MAKE) docker-build
-	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
+	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG} ${SIMULATOR_TYPE}
 	sleep 2s
 	cd examples/faucet && /bin/bash faucet.sh
 	docker stop "${IMAGE_NAME}"
@@ -23,8 +23,8 @@ run-examples:
 	rm temp.txt
 
 	$(MAKE) docker-build
-	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG}
-	cd scripts/run-examples && /bin/bash script.sh
+	docker run -d --name "${IMAGE_NAME}" -p 8085:8085 ${CHAIN_SIMULATOR_IMAGE_NAME}:${CHAIN_SIMULATOR_IMAGE_TAG} ${SIMULATOR_TYPE}
+	cd scripts/run-examples && /bin/bash install-python-deps.sh && /bin/bash script.sh
 	docker stop "${IMAGE_NAME}"
 	docker rm ${IMAGE_NAME}
 
