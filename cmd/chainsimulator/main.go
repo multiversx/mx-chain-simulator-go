@@ -140,9 +140,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
-	log.Warn("signature", "bypass", bypassTxsSignature)
+	log.Debug("signature", "bypass", bypassTxsSignature)
 	bypassBlocksSignature := ctx.GlobalBool(bypassBlocksSignature.Name)
-	log.Warn("blocks", "bypass", bypassBlocksSignature)
+	log.Debug("blocks", "bypass", bypassBlocksSignature)
 	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
 	supernovaRoundDurationInMillis := uint64(cfg.Config.Simulator.SupernovaRoundDurationInMs)
 	rounds := core.OptionalUint64{
