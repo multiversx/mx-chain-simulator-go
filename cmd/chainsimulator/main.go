@@ -3,14 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"runtime/pprof"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/core/closing"
@@ -20,6 +23,8 @@ import (
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
+	"github.com/urfave/cli"
+
 	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/factory"
@@ -27,7 +32,6 @@ import (
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/creator"
-	"github.com/urfave/cli"
 )
 
 const timeToAllowProxyToStart = time.Millisecond * 10
@@ -68,10 +72,13 @@ func main() {
 		pathToProxyConfigs,
 		startTime,
 		roundsPerEpoch,
+		supernovaRoundsPerEpoch,
 		numOfShards,
 		serverPort,
 		roundDurationInMs,
+		supernovaRoundDurationInMs,
 		bypassTransactionsSignature,
+		bypassBlocksSignature,
 		numValidatorsPerShard,
 		numWaitingValidatorsPerShard,
 		numValidatorsMeta,
@@ -84,6 +91,7 @@ func main() {
 		skipConfigsDownload,
 		fetchConfigsAndClose,
 		pathWhereToSaveLogs,
+		enableProfiling,
 	}
 
 	app.Authors = []cli.Author{
@@ -136,11 +144,18 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
-	log.Warn("signature", "bypass", bypassTxsSignature)
+	log.Debug("signature", "bypass", bypassTxsSignature)
+	bypassBlocksSignature := ctx.GlobalBool(bypassBlocksSignature.Name)
+	log.Debug("blocks", "bypass", bypassBlocksSignature)
 	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
+	supernovaRoundDurationInMillis := uint64(cfg.Config.Simulator.SupernovaRoundDurationInMs)
 	rounds := core.OptionalUint64{
 		HasValue: true,
 		Value:    uint64(cfg.Config.Simulator.RoundsPerEpoch),
+	}
+	supernovaRounds := core.OptionalUint64{
+		HasValue: true,
+		Value:    uint64(cfg.Config.Simulator.SupernovaRoundsPerEpoch),
 	}
 
 	numValidatorsShard := ctx.GlobalInt(numValidatorsPerShard.Name)
@@ -170,23 +185,43 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	// CPU profiling setup - only if enable-profiling flag is set
+	var profileFile *os.File
+	profilingEnabled := ctx.GlobalBool(enableProfiling.Name)
+	if profilingEnabled {
+		pathLogsSave := ctx.GlobalString(pathWhereToSaveLogs.Name)
+		profileFile, err = startCPUProfiling(pathLogsSave, startTimeUnix)
+		if err != nil {
+			return fmt.Errorf("%w while starting CPU profiling", err)
+		}
+
+		// Ensure pprof is stopped and file is synced/closed even on early exits
+		defer func() {
+			log.Info("stopping CPU profile (defer)")
+			stopCPUProfiling(profileFile)
+		}()
+	}
+
 	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
-		BypassTxSignatureCheck:   bypassTxsSignature,
-		TempDir:                  tempDir,
-		PathToInitialConfig:      nodeConfigs,
-		NumOfShards:              uint32(cfg.Config.Simulator.NumOfShards),
-		GenesisTimestamp:         startTimeUnix,
-		RoundDurationInMillis:    roundDurationInMillis,
-		RoundsPerEpoch:           rounds,
-		ApiInterface:             apiConfigurator,
-		MinNodesPerShard:         uint32(numValidatorsShard),
-		NumNodesWaitingListShard: uint32(numWaitingValidatorsShard),
-		MetaChainMinNodes:        uint32(numValidatorsMetaShard),
-		NumNodesWaitingListMeta:  uint32(numWaitingValidatorsMetaShard),
-		InitialRound:             cfg.Config.Simulator.InitialRound,
-		InitialNonce:             cfg.Config.Simulator.InitialNonce,
-		InitialEpoch:             cfg.Config.Simulator.InitialEpoch,
+		BypassTxSignatureCheck:         bypassTxsSignature,
+		BypassBlockSignatureCheck:      bypassBlocksSignature,
+		TempDir:                        tempDir,
+		PathToInitialConfig:            nodeConfigs,
+		NumOfShards:                    uint32(cfg.Config.Simulator.NumOfShards),
+		GenesisTimestamp:               startTimeUnix,
+		RoundDurationInMillis:          roundDurationInMillis,
+		SupernovaRoundDurationInMillis: supernovaRoundDurationInMillis,
+		RoundsPerEpoch:                 rounds,
+		SupernovaRoundsPerEpoch:        supernovaRounds,
+		ApiInterface:                   apiConfigurator,
+		MinNodesPerShard:               uint32(numValidatorsShard),
+		NumNodesWaitingListShard:       uint32(numWaitingValidatorsShard),
+		MetaChainMinNodes:              uint32(numValidatorsMetaShard),
+		NumNodesWaitingListMeta:        uint32(numWaitingValidatorsMetaShard),
+		InitialRound:                   cfg.Config.Simulator.InitialRound,
+		InitialNonce:                   cfg.Config.Simulator.InitialNonce,
+		InitialEpoch:                   cfg.Config.Simulator.InitialEpoch,
 		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
 			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
 		},
@@ -268,7 +303,28 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
-	err = endpointsProc.ExtendProxyServer(proxyInstance.GetHttpServer())
+	// Create a channel for programmatic shutdown
+	shutdownChan := make(chan struct{})
+
+	// Add a shutdown endpoint before extending the proxy server
+	httpServer := proxyInstance.GetHttpServer()
+	ginEngine, ok := httpServer.Handler.(*gin.Engine)
+	if !ok {
+		return fmt.Errorf("cannot cast httpServer.Handler to gin.Engine")
+	}
+
+	ginEngine.POST("/simulator/shutdown", func(c *gin.Context) {
+		log.Info("shutdown requested via HTTP endpoint")
+		c.JSON(http.StatusOK, gin.H{"message": "shutdown initiated"})
+
+		// Trigger shutdown in a goroutine to allow the response to be sent
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			close(shutdownChan)
+		}()
+	})
+
+	err = endpointsProc.ExtendProxyServer(httpServer)
 	if err != nil {
 		return err
 	}
@@ -280,9 +336,19 @@ func startChainSimulator(ctx *cli.Context) error {
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
-	<-interrupt
 
-	log.Info("close")
+	// Wait for either signal or programmatic shutdown
+	select {
+	case sig := <-interrupt:
+		log.Info("close", "signal", sig)
+	case <-shutdownChan:
+		log.Info("close", "trigger", "HTTP shutdown endpoint")
+	}
+
+	// Stop CPU profiling FIRST and flush to disk (only if profiling is enabled)
+	if profilingEnabled {
+		stopCPUProfiling(profileFile)
+	}
 
 	generator.Close()
 
@@ -295,6 +361,43 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func startCPUProfiling(pathLogsSave string, startTimeUnix int64) (*os.File, error) {
+	timestampMilisecond := time.Unix(startTimeUnix, 0).UnixNano() / 1000000
+	cpuProfilePath := fmt.Sprintf("%s/cpu-%d.pprof", pathLogsSave, timestampMilisecond)
+
+	profileFile, err := os.Create(cpuProfilePath)
+	if err != nil {
+		return nil, fmt.Errorf("could not create CPU profile: %w", err)
+	}
+
+	if err := pprof.StartCPUProfile(profileFile); err != nil {
+		_ = profileFile.Close()
+		return nil, fmt.Errorf("could not start CPU profile: %w", err)
+	}
+
+	log.Info("CPU profiling started", "path", cpuProfilePath)
+	return profileFile, nil
+}
+
+func stopCPUProfiling(profileFile *os.File) {
+	if profileFile == nil {
+		return
+	}
+
+	log.Info("stopping CPU profile")
+	pprof.StopCPUProfile()
+
+	if err := profileFile.Sync(); err != nil {
+		log.Error("error syncing CPU profile file", "err", err)
+	}
+
+	if err := profileFile.Close(); err != nil {
+		log.Error("error closing CPU profile file", "err", err)
+	} else {
+		log.Info("CPU profile file closed successfully")
+	}
 }
 
 func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, error) {

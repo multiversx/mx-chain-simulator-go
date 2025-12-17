@@ -455,8 +455,12 @@ The **_[config.toml](./cmd/chainsimulator/config/config.toml)_** file:
         num-of-shards = 3
         # round-duration-in-milliseconds parameter specifies the duration of a simulated round. The timestamp between two headers will correspond to the round duration but will not reflect real-time
         round-duration-in-milliseconds = 6000
+        # supernova-round-duration-in-milliseconds parameter specifies the duration of a simulated round after supernova. The timestamp between two headers will correspond to the round duration but will not reflect real-time
+        supernova-round-duration-in-milliseconds = 600
         # rounds-per-epoch specifies the number of rounds per epoch
         rounds-per-epoch = 20
+        # supernova-rounds-per-epoch specifies the number of rounds per epoch after supernova
+        supernova-rounds-per-epoch = 200
         # initial-round specifies with what round the chain simulator will start
         initial-round = 0
         # initial-nonce specifies with what nonce the chain simulator will start
