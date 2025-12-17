@@ -23,6 +23,8 @@ import (
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
+	"github.com/urfave/cli"
+
 	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/facade"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/factory"
@@ -30,7 +32,6 @@ import (
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/configs/git"
 	"github.com/multiversx/mx-chain-simulator-go/pkg/proxy/creator"
-	"github.com/urfave/cli"
 )
 
 const timeToAllowProxyToStart = time.Millisecond * 10
@@ -77,6 +78,7 @@ func main() {
 		roundDurationInMs,
 		supernovaRoundDurationInMs,
 		bypassTransactionsSignature,
+		bypassBlocksSignature,
 		numValidatorsPerShard,
 		numWaitingValidatorsPerShard,
 		numValidatorsMeta,
@@ -142,7 +144,9 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	bypassTxsSignature := ctx.GlobalBool(bypassTransactionsSignature.Name)
-	log.Warn("signature", "bypass", bypassTxsSignature)
+	log.Debug("signature", "bypass", bypassTxsSignature)
+	bypassBlocksSignature := ctx.GlobalBool(bypassBlocksSignature.Name)
+	log.Debug("blocks", "bypass", bypassBlocksSignature)
 	roundDurationInMillis := uint64(cfg.Config.Simulator.RoundDurationInMs)
 	supernovaRoundDurationInMillis := uint64(cfg.Config.Simulator.SupernovaRoundDurationInMs)
 	rounds := core.OptionalUint64{
@@ -201,6 +205,7 @@ func startChainSimulator(ctx *cli.Context) error {
 	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
 		BypassTxSignatureCheck:         bypassTxsSignature,
+		BypassBlockSignatureCheck:      bypassBlocksSignature,
 		TempDir:                        tempDir,
 		PathToInitialConfig:            nodeConfigs,
 		NumOfShards:                    uint32(cfg.Config.Simulator.NumOfShards),
