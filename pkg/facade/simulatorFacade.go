@@ -17,8 +17,10 @@ import (
 )
 
 const (
-	errMsgTargetEpochLowerThanCurrentEpoch  = "target epoch must be greater than current epoch"
-	errMsgAccountNotFound                   = "account was not found")
+	errMsgTargetEpochLowerThanCurrentEpoch = "target epoch must be greater than current epoch"
+	errMsgAccountNotFound                  = "account was not found"
+	numBlocksToGenerate                    = 2
+)
 
 var log = logger.GetOrCreate("simulator/facade")
 
@@ -73,7 +75,7 @@ func (sf *simulatorFacade) SetStateMultiple(stateSlice []*dtos.AddressState, noG
 		return nil
 	}
 
-	return sf.simulator.GenerateBlocks(1)
+	return sf.simulator.GenerateBlocks(numBlocksToGenerate)
 }
 
 // SetStateMultipleOverwrite will set the entire state for the provided address and cleanup the old state of the provided addresses
@@ -96,7 +98,7 @@ func (sf *simulatorFacade) SetStateMultipleOverwrite(stateSlice []*dtos.AddressS
 		return nil
 	}
 
-	return sf.simulator.GenerateBlocks(1)
+	return sf.simulator.GenerateBlocks(numBlocksToGenerate)
 }
 
 // AddValidatorKeys will add the validator keys in the multi key handler
