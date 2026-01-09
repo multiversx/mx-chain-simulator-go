@@ -4,8 +4,9 @@ import (
 	"time"
 
 	logger "github.com/multiversx/mx-chain-logger-go"
-	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/urfave/cli"
+
+	"github.com/multiversx/mx-chain-simulator-go/config"
 )
 
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
@@ -95,6 +96,10 @@ var (
 		Name:  "bypass-txs-signature",
 		Usage: "This flag is used to bypass the transactions signature verification (by default true)",
 	}
+	bypassBlocksSignature = cli.BoolTFlag{
+		Name:  "bypass-blocks-signature",
+		Usage: "This flag is used to bypass the blocks signature verification (by default true)",
+	}
 	numValidatorsPerShard = cli.IntFlag{
 		Name:  "num-validators-per-shard",
 		Usage: "This flag is used to specify the number of validators per shard",
@@ -146,6 +151,10 @@ var (
 	fetchConfigsAndClose = cli.BoolFlag{
 		Name:  "fetch-configs-and-close",
 		Usage: "This flag is used to specify to fetch all configs and close the chain simulator after",
+	}
+	enableProfiling = cli.BoolFlag{
+		Name:  "enable-profiling",
+		Usage: "Boolean option for enabling CPU profiling. If set, CPU profile will be saved to a file.",
 	}
 )
 
