@@ -79,6 +79,8 @@ func main() {
 		supernovaRoundDurationInMs,
 		bypassTransactionsSignature,
 		bypassBlocksSignature,
+		createBlockMaxTimePercent,
+		bypassCreateBlockTimeCheck,
 		numValidatorsPerShard,
 		numWaitingValidatorsPerShard,
 		numValidatorsMeta,
@@ -157,6 +159,8 @@ func startChainSimulator(ctx *cli.Context) error {
 		HasValue: true,
 		Value:    uint64(cfg.Config.Simulator.SupernovaRoundsPerEpoch),
 	}
+	createBlockMaxTimePercent := ctx.GlobalFloat64(createBlockMaxTimePercent.Name)
+	bypassCreateBlockTimeCheck := ctx.GlobalBool(bypassCreateBlockTimeCheck.Name)
 
 	numValidatorsShard := ctx.GlobalInt(numValidatorsPerShard.Name)
 	if numValidatorsShard < 1 {
@@ -206,6 +210,8 @@ func startChainSimulator(ctx *cli.Context) error {
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
 		BypassTxSignatureCheck:         bypassTxsSignature,
 		BypassBlockSignatureCheck:      bypassBlocksSignature,
+		BypassCreateBlockTimeCheck:     bypassCreateBlockTimeCheck,
+		CreateBlockMaxTimePercent:      createBlockMaxTimePercent,
 		TempDir:                        tempDir,
 		PathToInitialConfig:            nodeConfigs,
 		NumOfShards:                    uint32(cfg.Config.Simulator.NumOfShards),
