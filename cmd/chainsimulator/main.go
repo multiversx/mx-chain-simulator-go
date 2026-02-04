@@ -422,7 +422,7 @@ func initializeLogger(ctx *cli.Context, cfg config.Config) (closing.Closer, erro
 	fileLogging, err := file.NewFileLogging(file.ArgsFileLogging{
 		WorkingDir:      pathLogsSave,
 		DefaultLogsPath: cfg.Config.Logs.LogsPath,
-		LogFilePrefix:   cfg.Config.Logs.LogFilePrefix,
+		LogFilePrefix:   cfg.Config.Logs.LogFilePrefix + "-" + strconv.Itoa(cfg.Config.Simulator.ServerPort),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%w creating a log file", err)
