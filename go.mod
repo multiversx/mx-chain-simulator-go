@@ -6,7 +6,7 @@ require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.10.0
 	github.com/multiversx/mx-chain-core-go v1.4.2-0.20260219091525-015123fd1603
-	github.com/multiversx/mx-chain-go v1.11.2-0.20260306125138-0323f050f900
+	github.com/multiversx/mx-chain-go v1.11.2-0.20260318142640-0dca50ae579d
 	github.com/multiversx/mx-chain-logger-go v1.1.0
 	github.com/multiversx/mx-chain-proxy-go v1.3.5-0.20260217073158-6a6ed53a320e
 	github.com/multiversx/mx-chain-storage-go v1.1.0
@@ -119,7 +119,7 @@ require (
 	github.com/multiformats/go-multistream v0.6.0 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
-	github.com/multiversx/mx-chain-communication-go v1.3.0 // indirect
+	github.com/multiversx/mx-chain-communication-go v1.3.1 // indirect
 	github.com/multiversx/mx-chain-crypto-go v1.3.1-0.20260130144701-dfa5fd3ea5d7 // indirect
 	github.com/multiversx/mx-chain-es-indexer-go v1.9.4-0.20260219114236-37624897dc3a // indirect
 	github.com/multiversx/mx-chain-scenario-go v1.6.0 // indirect
