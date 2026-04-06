@@ -21,6 +21,7 @@ import (
 	processFactory "github.com/multiversx/mx-chain-proxy-go/process/factory"
 	versionsFactory "github.com/multiversx/mx-chain-proxy-go/versions/factory"
 	proxy2 "github.com/multiversx/mx-chain-simulator-go/pkg/proxy"
+	"github.com/multiversx/mx-chain-storage-go/timecache"
 )
 
 var log = logger.GetOrCreate("proxy")
@@ -138,7 +139,15 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 	valStatsProc.StartCacheUpdate()
 	nodeStatusProc.StartCacheUpdate()
 
-	blockProc, err := processProxy.NewBlockProcessor(bp)
+	blockCacher, err := timecache.NewTimeCacher(timecache.ArgTimeCacher{
+		DefaultSpan: time.Second,
+		CacheExpiry: time.Duration(args.Config.GeneralSettings.BlockCacheDurationSec) * time.Second,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	blockProc, err := processProxy.NewBlockProcessor(bp, blockCacher)
 	if err != nil {
 		return nil, err
 	}

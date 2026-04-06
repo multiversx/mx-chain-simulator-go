@@ -100,6 +100,15 @@ var (
 		Name:  "bypass-blocks-signature",
 		Usage: "This flag is used to bypass the blocks signature verification (by default true)",
 	}
+	bypassCreateBlockTimeCheck = cli.BoolTFlag{
+		Name:  "bypass-create-block-time-check",
+		Usage: "This flag is used to bypass the create block time check (by default true)",
+	}
+	createBlockMaxTimePercent = cli.Float64Flag{
+		Name:  "create-block-max-time-percent",
+		Usage: "The max time percent of round duration to create block (by default 25%)",
+		Value: 0.25,
+	}
 	numValidatorsPerShard = cli.IntFlag{
 		Name:  "num-validators-per-shard",
 		Usage: "This flag is used to specify the number of validators per shard",
