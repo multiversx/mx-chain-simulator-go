@@ -8,7 +8,7 @@ from multiversx_sdk import (ProxyNetworkProvider,
                             TransactionsFactoryConfig, UserSecretKey)
 
 SIMULATOR_URL = "http://localhost:8085"
-GENERATE_BLOCKS_URL = "/simulator/generate-blocks"
+GENERATE_BLOCKS_URL = "simulator/generate-blocks"
 GENERATE_BLOCKS_UNTIL_EPOCH_REACHED_URL = "simulator/generate-blocks-until-epoch-reached"
 GENERATE_BLOCKS_UNTIL_TX_PROCESSED = "simulator/generate-blocks-until-transaction-processed"
 
