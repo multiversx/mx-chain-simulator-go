@@ -18,6 +18,7 @@ import (
 	"github.com/multiversx/mx-chain-go/config/overridableConfig"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/components/api"
+	chainSimulatorConfigs "github.com/multiversx/mx-chain-go/node/chainSimulator/configs"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	"github.com/multiversx/mx-chain-logger-go/file"
 	"github.com/multiversx/mx-chain-simulator-go/config"
@@ -170,6 +171,8 @@ func startChainSimulator(ctx *cli.Context) error {
 		return err
 	}
 
+	initialEpoch := cfg.Config.Simulator.InitialEpoch
+
 	var alterConfigsError error
 	argsChainSimulator := chainSimulator.ArgsChainSimulator{
 		BypassTxSignatureCheck:   bypassTxsSignature,
@@ -186,9 +189,37 @@ func startChainSimulator(ctx *cli.Context) error {
 		NumNodesWaitingListMeta:  uint32(numWaitingValidatorsMetaShard),
 		InitialRound:             cfg.Config.Simulator.InitialRound,
 		InitialNonce:             cfg.Config.Simulator.InitialNonce,
-		InitialEpoch:             cfg.Config.Simulator.InitialEpoch,
-		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
-			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
+		InitialEpoch:             initialEpoch,
+		AlterConfigsFunction: func(nodeCfg *nodeConfig.Configs) {
+			// When bootstrapping directly at a non-zero epoch, the one-time staking migrations that
+			// normally run at their (low) activation epochs are skipped, because those epochs are
+			// never processed. In particular the StakingV2 owner backfill (updateOwnersForBlsKeys,
+			// gated by the flag active only in the exact epoch == StakingV2EnableEpoch) never runs,
+			// so the genesis-staked nodes have no OwnerAddress in the staking system SC. The first
+			// epoch transition then computes owner-based (StakingV2) rewards, calls getOwner for each
+			// eligible BLS key, gets "owner address is nil" (UserError), and aborts block generation
+			// with "error executing system SC code, error: user error" - which is why the shards
+			// never advance to the next epoch.
+			//
+			// Fix: re-base the staking activation epochs relative to the initial epoch so genesis
+			// boots below StakingV2/StakingV4 (like an epoch-0 start) and the migrations execute on
+			// the first processed transition (initialEpoch+1). This mirrors the default epoch-0
+			// layout (StakingV2 == StakingV4Step1), just shifted forward. StakingV2 and StakingV4
+			// must move together, otherwise the bootstrap auction (also owner-dependent) breaks.
+			if initialEpoch > 0 {
+				migrationEpoch := initialEpoch + 1
+				nodeCfg.EpochConfig.EnableEpochs.StakingV2EnableEpoch = migrationEpoch
+				chainSimulatorConfigs.SetStakingV4ActivationEpochs(nodeCfg, migrationEpoch)
+				log.Info("re-based staking activation epochs relative to the initial epoch",
+					"initialEpoch", initialEpoch,
+					"StakingV2", nodeCfg.EpochConfig.EnableEpochs.StakingV2EnableEpoch,
+					"StakingV4Step1", nodeCfg.EpochConfig.EnableEpochs.StakingV4Step1EnableEpoch,
+					"StakingV4Step2", nodeCfg.EpochConfig.EnableEpochs.StakingV4Step2EnableEpoch,
+					"StakingV4Step3", nodeCfg.EpochConfig.EnableEpochs.StakingV4Step3EnableEpoch,
+				)
+			}
+
+			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, nodeCfg)
 		},
 		VmQueryDelayAfterStartInMs: 0,
 	}
