@@ -4,13 +4,23 @@ import (
 	"encoding/hex"
 	"errors"
 	"strings"
+	"sync"
 	"testing"
 
+	"github.com/multiversx/mx-chain-core-go/core"
+	coreData "github.com/multiversx/mx-chain-core-go/data"
+	"github.com/multiversx/mx-chain-core-go/data/block"
 	"github.com/multiversx/mx-chain-core-go/data/transaction"
+	"github.com/multiversx/mx-chain-core-go/marshal"
+	"github.com/multiversx/mx-chain-go/dataRetriever"
 	"github.com/multiversx/mx-chain-go/factory"
 	"github.com/multiversx/mx-chain-go/factory/mock"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/process"
+	"github.com/multiversx/mx-chain-go/sharding"
+	"github.com/multiversx/mx-chain-go/storage"
+	chainTestsCommon "github.com/multiversx/mx-chain-go/testscommon"
+	storageStubs "github.com/multiversx/mx-chain-go/testscommon/storage"
 	"github.com/multiversx/mx-chain-proxy-go/data"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 	"github.com/multiversx/mx-chain-simulator-go/testscommon"
@@ -398,6 +408,112 @@ func TestSimulatorFacade_ForceChangeOfEpoch(t *testing.T) {
 
 	err := facade.ForceChangeOfEpoch(5)
 	require.Nil(t, err)
+}
+
+func TestSimulatorFacade_SetEpochStartHeader(t *testing.T) {
+	t.Parallel()
+
+	marshaller := &marshal.GogoProtoMarshalizer{}
+
+	newSimulator := func(genesisHeader coreData.HeaderHandler, numShards uint32, putHandler func(shardID uint32, unitType dataRetriever.UnitType, key, value []byte) error) *testscommon.SimulatorHandlerMock {
+		return &testscommon.SimulatorHandlerMock{
+			GetNodeHandlerCalled: func(shardID uint32) process.NodeHandler {
+				return &testscommon.NodeHandlerStub{
+					GetShardCoordinatorCalled: func() sharding.Coordinator {
+						return &chainTestsCommon.ShardsCoordinatorMock{NoShards: numShards}
+					},
+					GetCoreComponentsCalled: func() factory.CoreComponentsHolder {
+						return &mock.CoreComponentsMock{IntMarsh: marshaller}
+					},
+					GetDataComponentsCalled: func() factory.DataComponentsHolder {
+						return &mock.DataComponentsMock{
+							Blkc: &chainTestsCommon.ChainHandlerStub{
+								GetGenesisHeaderCalled: func() coreData.HeaderHandler {
+									return genesisHeader
+								},
+							},
+							Storage: &storageStubs.ChainStorerStub{
+								GetStorerCalled: func(unitType dataRetriever.UnitType) (storage.Storer, error) {
+									return &storageStubs.StorerStub{
+										PutCalled: func(key, value []byte) error {
+											return putHandler(shardID, unitType, key, value)
+										},
+									}, nil
+								},
+							},
+						}
+					},
+				}
+			},
+		}
+	}
+
+	t.Run("non-zero initial epoch should persist the genesis header for each shard and metachain", func(t *testing.T) {
+		t.Parallel()
+
+		epoch := uint32(7)
+		numShards := uint32(2)
+		genesisHeader := &block.MetaBlock{Epoch: epoch}
+		expectedValue, errMarshal := marshaller.Marshal(genesisHeader)
+		require.Nil(t, errMarshal)
+		expectedKey := []byte(core.EpochStartIdentifier(epoch))
+
+		var mutStored sync.Mutex
+		storedUnits := make(map[uint32]dataRetriever.UnitType)
+
+		simulator := newSimulator(genesisHeader, numShards, func(shardID uint32, unitType dataRetriever.UnitType, key, value []byte) error {
+			mutStored.Lock()
+			defer mutStored.Unlock()
+
+			assert.Equal(t, expectedKey, key)
+			assert.Equal(t, expectedValue, value)
+			storedUnits[shardID] = unitType
+			return nil
+		})
+
+		facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
+
+		err := facade.SetEpochStartHeader()
+		require.Nil(t, err)
+
+		// shard 0, shard 1 and metachain
+		require.Len(t, storedUnits, int(numShards)+1)
+		assert.Equal(t, dataRetriever.BlockHeaderUnit, storedUnits[0])
+		assert.Equal(t, dataRetriever.BlockHeaderUnit, storedUnits[1])
+		assert.Equal(t, dataRetriever.MetaBlockUnit, storedUnits[core.MetachainShardId])
+	})
+
+	t.Run("initial epoch 0 should be a no-op", func(t *testing.T) {
+		t.Parallel()
+
+		genesisHeader := &block.MetaBlock{Epoch: 0}
+		putCalled := false
+		simulator := newSimulator(genesisHeader, 1, func(_ uint32, _ dataRetriever.UnitType, _, _ []byte) error {
+			putCalled = true
+			return nil
+		})
+
+		facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
+
+		err := facade.SetEpochStartHeader()
+		require.Nil(t, err)
+		assert.False(t, putCalled)
+	})
+
+	t.Run("put error should be propagated", func(t *testing.T) {
+		t.Parallel()
+
+		expectedErr := errors.New("put error")
+		genesisHeader := &block.MetaBlock{Epoch: 3}
+		simulator := newSimulator(genesisHeader, 1, func(_ uint32, _ dataRetriever.UnitType, _, _ []byte) error {
+			return expectedErr
+		})
+
+		facade, _ := NewSimulatorFacade(simulator, &testscommon.TransactionHandlerMock{})
+
+		err := facade.SetEpochStartHeader()
+		require.Equal(t, expectedErr, err)
+	})
 }
 
 func getNodeHandlerWithCurrentEpoch(epoch uint32) process.NodeHandler {

@@ -13,6 +13,9 @@ import (
 // NodeHandlerStub -
 type NodeHandlerStub struct {
 	GetProcessComponentsCalled func() factory.ProcessComponentsHolder
+	GetShardCoordinatorCalled  func() sharding.Coordinator
+	GetCoreComponentsCalled    func() factory.CoreComponentsHolder
+	GetDataComponentsCalled    func() factory.DataComponentsHolder
 }
 
 // GetNetworkComponents -
@@ -50,6 +53,10 @@ func (n *NodeHandlerStub) GetBroadcastMessenger() consensus.BroadcastMessenger {
 
 // GetShardCoordinator -
 func (n *NodeHandlerStub) GetShardCoordinator() sharding.Coordinator {
+	if n.GetShardCoordinatorCalled != nil {
+		return n.GetShardCoordinatorCalled()
+	}
+
 	return nil
 }
 
@@ -60,11 +67,19 @@ func (n *NodeHandlerStub) GetCryptoComponents() factory.CryptoComponentsHolder {
 
 // GetCoreComponents -
 func (n *NodeHandlerStub) GetCoreComponents() factory.CoreComponentsHolder {
+	if n.GetCoreComponentsCalled != nil {
+		return n.GetCoreComponentsCalled()
+	}
+
 	return nil
 }
 
 // GetDataComponents -
 func (n *NodeHandlerStub) GetDataComponents() factory.DataComponentsHolder {
+	if n.GetDataComponentsCalled != nil {
+		return n.GetDataComponentsCalled()
+	}
+
 	return nil
 }
 

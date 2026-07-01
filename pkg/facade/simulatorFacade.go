@@ -11,14 +11,16 @@ import (
 	"github.com/multiversx/mx-chain-core-go/core"
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	"github.com/multiversx/mx-chain-core-go/data/transaction"
+	"github.com/multiversx/mx-chain-go/dataRetriever"
 	"github.com/multiversx/mx-chain-go/node/chainSimulator/dtos"
 	logger "github.com/multiversx/mx-chain-logger-go"
 	dtoc "github.com/multiversx/mx-chain-simulator-go/pkg/dtos"
 )
 
 const (
-	errMsgTargetEpochLowerThanCurrentEpoch  = "target epoch must be greater than current epoch"
-	errMsgAccountNotFound                   = "account was not found")
+	errMsgTargetEpochLowerThanCurrentEpoch = "target epoch must be greater than current epoch"
+	errMsgAccountNotFound                  = "account was not found"
+)
 
 var log = logger.GetOrCreate("simulator/facade")
 
@@ -196,6 +198,80 @@ func (sf *simulatorFacade) GenerateBlocksUntilTransactionIsProcessed(txHash stri
 	}
 
 	return errors.New("something went wrong, transaction is still in pending")
+}
+
+// SetEpochStartHeader persists, for the bootstrapped initial epoch, the epoch-start block header
+// into each shard's (and metachain's) headers storage unit.
+//
+// This is required so that VM queries work when the chain simulator is started directly from a
+// non-zero epoch. The SC query service resolves the epoch-start header for the queried block from
+// storage (process/smartContract.scQueryService.getEpochStartBlockHdr). For a synthetic genesis
+// created at a non-zero epoch this header is never written there, so the lookup fails and the query
+// is aborted. For epoch 0 the genesis header is used directly, hence the issue does not appear.
+//
+// The genesis header carries the bootstrapped epoch and is exactly what the epoch-0 path returns,
+// so storing it under the epoch-start identifier mirrors the working epoch-0 behavior.
+func (sf *simulatorFacade) SetEpochStartHeader() error {
+	metaNode := sf.simulator.GetNodeHandler(core.MetachainShardId)
+	if check.IfNil(metaNode) {
+		return fmt.Errorf("%w for metachain", errNilNodeHandler)
+	}
+
+	numOfShards := metaNode.GetShardCoordinator().NumberOfShards()
+
+	shardIDs := make([]uint32, 0, numOfShards+1)
+	for shardID := uint32(0); shardID < numOfShards; shardID++ {
+		shardIDs = append(shardIDs, shardID)
+	}
+	shardIDs = append(shardIDs, core.MetachainShardId)
+
+	for _, shardID := range shardIDs {
+		err := sf.storeEpochStartHeaderForShard(shardID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (sf *simulatorFacade) storeEpochStartHeaderForShard(shardID uint32) error {
+	node := sf.simulator.GetNodeHandler(shardID)
+	if check.IfNil(node) {
+		return fmt.Errorf("%w for shard %d", errNilNodeHandler, shardID)
+	}
+
+	genesisHeader := node.GetDataComponents().Blockchain().GetGenesisHeader()
+	if check.IfNil(genesisHeader) {
+		return fmt.Errorf("%w for shard %d", errNilGenesisHeader, shardID)
+	}
+
+	epoch := genesisHeader.GetEpoch()
+	if epoch == 0 {
+		// for epoch 0 the SC query service uses the genesis header directly, nothing to persist
+		return nil
+	}
+
+	headerBytes, err := node.GetCoreComponents().InternalMarshalizer().Marshal(genesisHeader)
+	if err != nil {
+		return err
+	}
+
+	storer, err := node.GetDataComponents().StorageService().GetStorer(dataRetriever.GetHeadersDataUnit(shardID))
+	if err != nil {
+		return err
+	}
+
+	identifier := []byte(core.EpochStartIdentifier(epoch))
+	err = storer.Put(identifier, headerBytes)
+	if err != nil {
+		return err
+	}
+
+	log.Info("persisted epoch-start header for the initial epoch",
+		"shard", shardID, "epoch", epoch, "identifier", string(identifier))
+
+	return nil
 }
 
 func (sf *simulatorFacade) getCurrentEpoch() uint32 {

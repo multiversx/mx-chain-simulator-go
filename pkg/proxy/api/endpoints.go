@@ -31,6 +31,7 @@ const (
 	forceUpdateValidatorStatistics          = "/simulator/force-reset-validator-statistics"
 	observersInfo                           = "/simulator/observers"
 	epochChange                             = "/simulator/force-epoch-change"
+	setEpochStartHeaderEndpoint             = "/simulator/set-epoch-start-header"
 
 	queryParamNoGenerate   = "noGenerate"
 	queryParamTargetEpoch  = "targetEpoch"
@@ -68,6 +69,7 @@ func (ep *endpointsProcessor) ExtendProxyServer(httpServer *http.Server) error {
 	ws.POST(forceUpdateValidatorStatistics, ep.forceUpdateValidatorStatistics)
 	ws.GET(observersInfo, ep.getObserversInfo)
 	ws.POST(epochChange, ep.forceEpochChange)
+	ws.POST(setEpochStartHeaderEndpoint, ep.setEpochStartHeader)
 
 	serializerForLogs := &marshal.GogoProtoMarshalizer{}
 	registerLoggerWsRoute(ws, serializerForLogs)
@@ -110,6 +112,16 @@ func (ep *endpointsProcessor) forceEpochChange(c *gin.Context) {
 	err = ep.facade.ForceChangeOfEpoch(uint32(targetEpoch))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)
+}
+
+func (ep *endpointsProcessor) setEpochStartHeader(c *gin.Context) {
+	err := ep.facade.SetEpochStartHeader()
+	if err != nil {
+		shared.RespondWithBadRequest(c, fmt.Sprintf("cannot set the epoch start header, error: %s", err.Error()))
+		return
 	}
 
 	shared.RespondWith(c, http.StatusOK, gin.H{}, "", data.ReturnCodeSuccess)

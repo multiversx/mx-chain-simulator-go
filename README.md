@@ -129,6 +129,35 @@ This endpoint will trigger the chain to move in the next epoch. (this endpoint w
 }
 ```
 
+### `POST /simulator/set-epoch-start-header`
+
+This endpoint persists, for the bootstrapped initial epoch, the epoch-start block header into each
+shard's (and the metachain's) headers storage unit.
+
+It is required only when the chain simulator is started directly from a non-zero epoch (e.g. via the
+`--initial-epoch` flag). In that case the synthetic genesis is created at a non-zero epoch but the
+corresponding epoch-start header is never written to storage, so the SC query service cannot resolve
+it and VM queries on smart contracts fail. Calling this endpoint once after start fixes that. When
+the simulator is started at epoch 0 (the default), this endpoint is a no-op.
+
+##### Request
+- **Method:** POST
+- **Path:** `/simulator/set-epoch-start-header`
+
+##### Response
+- **Status Codes:**
+  - `200 OK`: Epoch-start header persisted successfully.
+  - `400 Bad Request`: The header could not be persisted.
+
+#### Response Body
+```json
+{
+  "data": {},
+  "error": "",
+  "code": "successful"
+}
+```
+
 ### `GET /simulator/initial-wallets`
 
 This endpoint returns the initial wallets (address and private key hex encoded).

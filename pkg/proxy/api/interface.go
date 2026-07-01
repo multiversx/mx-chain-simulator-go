@@ -18,5 +18,6 @@ type SimulatorFacade interface {
 	ForceUpdateValidatorStatistics() error
 	GetObserversInfo() (map[uint32]*dtosc.ObserverInfo, error)
 	ForceChangeOfEpoch(targetEpoch uint32) error
+	SetEpochStartHeader() error
 	IsInterfaceNil() bool
 }
