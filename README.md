@@ -420,8 +420,10 @@ This endpoint resets (clears) an internal cache used by the `/validator/statisti
 
 Before proceeding, ensure you have the following prerequisites:
 
-- Go programming environment set up.
+- Go 1.23.x programming environment set up.
 - Git installed.
+- Docker with BuildKit support (for container builds).
+- Docker Buildx (for multi-arch builds).
 
 
 ## Install
@@ -430,6 +432,11 @@ Using the `cmd/chainsimulator` package as root, execute the following commands:
 
 - install go dependencies: `go install`
 - build executable: `go build -o chainsimulator`
+
+Alternatively, use the Makefile:
+```
+make build
+```
 
 Note: go version 1.23.* should be used to build the executable.
 
@@ -513,14 +520,38 @@ INFO [2024-04-18 10:48:47.231]   chain simulator's is accessible through the URL
 ```
 
 
-### Build docker image
+### Docker
+
+The Docker image uses a multi-stage build with a [distroless](https://github.com/GoogleContainerTools/distroless) runtime image (`gcr.io/distroless/cc-debian13`). The container runs as a non-root user (UID 65532) for security. Configs are pre-fetched at build time so `git` and `curl` are not required at runtime.
+
+#### Build (single arch, current platform)
 ```
-DOCKER_BUILDKIT=1 docker build -t chainsimulator:latest .
+make docker-build
 ```
 
-### Run with docker
+#### Build & push multi-arch (amd64 + arm64)
 ```
-docker run -p 8085:8085 chainsimulator:latest --log-level *:DEBUG
+make docker-build-push
+```
+
+For cross-platform builds from an amd64 host, register QEMU first (once per boot):
+```
+make qemu-setup
+```
+
+#### Run
+```
+make docker-run
+```
+
+The container is started in read-only mode with a tmpfs on `/tmp`. To pass extra flags:
+```
+docker run -p 8085:8085 multiversx/chainsimulator:latest --log-level *:DEBUG
+```
+
+#### Available Makefile targets
+```
+make help
 ```
 
 ### Enable `HostDriver`
