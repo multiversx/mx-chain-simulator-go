@@ -85,6 +85,7 @@ func main() {
 		numWaitingValidatorsPerShard,
 		numValidatorsMeta,
 		numWaitingValidatorsMeta,
+		consensusMode,
 		initialRound,
 		initialNonce,
 		initialEpoch,
@@ -133,6 +134,12 @@ func startChainSimulator(ctx *cli.Context) error {
 		return fmt.Errorf("%w while initializing the logger", err)
 	}
 
+	selectedConsensusMode, err := parseConsensusMode(ctx.GlobalString(consensusMode.Name))
+	if err != nil {
+		return err
+	}
+	log.Info("consensus configuration", "mode", ctx.GlobalString(consensusMode.Name))
+
 	skipDownload := ctx.GlobalBool(skipConfigsDownload.Name)
 	nodeConfigs := ctx.GlobalString(pathToNodeConfigs.Name)
 	proxyConfigs := ctx.GlobalString(pathToProxyConfigs.Name)
@@ -179,9 +186,8 @@ func startChainSimulator(ctx *cli.Context) error {
 	if numWaitingValidatorsMetaShard < 0 {
 		return errors.New("invalid value for the number of waiting validators for metachain")
 	}
-
 	localRestApiInterface := "localhost"
-	apiConfigurator := api.NewFreePortAPIConfigurator(localRestApiInterface)
+	apiConfigurator := api.NewFreePortAPIConfigurator(localRestApiInterface, cfg.Config.Simulator.ServerPort)
 	startTimeUnix := ctx.GlobalInt64(startTime.Name)
 
 	tempDir, err := os.MkdirTemp(os.TempDir(), tempDirPattern)
@@ -228,6 +234,7 @@ func startChainSimulator(ctx *cli.Context) error {
 		InitialRound:                   cfg.Config.Simulator.InitialRound,
 		InitialNonce:                   cfg.Config.Simulator.InitialNonce,
 		InitialEpoch:                   cfg.Config.Simulator.InitialEpoch,
+		ConsensusMode:                  selectedConsensusMode,
 		AlterConfigsFunction: func(cfg *nodeConfig.Configs) {
 			alterConfigsError = overridableConfig.OverrideConfigValues(overrideCfg.OverridableConfigTomlValues, cfg)
 		},
@@ -367,6 +374,25 @@ func startChainSimulator(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func parseConsensusMode(value string) (chainSimulator.ConsensusMode, error) {
+	switch value {
+	case consensusModeDisabledValue:
+		return chainSimulator.ConsensusModeDisabled, nil
+	case consensusModeBLSValue:
+		return chainSimulator.ConsensusModeBLS, nil
+	case consensusModeFastCryptoValue:
+		return chainSimulator.ConsensusModeFastCrypto, nil
+	default:
+		return chainSimulator.ConsensusModeDisabled, fmt.Errorf(
+			"invalid --consensus-mode %q: expected one of %q, %q, %q",
+			value,
+			consensusModeDisabledValue,
+			consensusModeBLSValue,
+			consensusModeFastCryptoValue,
+		)
+	}
 }
 
 func startCPUProfiling(pathLogsSave string, startTimeUnix int64) (*os.File, error) {

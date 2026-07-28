@@ -12,6 +12,12 @@ import (
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
 const nodeOverrideDefaultPath = "./config/" + nodeOverrideDefaultFilename
 
+const (
+	consensusModeDisabledValue   = "disabled"
+	consensusModeBLSValue        = "bls"
+	consensusModeFastCryptoValue = "fast-crypto"
+)
+
 var (
 	configurationFile = cli.StringFlag{
 		Name:  "config",
@@ -128,6 +134,12 @@ var (
 		Name:  "num-waiting-validators-meta",
 		Usage: "This flag is used to specify the number of waiting validators on metachain",
 		Value: 0,
+	}
+	consensusMode = cli.StringFlag{
+		Name: "consensus-mode",
+		Usage: "Block-production mode: disabled uses direct production, bls uses real SPoS consensus and BLS, " +
+			"fast-crypto uses real SPoS consensus with deterministic simulator-only signatures.",
+		Value: consensusModeDisabledValue,
 	}
 	initialRound = cli.Uint64Flag{
 		Name:  "initial-round",
