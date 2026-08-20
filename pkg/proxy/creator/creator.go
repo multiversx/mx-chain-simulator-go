@@ -216,6 +216,7 @@ func CreateProxy(args ArgsProxy) (*ArgsOutputProxy, error) {
 		args.Config.GeneralSettings.RateLimitWindowDurationSeconds,
 		false,
 		false,
+		args.Config.GeneralSettings.MaxRequestBodySize,
 	)
 	if err != nil {
 		return nil, err

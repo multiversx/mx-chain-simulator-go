@@ -5,11 +5,11 @@ go 1.26
 require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
 	github.com/gin-gonic/gin v1.12.0
-	github.com/multiversx/mx-chain-core-go v1.5.1-0.20260721064337-e17a03faa70b
-	github.com/multiversx/mx-chain-go v1.11.10-0.20260728123229-213761e9c9eb
-	github.com/multiversx/mx-chain-logger-go v1.1.1-0.20260713100530-e85a16be3260
-	github.com/multiversx/mx-chain-proxy-go v1.4.0
-	github.com/multiversx/mx-chain-storage-go v1.1.2-0.20260713100751-bad800525dbe
+	github.com/multiversx/mx-chain-core-go v1.5.1
+	github.com/multiversx/mx-chain-go v1.11.12-0.20260819124119-be16396f4214
+	github.com/multiversx/mx-chain-logger-go v1.2.0
+	github.com/multiversx/mx-chain-proxy-go v1.5.1
+	github.com/multiversx/mx-chain-storage-go v1.2.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli v1.22.17
@@ -25,11 +25,11 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.5.0 // indirect
 	github.com/btcsuite/btcd/btcutil v1.2.0 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.2.0 // indirect
-	github.com/bytedance/gopkg v0.1.3 // indirect
-	github.com/bytedance/sonic v1.15.0 // indirect
-	github.com/bytedance/sonic/loader v0.5.0 // indirect
+	github.com/bytedance/gopkg v0.1.4 // indirect
+	github.com/bytedance/sonic v1.15.1 // indirect
+	github.com/bytedance/sonic/loader v0.5.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/davidlazar/go-crypto v0.0.0-20200604182044-b73af7476f6c // indirect
@@ -42,15 +42,15 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
 	github.com/gin-contrib/cors v1.7.7 // indirect
 	github.com/gin-contrib/pprof v1.5.4 // indirect
-	github.com/gin-contrib/sse v1.1.0 // indirect
-	github.com/gin-contrib/static v0.0.1 // indirect
+	github.com/gin-contrib/sse v1.1.1 // indirect
+	github.com/gin-contrib/static v1.1.6 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.30.1 // indirect
-	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/go-playground/validator/v10 v10.30.2 // indirect
+	github.com/goccy/go-json v0.10.6 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
@@ -110,16 +110,16 @@ require (
 	github.com/multiformats/go-multistream v0.6.1 // indirect
 	github.com/multiformats/go-varint v0.1.0 // indirect
 	github.com/multiversx/concurrent-map v0.1.4 // indirect
-	github.com/multiversx/mx-chain-communication-go v1.3.3-0.20260722100624-0eac5358e816 // indirect
-	github.com/multiversx/mx-chain-crypto-go v1.3.2-0.20260713100639-c3cf05776cb6 // indirect
-	github.com/multiversx/mx-chain-es-indexer-go v1.10.3-0.20260723124531-43479b3571e7 // indirect
-	github.com/multiversx/mx-chain-scenario-go v1.7.1-0.20260713104347-ca02e230558e // indirect
-	github.com/multiversx/mx-chain-vm-common-go v1.6.8-0.20260713100832-23aa4c20accd // indirect
+	github.com/multiversx/mx-chain-communication-go v1.4.0 // indirect
+	github.com/multiversx/mx-chain-crypto-go v1.3.2 // indirect
+	github.com/multiversx/mx-chain-es-indexer-go v1.10.3 // indirect
+	github.com/multiversx/mx-chain-scenario-go v1.8.0 // indirect
+	github.com/multiversx/mx-chain-vm-common-go v1.7.1 // indirect
 	github.com/multiversx/mx-chain-vm-go v1.6.1-0.20260713104624-30365d1f62e0 // indirect
-	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.70-0.20260713104734-692938905e51 // indirect
-	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.71-0.20260713104815-e09ce0effc4a // indirect
-	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.100-0.20260713105015-b7543e66e0d5 // indirect
-	github.com/multiversx/mx-components-big-int v1.1.1-0.20260507134206-ffc95520dc6d // indirect
+	github.com/multiversx/mx-chain-vm-v1_2-go v1.2.70 // indirect
+	github.com/multiversx/mx-chain-vm-v1_3-go v1.3.71 // indirect
+	github.com/multiversx/mx-chain-vm-v1_4-go v1.4.100 // indirect
+	github.com/multiversx/mx-components-big-int v1.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
@@ -165,7 +165,7 @@ require (
 	github.com/whyrusleeping/timecache v0.0.0-20160911033111-cfcb2f1abfee // indirect
 	github.com/wlynxg/anet v0.0.5 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
+	go.mongodb.org/mongo-driver/v2 v2.5.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel v1.43.0 // indirect
 	go.opentelemetry.io/otel/metric v1.43.0 // indirect
