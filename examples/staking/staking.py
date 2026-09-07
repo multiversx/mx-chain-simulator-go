@@ -7,7 +7,7 @@ from typing import Any
 from multiversx_sdk import (Address, DelegationTransactionsOutcomeParser,
                             ProxyNetworkProvider, TransactionOnNetwork,
                             TransactionsFactoryConfig,
-                            TransferTransactionsFactory, UserSecretKey)
+                            TransferTransactionsFactory, UserSecretKey, NetworkProviderConfig)
 
 SIMULATOR_URL = "http://localhost:8085"
 INITIAL_WALLETS_URL = "simulator/initial-wallets"
@@ -18,8 +18,10 @@ GENERATE_BLOCKS_UNTIL_TX_PROCESSED = "simulator/generate-blocks-until-transactio
 parent_directory = Path(__file__).parent
 
 def main():
+    # create a network provider config to increase timeout
+    config = NetworkProviderConfig(requests_options={"timeout": 10})
     # create a network provider
-    provider = ProxyNetworkProvider(SIMULATOR_URL)
+    provider = ProxyNetworkProvider(url=SIMULATOR_URL, config=config)
 
     key = UserSecretKey.generate()
     address = key.generate_public_key().to_address("erd")
