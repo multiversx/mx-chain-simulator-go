@@ -9,7 +9,7 @@ NETWORK_STATUS_URL = "network/status/4294967295"
 
 def main():
     # create a network provider config to increase timeout
-    config = NetworkProviderConfig(requests_options={"timeout": 10})
+    config = NetworkProviderConfig(requests_options={"timeout": 200})
 
     # create a network provider
     provider = ProxyNetworkProvider(url=SIMULATOR_URL, config=config)

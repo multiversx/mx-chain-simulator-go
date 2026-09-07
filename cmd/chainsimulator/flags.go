@@ -4,8 +4,9 @@ import (
 	"time"
 
 	logger "github.com/multiversx/mx-chain-logger-go"
-	"github.com/multiversx/mx-chain-simulator-go/config"
 	"github.com/urfave/cli"
+
+	"github.com/multiversx/mx-chain-simulator-go/config"
 )
 
 const nodeOverrideDefaultFilename = "nodeOverrideDefault.toml"
@@ -66,6 +67,11 @@ var (
 		Usage: "The number of rounds per epoch",
 		Value: 20,
 	}
+	supernovaRoundsPerEpoch = cli.IntFlag{
+		Name:  "supernova-rounds-per-epoch",
+		Usage: "The number of rounds per epoch after supernova",
+		Value: 200,
+	}
 	numOfShards = cli.IntFlag{
 		Name:  "num-of-shards",
 		Usage: "The number of shards",
@@ -81,9 +87,27 @@ var (
 		Usage: "The round duration in milliseconds",
 		Value: 6000,
 	}
+	supernovaRoundDurationInMs = cli.IntFlag{
+		Name:  "supernova-round-duration",
+		Usage: "The round duration in milliseconds after supernova",
+		Value: 600,
+	}
 	bypassTransactionsSignature = cli.BoolTFlag{
 		Name:  "bypass-txs-signature",
 		Usage: "This flag is used to bypass the transactions signature verification (by default true)",
+	}
+	bypassBlocksSignature = cli.BoolTFlag{
+		Name:  "bypass-blocks-signature",
+		Usage: "This flag is used to bypass the blocks signature verification (by default true)",
+	}
+	bypassCreateBlockTimeCheck = cli.BoolTFlag{
+		Name:  "bypass-create-block-time-check",
+		Usage: "This flag is used to bypass the create block time check (by default true)",
+	}
+	createBlockMaxTimePercent = cli.Float64Flag{
+		Name:  "create-block-max-time-percent",
+		Usage: "The max time percent of round duration to create block (by default 25%)",
+		Value: 0.25,
 	}
 	numValidatorsPerShard = cli.IntFlag{
 		Name:  "num-validators-per-shard",
@@ -137,11 +161,19 @@ var (
 		Name:  "fetch-configs-and-close",
 		Usage: "This flag is used to specify to fetch all configs and close the chain simulator after",
 	}
+	enableProfiling = cli.BoolFlag{
+		Name:  "enable-profiling",
+		Usage: "Boolean option for enabling CPU profiling. If set, CPU profile will be saved to a file.",
+	}
 )
 
 func applyFlags(ctx *cli.Context, cfg *config.Config) {
 	if ctx.IsSet(roundsPerEpoch.Name) {
 		cfg.Config.Simulator.RoundsPerEpoch = ctx.GlobalInt(roundsPerEpoch.Name)
+	}
+
+	if ctx.IsSet(supernovaRoundsPerEpoch.Name) {
+		cfg.Config.Simulator.SupernovaRoundsPerEpoch = ctx.GlobalInt(supernovaRoundsPerEpoch.Name)
 	}
 
 	if ctx.IsSet(numOfShards.Name) {
@@ -154,6 +186,10 @@ func applyFlags(ctx *cli.Context, cfg *config.Config) {
 
 	if ctx.IsSet(roundDurationInMs.Name) {
 		cfg.Config.Simulator.RoundDurationInMs = ctx.GlobalInt(roundDurationInMs.Name)
+	}
+
+	if ctx.IsSet(supernovaRoundDurationInMs.Name) {
+		cfg.Config.Simulator.SupernovaRoundDurationInMs = ctx.GlobalInt(supernovaRoundDurationInMs.Name)
 	}
 
 	if ctx.IsSet(initialRound.Name) {
